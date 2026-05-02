@@ -48,6 +48,7 @@ export default function RootLayout() {
         <Stack.Screen name="cartoons" />
         <Stack.Screen name="quick-match" />
         <Stack.Screen name="farm-game" />
+        <Stack.Screen name="drag-match" />
       </Stack>
       <StatusBar style="auto" />
     </AppProvider>

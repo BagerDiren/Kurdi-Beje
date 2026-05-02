@@ -1,19 +1,57 @@
-import { View, Text, Pressable, StyleSheet } from "react-native";
+import { View, Text, Pressable, StyleSheet, Image, Dimensions } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
 import { router } from "expo-router";
 import { SafeAreaView } from "react-native-safe-area-context";
+import Animated, {
+  useSharedValue, useAnimatedStyle, withRepeat, withSequence, withTiming, Easing,
+} from "react-native-reanimated";
+import { useEffect } from "react";
 
 import { KidCharacter } from "@/components/kids/kid-character";
 import { KIDS_THEME, RADIUS, SHADOW, SPACING, TYPO } from "@/components/kids/design";
 import { useApp } from "@/data/app-context";
 
+const { width: SW } = Dimensions.get("window");
+
 /**
- * Yaş grubu seçimi — premium tasarım sistemi.
- * Çocuk → renkli/oyunlu mod
- * Yetişkin → profesyonel mod (kategori sistemi)
+ * Yaş grubu seçimi — Lingokids tarzı zengin görselli kartlar.
+ *
+ * Çocuk kartı: pembe gradient + Pexels mutlu çocuk fotoğrafı
+ *               + Kevo karakteri overlay + 4 özellik chip
+ * Yetişkin kartı: yeşil gradient + Pexels öğrenme/kitap fotoğrafı
+ *                 + sofistike "Yetişkin" simgesi + 4 özellik chip
  */
+
+// Telifsiz Pexels — çocuk eğlenceli illustrasyon ve yetişkin öğrenme
+const KID_PHOTO   = "https://images.pexels.com/photos/8612967/pexels-photo-8612967.jpeg?auto=compress&cs=tinysrgb&w=600";
+const ADULT_PHOTO = "https://images.pexels.com/photos/3768132/pexels-photo-3768132.jpeg?auto=compress&cs=tinysrgb&w=600";
+
 export default function ModeScreen() {
   const { age, setAge, setLvl } = useApp();
+
+  // Sürekli arka plan emoji animasyonu
+  const float1 = useSharedValue(0);
+  const float2 = useSharedValue(0);
+
+  useEffect(() => {
+    float1.value = withRepeat(
+      withSequence(
+        withTiming(-12, { duration: 1500, easing: Easing.inOut(Easing.sin) }),
+        withTiming(0, { duration: 1500, easing: Easing.inOut(Easing.sin) }),
+      ),
+      -1, false,
+    );
+    float2.value = withRepeat(
+      withSequence(
+        withTiming(0, { duration: 1700, easing: Easing.inOut(Easing.sin) }),
+        withTiming(-14, { duration: 1700, easing: Easing.inOut(Easing.sin) }),
+      ),
+      -1, false,
+    );
+  }, []);
+
+  const f1 = useAnimatedStyle(() => ({ transform: [{ translateY: float1.value }] }));
+  const f2 = useAnimatedStyle(() => ({ transform: [{ translateY: float2.value }] }));
 
   const continueFlow = () => {
     if (!age) return;
@@ -32,44 +70,60 @@ export default function ModeScreen() {
         style={StyleSheet.absoluteFillObject}
       />
 
+      {/* Dekoratif yüzen emoji'ler */}
+      <Animated.Text style={[styles.deco, { top: 60, left: 30 }, f1]}>🎈</Animated.Text>
+      <Animated.Text style={[styles.deco, { top: 90, right: 40 }, f2]}>⭐</Animated.Text>
+      <Animated.Text style={[styles.deco, { top: 200, left: 16, fontSize: 24 }, f2]}>✨</Animated.Text>
+      <Animated.Text style={[styles.deco, { top: 180, right: 20, fontSize: 24 }, f1]}>🌟</Animated.Text>
+
       <SafeAreaView style={styles.safe}>
-        {/* Üst: Kevo selamlıyor */}
-        <View style={styles.heroSlot}>
-          <KidCharacter character="kevo" size={110} bounce />
+        {/* Üst başlık */}
+        <View style={styles.header}>
+          <KidCharacter character="kevo" size={80} bounce />
+          <Text style={styles.title}>Sen kimsin?</Text>
+          <Text style={styles.subtitle}>Sana özel bir öğrenme deneyimi hazırlayalım</Text>
         </View>
 
-        <View style={styles.titleBlock}>
-          <Text style={styles.title}>Senin için en iyi{"\n"}deneyimi seç!</Text>
-          <Text style={styles.sub}>Yaş grubuna göre uygulama kişiselleşir</Text>
-        </View>
-
-        {/* 2 mod kartı */}
+        {/* 2 Kart YAN YANA TAM EKRAN */}
         <View style={styles.cards}>
+          {/* === ÇOCUK === */}
           <ModeCard
+            isActive={age === "child"}
+            onPress={() => setAge("child")}
             label="Çocuk"
             sublabel="4 - 12 yaş"
             description="Renkli oyunlar, çizgi filmler, şarkılar"
-            emoji="🧒"
-            features={["🎮", "🎨", "🎵", "📺"]}
-            isActive={age === "child"}
-            color={KIDS_THEME.primary}
-            colorDark={KIDS_THEME.primaryDark}
-            onPress={() => setAge("child")}
+            features={[
+              { emoji: "🎮", text: "Oyunlar" },
+              { emoji: "📺", text: "Çizgi" },
+              { emoji: "🎵", text: "Şarkı" },
+              { emoji: "🎨", text: "Renkli" },
+            ]}
+            photo={KID_PHOTO}
+            color1="#FF6B9D"
+            color2="#E91E63"
+            characterEmoji="🧒"
           />
+
+          {/* === YETİŞKİN === */}
           <ModeCard
+            isActive={age === "adult"}
+            onPress={() => setAge("adult")}
             label="Yetişkin"
             sublabel="13+ yaş"
             description="Yapılandırılmış dersler, kategoriler, lig"
-            emoji="🧑"
-            features={["📚", "🏆", "🎯", "📊"]}
-            isActive={age === "adult"}
-            color={KIDS_THEME.green}
-            colorDark={KIDS_THEME.greenDark}
-            onPress={() => setAge("adult")}
+            features={[
+              { emoji: "📚", text: "Dersler" },
+              { emoji: "🏆", text: "Lig" },
+              { emoji: "🎯", text: "Hedef" },
+              { emoji: "📊", text: "İlerleme" },
+            ]}
+            photo={ADULT_PHOTO}
+            color1="#43A571"
+            color2="#1B5E20"
+            characterEmoji="🧑"
           />
         </View>
-
-        <View style={{ flex: 1 }} />
 
         {/* CTA */}
         <Pressable
@@ -78,16 +132,16 @@ export default function ModeScreen() {
           style={({ pressed }) => [
             styles.cta,
             !age && { opacity: 0.4 },
-            age && SHADOW(age === "child" ? KIDS_THEME.primary : KIDS_THEME.green, "lg"),
+            age && SHADOW(age === "child" ? "#FF6B9D" : "#43A571", "lg"),
             pressed && age && { transform: [{ scale: 0.97 }] },
           ]}
         >
           <LinearGradient
             colors={
               age === "child"
-                ? [KIDS_THEME.primary, KIDS_THEME.primaryDark] as unknown as readonly [string, string, ...string[]]
+                ? ["#FF6B9D", "#E91E63"] as unknown as readonly [string, string, ...string[]]
                 : age === "adult"
-                ? [KIDS_THEME.green, KIDS_THEME.greenDark] as unknown as readonly [string, string, ...string[]]
+                ? ["#43A571", "#1B5E20"] as unknown as readonly [string, string, ...string[]]
                 : ["#CCC", "#AAA"] as unknown as readonly [string, string, ...string[]]
             }
             start={{ x: 0, y: 0 }}
@@ -106,107 +160,169 @@ export default function ModeScreen() {
 }
 
 // =====================================================================
-//  MOD KARTI
+//  MOD KARTI - büyük, foto'lu, gradient'li
 // =====================================================================
 function ModeCard({
-  label, sublabel, description, emoji, features, isActive, color, colorDark, onPress,
+  isActive, onPress, label, sublabel, description, features, photo, color1, color2, characterEmoji,
 }: {
-  label: string;
-  sublabel: string;
-  description: string;
-  emoji: string;
-  features: string[];
-  isActive: boolean;
-  color: string;
-  colorDark: string;
-  onPress: () => void;
+  isActive: boolean; onPress: () => void;
+  label: string; sublabel: string; description: string;
+  features: { emoji: string; text: string }[];
+  photo: string; color1: string; color2: string;
+  characterEmoji: string;
 }) {
   return (
     <Pressable
       onPress={onPress}
       style={({ pressed }) => [
         styles.card,
+        SHADOW(isActive ? color1 : "#000", isActive ? "lg" : "md"),
         {
-          borderColor: isActive ? color : "rgba(0,0,0,0.06)",
-          borderWidth: isActive ? 3 : 1.5,
-          backgroundColor: isActive ? color + "10" : KIDS_THEME.card,
           transform: [{ scale: isActive ? 1.02 : pressed ? 0.98 : 1 }],
+          borderColor: isActive ? color1 : "rgba(0,0,0,0.06)",
+          borderWidth: isActive ? 4 : 2,
         },
-        isActive ? SHADOW(color, "md") : SHADOW("#000", "sm"),
       ]}
     >
-      <View style={[styles.cardIcon, { backgroundColor: isActive ? color : color + "22" }]}>
-        <Text style={{ fontSize: 36 }}>{emoji}</Text>
-      </View>
+      {/* Foto bg */}
+      <Image source={{ uri: photo }} style={styles.cardPhoto} resizeMode="cover" />
 
-      <View style={{ flex: 1 }}>
-        <Text style={[styles.cardLabel, { color: isActive ? color : KIDS_THEME.ink }]}>{label}</Text>
-        <Text style={styles.cardSub}>{sublabel}</Text>
-        <Text style={styles.cardDesc} numberOfLines={2}>{description}</Text>
-        <View style={styles.cardTags}>
+      {/* Gradient overlay */}
+      <LinearGradient
+        colors={[color1 + "77", color2 + "DD"] as unknown as readonly [string, string, ...string[]]}
+        style={StyleSheet.absoluteFillObject}
+      />
+
+      {/* İçerik */}
+      <View style={styles.cardContent}>
+        {/* Üst: ikon + label */}
+        <View style={styles.cardTop}>
+          <View style={styles.cardEmojiCircle}>
+            <Text style={{ fontSize: 32 }}>{characterEmoji}</Text>
+          </View>
+          {isActive && (
+            <View style={styles.checkBadge}>
+              <Text style={{ color: color1, fontSize: 16, fontFamily: "Fredoka_700Bold" }}>✓</Text>
+            </View>
+          )}
+        </View>
+
+        {/* Orta: title + desc */}
+        <View style={{ flex: 1 }}>
+          <Text style={styles.cardLabel}>{label}</Text>
+          <Text style={styles.cardSublabel}>{sublabel}</Text>
+          <Text style={styles.cardDesc}>{description}</Text>
+        </View>
+
+        {/* Alt: features */}
+        <View style={styles.cardFeatures}>
           {features.map((f, i) => (
-            <View key={i} style={[styles.cardTag, { backgroundColor: isActive ? color + "22" : "#0000000A" }]}>
-              <Text style={{ fontSize: 14 }}>{f}</Text>
+            <View key={i} style={styles.cardFeature}>
+              <Text style={{ fontSize: 16 }}>{f.emoji}</Text>
+              <Text style={styles.cardFeatureText}>{f.text}</Text>
             </View>
           ))}
         </View>
       </View>
-
-      {isActive && (
-        <View style={[styles.cardCheck, { backgroundColor: color }]}>
-          <Text style={{ color: "#fff", fontFamily: "Fredoka_700Bold", fontSize: 14 }}>✓</Text>
-        </View>
-      )}
     </Pressable>
   );
 }
 
 const styles = StyleSheet.create({
   root: { flex: 1, backgroundColor: KIDS_THEME.bg },
-  safe: { flex: 1, paddingHorizontal: SPACING.xl, paddingTop: SPACING.xl, paddingBottom: SPACING.lg },
+  safe: { flex: 1, paddingHorizontal: SPACING.lg, paddingTop: SPACING.lg, paddingBottom: SPACING.lg },
 
-  heroSlot: { alignItems: "center", marginBottom: SPACING.lg },
+  deco: { position: "absolute", fontSize: 32, opacity: 0.85 },
 
-  titleBlock: { alignItems: "center", gap: 6, marginBottom: SPACING.xl },
-  title: {
-    ...TYPO.display,
-    color: KIDS_THEME.ink,
-    textAlign: "center",
-    lineHeight: 32,
-  },
-  sub: {
-    ...TYPO.body,
-    color: KIDS_THEME.smoke,
-    textAlign: "center",
-  },
+  header: { alignItems: "center", marginBottom: SPACING.lg, gap: 8 },
+  title: { ...TYPO.display, color: KIDS_THEME.ink, textAlign: "center", marginTop: 4 },
+  subtitle: { ...TYPO.body, color: KIDS_THEME.smoke, textAlign: "center" },
 
-  cards: { gap: SPACING.md },
-  card: {
+  cards: {
+    flex: 1,
     flexDirection: "row",
     gap: SPACING.md,
-    padding: SPACING.lg,
-    borderRadius: RADIUS.xl,
-    alignItems: "center",
-  },
-  cardIcon: {
-    width: 72, height: 72, borderRadius: RADIUS.lg,
-    alignItems: "center", justifyContent: "center",
-  },
-  cardLabel: { ...TYPO.h1 },
-  cardSub: { ...TYPO.caption, color: KIDS_THEME.smoke, marginTop: 2 },
-  cardDesc: { ...TYPO.body, color: KIDS_THEME.graphite, marginTop: 6, lineHeight: 18 },
-  cardTags: { flexDirection: "row", gap: 6, marginTop: 8 },
-  cardTag: {
-    width: 30, height: 30, borderRadius: 10,
-    alignItems: "center", justifyContent: "center",
-  },
-  cardCheck: {
-    width: 32, height: 32, borderRadius: 16,
-    alignItems: "center", justifyContent: "center",
+    marginVertical: SPACING.md,
   },
 
+  // Kart — TAM ekran yükseklik
+  card: {
+    flex: 1,
+    borderRadius: RADIUS.xl,
+    overflow: "hidden",
+    backgroundColor: KIDS_THEME.card,
+    minHeight: 380,
+  },
+  cardPhoto: {
+    ...StyleSheet.absoluteFillObject,
+    width: "100%",
+    height: "100%",
+  },
+  cardContent: {
+    flex: 1,
+    padding: SPACING.md,
+    justifyContent: "space-between",
+  },
+  cardTop: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "flex-start",
+  },
+  cardEmojiCircle: {
+    width: 56, height: 56, borderRadius: 28,
+    backgroundColor: "rgba(255,255,255,0.95)",
+    alignItems: "center", justifyContent: "center",
+    borderWidth: 2, borderColor: "rgba(255,255,255,0.6)",
+  },
+  checkBadge: {
+    width: 32, height: 32, borderRadius: 16,
+    backgroundColor: "#fff",
+    alignItems: "center", justifyContent: "center",
+  },
+  cardLabel: {
+    ...TYPO.display,
+    color: "#fff",
+    fontSize: 24,
+    textShadowColor: "rgba(0,0,0,0.4)",
+    textShadowOffset: { width: 0, height: 2 },
+    textShadowRadius: 6,
+  },
+  cardSublabel: {
+    ...TYPO.body,
+    color: "rgba(255,255,255,0.95)",
+    marginTop: 2,
+    textShadowColor: "rgba(0,0,0,0.3)",
+    textShadowOffset: { width: 0, height: 1 },
+    textShadowRadius: 4,
+  },
+  cardDesc: {
+    ...TYPO.bodyReg,
+    color: "rgba(255,255,255,0.95)",
+    marginTop: 8,
+    lineHeight: 18,
+    textShadowColor: "rgba(0,0,0,0.3)",
+    textShadowOffset: { width: 0, height: 1 },
+    textShadowRadius: 3,
+  },
+  cardFeatures: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    gap: 6,
+    marginTop: SPACING.md,
+  },
+  cardFeature: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 4,
+    backgroundColor: "rgba(255,255,255,0.95)",
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 10,
+  },
+  cardFeatureText: { ...TYPO.caption, color: KIDS_THEME.ink, fontSize: 10 },
+
   // CTA
-  cta: { borderRadius: RADIUS.xl, overflow: "hidden" },
+  cta: { borderRadius: RADIUS.xl, overflow: "hidden", marginTop: SPACING.md },
   ctaGrad: {
     flexDirection: "row",
     alignItems: "center",

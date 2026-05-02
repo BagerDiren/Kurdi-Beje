@@ -473,19 +473,11 @@ function ChildHome() {
 
           <View style={kidStyles.gameRow}>
             <GameTile
-              emoji="🎯" title="Hızlı Eşleştirme" sub="30 saniye"
-              colors={[KIDS_THEME.green, KIDS_THEME.greenDark]}
-              onPress={() => {
-                setActiveCategory(KIDS_CATEGORIES[0].key as never);
-                router.push("/quick-match" as never);
-              }}
-            />
-            <GameTile
-              emoji="🎈" title="Balon Patlatma" sub="5 raund"
+              emoji="🎯" title="Sürükle & Eşleştir" sub="Drag & Drop"
               colors={[KIDS_THEME.primary, KIDS_THEME.primaryDark]}
               onPress={() => {
                 setActiveCategory(KIDS_CATEGORIES[0].key as never);
-                router.push("/balloon-game" as never);
+                router.push("/drag-match" as never);
               }}
             />
             <GameTile
