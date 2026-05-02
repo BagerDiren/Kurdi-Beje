@@ -1,7 +1,6 @@
 import { View, Pressable, Text, StyleSheet } from "react-native";
 import { router } from "expo-router";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { GestureHandlerRootView } from "react-native-gesture-handler";
 
 import { DragMatchGame } from "@/components/kids/drag-match-game";
 import { useApp } from "@/data/app-context";
@@ -18,17 +17,15 @@ export default function DragMatchScreen() {
   };
 
   return (
-    <GestureHandlerRootView style={{ flex: 1 }}>
-      <SafeAreaView style={styles.safe} edges={["top"]}>
-        <View style={styles.topBar}>
-          <Pressable onPress={() => router.back()} hitSlop={12} style={styles.backBtn}>
-            <Text style={{ fontSize: 26, color: KIDS_THEME.ink, fontFamily: "Fredoka_700Bold" }}>‹</Text>
-          </Pressable>
-          <Text style={styles.title}>🎯 Sürükle & Eşleştir</Text>
-        </View>
-        <DragMatchGame category={cat} onDone={onDone} />
-      </SafeAreaView>
-    </GestureHandlerRootView>
+    <SafeAreaView style={styles.safe} edges={["top"]}>
+      <View style={styles.topBar}>
+        <Pressable onPress={() => router.back()} hitSlop={12} style={styles.backBtn}>
+          <Text style={{ fontSize: 26, color: KIDS_THEME.ink, fontFamily: "Fredoka_700Bold" }}>‹</Text>
+        </Pressable>
+        <Text style={styles.title}>🎯 Sürükle & Eşleştir</Text>
+      </View>
+      <DragMatchGame category={cat} onDone={onDone} />
+    </SafeAreaView>
   );
 }
 

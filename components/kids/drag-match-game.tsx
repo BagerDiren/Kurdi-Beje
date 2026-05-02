@@ -1,21 +1,11 @@
 /**
- * 🎯 SÜRÜKLE & EŞLEŞTİR — TRT Çocuk tarzı animasyonlu oyun.
+ * 🎯 SÜRÜKLE & EŞLEŞTİR — TRT Çocuk seviyesi animasyonlu oyun.
  *
- * Mekanik:
- *  • Üstte 4 büyük foto kartı (boş slot)
- *  • Altta 4 Kürtçe kelime kartı
- *  • Çocuk kelime kartını foto üstüne SÜRÜKLER
- *  • Doğru: kart sıkışır animasyonla foto'nun altına yerleşir +
- *           "Aferin!" sesi + confetti + Kürtçe ad sesli okunur
- *  • Yanlış: kart başlangıç yerine kayar geri gelir + shake
- *  • 4 doğru tamamlanınca → tebrik + +XP
- *
- * Görsel: TRT Çocuk seviyesi:
- *  • Renkli pastel arka plan
- *  • Foto slot'ları büyük, gölge/glow efektli
- *  • Kelime kartları yumuşak gradient pill
- *  • Sürükleme sırasında kart 1.1x scale (havalandı hissi)
- *  • Doğru drop noktasında foto pulse glow yapar
+ * Stable v2:
+ *  • react-native-gesture-handler Pan ile drag
+ *  • Reanimated sharedValue + spring (kart başlangıç yerine geri döner)
+ *  • 2x2 hedef grid + 4 sürüklenebilir kart
+ *  • measureInWindow ile gerçek slot konumu
  */
 import { useEffect, useState, useRef } from "react";
 import { View, Text, StyleSheet, Image, Dimensions } from "react-native";
@@ -24,7 +14,7 @@ import { GestureDetector, Gesture } from "react-native-gesture-handler";
 import * as Haptics from "expo-haptics";
 import Animated, {
   useSharedValue, useAnimatedStyle, withSpring, withTiming,
-  withSequence, withDelay, runOnJS, Easing,
+  withSequence, runOnJS,
 } from "react-native-reanimated";
 
 import { Confetti } from "./confetti";
@@ -33,63 +23,94 @@ import { KIDS_THEME, RADIUS, SHADOW, SPACING, TYPO } from "./design";
 import { KidCharacter } from "./kid-character";
 import type { KidsCategory, KidsWord } from "@/data/kids-content";
 
-const { width: SW, height: SH } = Dimensions.get("window");
+const { width: SW } = Dimensions.get("window");
+const GRID_SIZE = 4;
+const SLOT_W = (SW - SPACING.lg * 2 - SPACING.sm) / 2 - 2;
+const SLOT_H = SLOT_W * 0.85;
+const CARD_H = 60;
 
 type Props = {
   category: KidsCategory;
   onDone: (xp: number) => void;
 };
 
-const GRID_SIZE = 4; // 2x2 grid
-const SLOT_W = (SW - SPACING.lg * 2 - SPACING.sm) / 2 - 2;
-const SLOT_H = SLOT_W * 0.85;
-
 export function DragMatchGame({ category, onDone }: Props) {
-  // Round için 4 kelime seç
-  const [round, setRound] = useState<{ words: KidsWord[]; matched: Set<string> }>(() => ({
+  const [round] = useState(() => ({
     words: [...category.words].sort(() => Math.random() - 0.5).slice(0, GRID_SIZE),
-    matched: new Set(),
   }));
-  // Sürüklenebilir kartların shuffled order'i
-  const [shuffledWords, setShuffledWords] = useState<KidsWord[]>(() =>
-    [...round.words].sort(() => Math.random() - 0.5),
-  );
+  const [shuffled] = useState(() => [...round.words].sort(() => Math.random() - 0.5));
+  const [matched, setMatched] = useState<Set<string>>(new Set());
   const [confetti, setConfetti] = useState(false);
   const [done, setDone] = useState(false);
 
-  // Slot pozisyonları (üstte 2x2 grid)
-  const slotPositions = useRef<{ x: number; y: number; w: number; h: number; word: KidsWord }[]>([]);
+  // Slot pozisyonlarını tutar (window-relative)
+  const slotRefs = useRef<View[]>(new Array(GRID_SIZE));
+  const slotBoxes = useRef<{ x: number; y: number; w: number; h: number }[]>(
+    new Array(GRID_SIZE).fill({ x: 0, y: 0, w: 0, h: 0 }),
+  );
 
-  const onSlotLayout = (idx: number, word: KidsWord) => (e: any) => {
-    const { x, y, width, height } = e.nativeEvent.layout;
-    // pageY için absoluteX/Y hesabı zor — relative pozisyon kullan
-    slotPositions.current[idx] = { x, y, w: width, h: height, word };
+  // Kart pozisyonlarını tutar (window-relative — drop hesabı için)
+  const cardRefs = useRef<View[]>(new Array(GRID_SIZE));
+  const cardBoxes = useRef<{ x: number; y: number; w: number; h: number }[]>(
+    new Array(GRID_SIZE).fill({ x: 0, y: 0, w: 0, h: 0 }),
+  );
+
+  const measureSlot = (idx: number) => {
+    const ref = slotRefs.current[idx];
+    if (ref?.measureInWindow) {
+      ref.measureInWindow((x, y, w, h) => {
+        slotBoxes.current[idx] = { x, y, w, h };
+      });
+    }
   };
 
-  const matchAttempt = (cardWord: KidsWord, targetIdx: number) => {
-    const target = round.words[targetIdx];
-    if (cardWord.ku === target.ku) {
+  const measureCard = (idx: number) => {
+    const ref = cardRefs.current[idx];
+    if (ref?.measureInWindow) {
+      ref.measureInWindow((x, y, w, h) => {
+        cardBoxes.current[idx] = { x, y, w, h };
+      });
+    }
+  };
+
+  const handleMatch = (cardWord: KidsWord, cardIdx: number, dropX: number, dropY: number) => {
+    // Hangi slota düştü
+    let targetSlotIdx = -1;
+    for (let i = 0; i < GRID_SIZE; i++) {
+      const s = slotBoxes.current[i];
+      if (!s || s.w === 0) continue;
+      if (dropX >= s.x && dropX <= s.x + s.w && dropY >= s.y && dropY <= s.y + s.h) {
+        targetSlotIdx = i;
+        break;
+      }
+    }
+    if (targetSlotIdx === -1) return false;
+
+    const targetWord = round.words[targetSlotIdx];
+    if (cardWord.ku === targetWord.ku) {
       // DOĞRU
       playFx("success");
       try { Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success); } catch {}
-      const newMatched = new Set(round.matched);
-      newMatched.add(cardWord.ku);
-      setRound({ ...round, matched: newMatched });
+      setMatched((prev) => {
+        const next = new Set(prev);
+        next.add(cardWord.ku);
+        if (next.size === GRID_SIZE) {
+          setTimeout(() => setDone(true), 1200);
+        }
+        return next;
+      });
       setConfetti(true);
       setTimeout(() => setConfetti(false), 1300);
-      // Kürtçe kelimeyi sesli oku
       setTimeout(() => speakKurmanci(cardWord.ku, "kid"), 200);
-      // Hepsi doğru ise bitir
-      if (newMatched.size === GRID_SIZE) {
-        setTimeout(() => setDone(true), 1500);
-      }
       return true;
+    } else {
+      playFx("fail");
+      try { Haptics.notificationAsync(Haptics.NotificationFeedbackType.Warning); } catch {}
+      return false;
     }
-    playFx("fail");
-    return false;
   };
 
-  // Bitiş
+  // Bitiş ekranı
   if (done) {
     const xp = GRID_SIZE * 8;
     return (
@@ -121,13 +142,12 @@ export function DragMatchGame({ category, onDone }: Props) {
             <Text style={styles.doneCtaText}>+{xp} XP topla 🚀</Text>
           </View>
         </View>
-        <Confetti visible={confetti} count={50} />
       </View>
     );
   }
 
   return (
-    <View style={[styles.root]}>
+    <View style={styles.root}>
       <LinearGradient
         colors={["#FFE0EC", "#FFF4DC", "#E1F5FE"] as unknown as readonly [string, string, ...string[]]}
         style={StyleSheet.absoluteFillObject}
@@ -135,27 +155,25 @@ export function DragMatchGame({ category, onDone }: Props) {
 
       {/* Talimat */}
       <View style={[styles.instruction, SHADOW("#000", "sm")]}>
-        <Text style={{ fontSize: 22 }}>👆</Text>
-        <Text style={styles.instructionText}>
-          Doğru kelimeyi resme sürükle!
-        </Text>
+        <Text style={{ fontSize: 24 }}>👆</Text>
+        <Text style={styles.instructionText}>Doğru kelimeyi resme sürükle</Text>
         <View style={[styles.scoreCard, { backgroundColor: KIDS_THEME.primarySoft }]}>
-          <Text style={{ fontSize: 16 }}>✓</Text>
           <Text style={[styles.scoreText, { color: KIDS_THEME.primaryDark }]}>
-            {round.matched.size}/{GRID_SIZE}
+            {matched.size}/{GRID_SIZE}
           </Text>
         </View>
       </View>
 
-      {/* SLOT GRID (üstte 2x2 foto) */}
+      {/* SLOT GRID */}
       <View style={styles.slotsArea}>
         <View style={styles.slotsGrid}>
           {round.words.map((w, i) => {
-            const isMatched = round.matched.has(w.ku);
+            const isMatched = matched.has(w.ku);
             return (
               <View
                 key={w.ku}
-                onLayout={onSlotLayout(i, w)}
+                ref={(r) => { if (r) slotRefs.current[i] = r as any; }}
+                onLayout={() => measureSlot(i)}
                 style={[
                   styles.slot,
                   { borderColor: isMatched ? KIDS_THEME.success : category.color },
@@ -185,23 +203,27 @@ export function DragMatchGame({ category, onDone }: Props) {
         </View>
       </View>
 
-      {/* SÜRÜKLENEBİLİR KARTLAR (alt) */}
+      {/* SÜRÜKLENEBİLİR KARTLAR */}
       <View style={styles.cardsArea}>
-        {shuffledWords.map((w, i) => {
-          if (round.matched.has(w.ku)) {
-            return <View key={w.ku} style={styles.cardPlaceholder} />;
-          }
-          return (
-            <DraggableCard
-              key={w.ku}
-              word={w}
-              homeIdx={i}
-              color={category.color}
-              slotPositions={slotPositions.current}
-              onMatch={matchAttempt}
-            />
-          );
-        })}
+        {shuffled.map((w, i) => (
+          <View
+            key={w.ku}
+            ref={(r) => { if (r) cardRefs.current[i] = r as any; }}
+            onLayout={() => measureCard(i)}
+            style={styles.cardWrap}
+          >
+            {!matched.has(w.ku) ? (
+              <DraggableCard
+                word={w}
+                color={category.color}
+                cardBox={cardBoxes.current[i]}
+                onMatch={(dropX, dropY) => handleMatch(w, i, dropX, dropY)}
+              />
+            ) : (
+              <View style={styles.cardPlaceholder} />
+            )}
+          </View>
+        ))}
       </View>
 
       <Confetti visible={confetti} count={45} />
@@ -213,19 +235,16 @@ export function DragMatchGame({ category, onDone }: Props) {
 //  SÜRÜKLENEBİLİR KART
 // =====================================================================
 function DraggableCard({
-  word, homeIdx, color, slotPositions, onMatch,
+  word, color, cardBox, onMatch,
 }: {
   word: KidsWord;
-  homeIdx: number;
   color: string;
-  slotPositions: { x: number; y: number; w: number; h: number; word: KidsWord }[];
-  onMatch: (w: KidsWord, idx: number) => boolean;
+  cardBox: { x: number; y: number; w: number; h: number };
+  onMatch: (dropX: number, dropY: number) => boolean;
 }) {
   const tx = useSharedValue(0);
   const ty = useSharedValue(0);
   const scale = useSharedValue(1);
-  const opacity = useSharedValue(1);
-  const isDragging = useSharedValue(false);
 
   const reset = () => {
     tx.value = withSpring(0, { damping: 12 });
@@ -233,24 +252,15 @@ function DraggableCard({
     scale.value = withSpring(1, { damping: 10 });
   };
 
-  const tryMatch = (absX: number, absY: number) => {
-    // Slot bul
-    for (let i = 0; i < slotPositions.length; i++) {
-      const slot = slotPositions[i];
-      if (!slot) continue;
-      // Bu basit hit-test relative pozisyonlar üzerinden
-      // (slotPositions container'a göredir, basit overlap kontrolü yapacağız)
-      // Bu yaklaşıma uygun şekilde, her iki tarafın da ekran bazlı olması gerek
-      // Pragmatik: cardArea'nın yukarısındayız mı + hangi yatay slot
-    }
-    // Basit yaklaşım: drop'un Y'si üst kartlarda, X'e göre slot index belirle
-    const containerWidth = slotPositions[0]?.w ?? SW / 2;
-    return null;
+  const tryMatch = (translateX: number, translateY: number): boolean => {
+    // Kartın merkez konumu (window-relative)
+    const dropX = cardBox.x + cardBox.w / 2 + translateX;
+    const dropY = cardBox.y + cardBox.h / 2 + translateY;
+    return onMatch(dropX, dropY);
   };
 
   const gesture = Gesture.Pan()
     .onStart(() => {
-      isDragging.value = true;
       scale.value = withSpring(1.15, { damping: 8 });
     })
     .onUpdate((e) => {
@@ -258,36 +268,18 @@ function DraggableCard({
       ty.value = e.translationY;
     })
     .onEnd((e) => {
-      // Yukarı sürüklediyse ve x'e göre slot belirle
-      const dy = e.translationY;
-      const draggedUp = dy < -100; // en az 100px yukarı sürükleme
-      if (draggedUp) {
-        // Sol/sağ + üst/alt → slot index 0-3 (2x2 grid)
-        const dx = e.translationX;
-        const isLeft = dx < 0;
-        const isTop = dy < -250;
-        const slotIdx = (isTop ? 0 : 2) + (isLeft ? 0 : 1);
-
-        const matched = onMatch(word, slotIdx);
-        if (matched) {
-          // Kayar şekilde slot'a yerleş, sonra kaybol
-          opacity.value = withTiming(0, { duration: 400 });
-          scale.value = withTiming(0.5, { duration: 400 });
-        } else {
-          // Geri dön + shake
-          tx.value = withSequence(
-            withTiming(20, { duration: 80 }),
-            withTiming(-20, { duration: 80 }),
-            withTiming(0, { duration: 80 }),
-            withSpring(0, { damping: 10 }),
-          );
-          ty.value = withSpring(0, { damping: 12 });
-          scale.value = withSpring(1, { damping: 10 });
-        }
-      } else {
-        runOnJS(reset)();
-      }
-      isDragging.value = false;
+      const matched = runOnJS(tryMatch)(e.translationX, e.translationY);
+      // matched değeri dönüş runOnJS'den, ama bu side-effect; biz reset yaparız.
+      // Eğer eşleşme olduysa setMatched zaten state günceller, kart zaten kaybolur.
+      // Yoksa shake + reset:
+      tx.value = withSequence(
+        withTiming(15, { duration: 70 }),
+        withTiming(-15, { duration: 70 }),
+        withTiming(0, { duration: 70 }),
+        withSpring(0, { damping: 12 }),
+      );
+      ty.value = withSpring(0, { damping: 12 });
+      scale.value = withSpring(1, { damping: 10 });
     });
 
   const animStyle = useAnimatedStyle(() => ({
@@ -296,15 +288,11 @@ function DraggableCard({
       { translateY: ty.value },
       { scale: scale.value },
     ],
-    opacity: opacity.value,
-    zIndex: isDragging.value ? 1000 : 1,
   }));
 
   return (
     <GestureDetector gesture={gesture}>
-      <Animated.View
-        style={[styles.card, animStyle, SHADOW(color, "md")]}
-      >
+      <Animated.View style={[styles.card, animStyle, SHADOW(color, "md")]}>
         <LinearGradient
           colors={[color, color + "BB"] as unknown as readonly [string, string, ...string[]]}
           start={{ x: 0, y: 0 }}
@@ -322,7 +310,7 @@ const styles = StyleSheet.create({
   root: { flex: 1 },
 
   instruction: {
-    flexDirection: "row", alignItems: "center", gap: SPACING.md,
+    flexDirection: "row", alignItems: "center", gap: SPACING.sm,
     backgroundColor: "#fff",
     margin: SPACING.lg,
     padding: SPACING.md,
@@ -332,13 +320,11 @@ const styles = StyleSheet.create({
   },
   instructionText: { flex: 1, ...TYPO.bodyLg, color: KIDS_THEME.ink },
   scoreCard: {
-    flexDirection: "row", alignItems: "center", gap: 4,
-    paddingHorizontal: SPACING.sm, paddingVertical: 4,
+    paddingHorizontal: SPACING.md, paddingVertical: 6,
     borderRadius: 12,
   },
-  scoreText: { ...TYPO.body },
+  scoreText: { ...TYPO.h3 },
 
-  // Slot (foto)
   slotsArea: { paddingHorizontal: SPACING.lg, paddingBottom: SPACING.md },
   slotsGrid: {
     flexDirection: "row",
@@ -373,24 +359,33 @@ const styles = StyleSheet.create({
   },
   slotMatchedText: { ...TYPO.h3 },
 
-  // Sürüklenebilir kartlar
   cardsArea: {
     flexDirection: "row",
     flexWrap: "wrap",
     gap: SPACING.sm,
     justifyContent: "center",
     paddingHorizontal: SPACING.lg,
+    paddingTop: SPACING.lg,
     paddingBottom: SPACING.xl,
   },
-  card: {
+  cardWrap: {
     width: SLOT_W,
-    height: 64,
+    height: CARD_H,
+  },
+  card: {
+    width: "100%",
+    height: CARD_H,
     borderRadius: RADIUS.lg,
     overflow: "hidden",
   },
   cardPlaceholder: {
-    width: SLOT_W,
-    height: 64,
+    width: "100%",
+    height: CARD_H,
+    borderRadius: RADIUS.lg,
+    backgroundColor: "rgba(0,0,0,0.04)",
+    borderWidth: 2,
+    borderStyle: "dashed",
+    borderColor: "rgba(0,0,0,0.1)",
   },
   cardGrad: {
     flex: 1,
@@ -405,7 +400,6 @@ const styles = StyleSheet.create({
     textShadowRadius: 4,
   },
 
-  // Bitti
   doneBox: { flex: 1, alignItems: "center", justifyContent: "center", padding: SPACING.xl, gap: SPACING.md },
   doneTitle: { ...TYPO.hero, color: KIDS_THEME.primaryDark, marginTop: SPACING.md },
   doneSub: { ...TYPO.h2, color: KIDS_THEME.smoke },
