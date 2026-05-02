@@ -1,9 +1,10 @@
-import { createContext, useContext, useState, useCallback, type ReactNode } from "react";
+import { createContext, useContext, useState, useCallback, useEffect, type ReactNode } from "react";
 import { CHILD_THEME, ADULT_THEME, type AppTheme } from "./themes";
 import { T, type Translations } from "./translations";
 import { LESSONS, type Lesson, type LevelKey } from "./lessons";
 import type { LangCode } from "./languages";
-import type { CategoryKey } from "./categories";
+import { CATEGORIES, type CategoryKey } from "./categories";
+import { ACHIEVEMENTS } from "./achievements";
 
 type AgeMode = "child" | "adult" | null;
 type ScreenName =
@@ -75,7 +76,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const [lvl, setLvlState] = useState<LevelKey | null>(null);
   const [hearts, setHeartsState] = useState(5);
   const [xp, setXpState] = useState(0);
-  const [streak, setStreakState] = useState(1);
+  const [streak, setStreakState] = useState(0);
   const [tab, setTabState] = useState("learn");
   const [curLesson, setCurLesson] = useState<Lesson | null>(null);
   const [stepIdx, setStepIdx] = useState(0);
@@ -125,18 +126,24 @@ export function AppProvider({ children }: { children: ReactNode }) {
 
   const finishLesson = useCallback(() => {
     if (!curLesson) return;
-    setXpState(p => p + curLesson.xp);
-    setCompleted(p => p.includes(curLesson.id) ? p : [...p, curLesson.id]);
-    setLessonsToday(p => p + 1);
-
-    // === STREAK MANTIĞI ===
     const today = new Date().toISOString().slice(0, 10);
-    setStudyDates(p => p.includes(today) ? p : [...p, today].slice(-60));
+    const isFirstStudyEver = lastStudyDate === null;
+    const isNewDay = !isFirstStudyEver && lastStudyDate !== today;
+    const yesterday = new Date(Date.now() - 86400000).toISOString().slice(0, 10);
 
+    setXpState((p) => p + curLesson.xp);
+    setCompleted((p) => (p.includes(curLesson.id) ? p : [...p, curLesson.id]));
+    // Yeni güne geçtiyse günlük sayaçlar sıfırlanır
+    setLessonsToday((p) => (isNewDay ? 1 : p + 1));
+    if (isNewDay) setCorrectToday(0);
+
+    // Çalışılan gün listesine ekle (max 60 gün tut)
+    setStudyDates((p) => (p.includes(today) ? p : [...p, today].slice(-60)));
+
+    // Streak: ilk çalışma → 1, dün çalıştıysa → +1, aksi → 1'e resetle
     if (lastStudyDate !== today) {
-      setStreakState(prev => {
-        if (!lastStudyDate) return 1;
-        const yesterday = new Date(Date.now() - 86400000).toISOString().slice(0, 10);
+      setStreakState((prev) => {
+        if (isFirstStudyEver) return 1;
         if (lastStudyDate === yesterday) return prev + 1;
         return 1;
       });
@@ -181,6 +188,36 @@ export function AppProvider({ children }: { children: ReactNode }) {
       return [...prev, id];
     });
   }, []);
+
+  // === OTOMATİK MADALYA AÇMA ===
+  // xp / streak / completed değiştiğinde uygun madalyaları aç
+  useEffect(() => {
+    const lessonsCompleted = completed.length;
+    const categoriesCompleted = CATEGORIES.filter(
+      (c) => c.lessons.length > 0 && c.lessons.every((l) => completed.includes(l.id)),
+    ).length;
+
+    const newlyUnlocked: string[] = [];
+    let bonusXp = 0;
+
+    ACHIEVEMENTS.forEach((a) => {
+      if (unlockedAchievements.includes(a.id)) return;
+      let current = 0;
+      if (a.metric === "xp") current = xp;
+      else if (a.metric === "streak") current = streak;
+      else if (a.metric === "lessons") current = lessonsCompleted;
+      else if (a.metric === "categories") current = categoriesCompleted;
+      if (current >= a.threshold) {
+        newlyUnlocked.push(a.id);
+        if (a.xpReward) bonusXp += a.xpReward;
+      }
+    });
+
+    if (newlyUnlocked.length > 0) {
+      setUnlockedAchievements((prev) => [...prev, ...newlyUnlocked]);
+      if (bonusXp > 0) setXpState((x) => x + bonusXp);
+    }
+  }, [xp, streak, completed]);
 
   const value: AppState & AppActions = {
     scr, lang, age, lvl, hearts, xp, streak, tab,

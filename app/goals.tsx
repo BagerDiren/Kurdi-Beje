@@ -20,11 +20,12 @@ function AdultGoals() {
   const { th, t, xp, lessonsToday, correctToday, streak, dailyGoal, studyDates, completed } = useApp();
   const targetMin = dailyGoal ?? 10;
   const targetXp = targetMin * 4; // ~4 XP/dakika tahmini
+  const targetLessons = Math.max(1, Math.round(targetMin / 5)); // 5dk → 1, 10dk → 2, 15dk → 3, 20dk → 4
 
-  // Daily goals
+  // Daily goals — kullanıcının seçtiği dailyGoal'e göre dinamik
   const daily = [
-    { icon: "📝", text: "10 peyvên nû", textTr: "10 yeni kelime", val: Math.min(xp, 50), max: 50, color: th.accent },
-    { icon: "📚", text: "Dersek qediya", textTr: "1 ders bitir", val: Math.min(lessonsToday, 1), max: 1, color: th.primary },
+    { icon: "⭐", text: `${targetXp} XP berhev bike`, textTr: `${targetXp} XP topla`, val: Math.min(xp % 100, targetXp), max: targetXp, color: th.accent },
+    { icon: "📚", text: `${targetLessons} ders qediya`, textTr: `${targetLessons} ders bitir`, val: Math.min(lessonsToday, targetLessons), max: targetLessons, color: th.primary },
     { icon: "✅", text: "5 bersiv rast", textTr: "5 doğru cevap", val: Math.min(correctToday, 5), max: 5, color: th.correct },
     { icon: "🔥", text: "Rêz biparêze", textTr: "Seriyi koru", val: streak > 0 ? 1 : 0, max: 1, color: "#F49000" },
   ];
@@ -61,6 +62,21 @@ function AdultGoals() {
       </LinearGradient>
 
       <ScrollView contentContainerStyle={styles.scroll}>
+        {/* Daily goal banner */}
+        <View style={[styles.dailyBanner, { backgroundColor: th.primary + "12", borderColor: th.primary }]}>
+          <View style={[styles.dailyIcon, { backgroundColor: th.primary }]}>
+            <Text style={{ fontSize: 22 }}>⏱️</Text>
+          </View>
+          <View style={{ flex: 1 }}>
+            <Text style={{ fontSize: 13, fontWeight: "900", color: th.text }}>
+              Armanca te ya rojane: {targetMin} deqîqe
+            </Text>
+            <Text style={{ fontSize: 11, color: th.textMid, fontWeight: "600", marginTop: 2 }}>
+              Günlük hedefin: {targetMin} dakika · {targetXp} XP / {targetLessons} ders
+            </Text>
+          </View>
+        </View>
+
         {/* Daily goals */}
         <Text style={[styles.sectionTitle, { color: th.text }]}>📅 Roja Îro</Text>
         {daily.map((g, i) => {
@@ -228,6 +244,8 @@ const styles = StyleSheet.create({
 
   scroll: { padding: 18, gap: 10, paddingBottom: 30 },
   sectionTitle: { fontSize: 13, fontWeight: "800", marginBottom: 6, letterSpacing: 0.3 },
+  dailyBanner: { flexDirection: "row", alignItems: "center", gap: 12, padding: 14, borderRadius: 16, borderWidth: 1.5 },
+  dailyIcon: { width: 44, height: 44, borderRadius: 12, alignItems: "center", justifyContent: "center" },
 
   goalCard: { borderRadius: 18, padding: 14, borderWidth: 1 },
   goalRow: { flexDirection: "row", alignItems: "center", gap: 12 },

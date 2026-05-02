@@ -6,12 +6,22 @@ import { DuoButton } from "@/components/ui-kit";
 import { KevoMascot } from "@/components/kevo-mascot";
 import { DUO } from "@/data/duo-colors";
 import { TYPO } from "@/data/typography";
+import { useApp } from "@/data/app-context";
 
 /**
  * Giriş ekranı — Duolingo Ekran 1 karşılığı, tamamen Kurmancî.
  * Mimari: üst boşluk → Kevo + logo + slogan → alt boşluk → aksiyon butonları.
  */
 export default function WelcomeScreen() {
+  const { setAge, setLvl } = useApp();
+
+  const skipToTabs = () => {
+    // "Hesabê min heye" — onboarding atlanıyor, default yetişkin/A1 olarak gir
+    setAge("adult");
+    setLvl("a1");
+    router.replace("/(tabs)");
+  };
+
   return (
     <SafeAreaView style={styles.safe}>
       <View style={styles.content}>
@@ -29,10 +39,7 @@ export default function WelcomeScreen() {
           <DuoButton onPress={() => router.push("/intro/hello")}>
             Dest pê bike
           </DuoButton>
-          <DuoButton
-            variant="secondary"
-            onPress={() => router.replace("/(tabs)")}
-          >
+          <DuoButton variant="secondary" onPress={skipToTabs}>
             Hesabê min heye
           </DuoButton>
         </View>

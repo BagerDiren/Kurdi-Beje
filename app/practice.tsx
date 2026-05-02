@@ -41,6 +41,7 @@ export default function PracticeScreen() {
     return items;
   }, [completed]);
 
+  const [phase, setPhase] = useState<"idle" | "playing" | "done">("idle");
   const [questions, setQuestions] = useState<QuizQ[] | null>(null);
   const [idx, setIdx] = useState(0);
   const [score, setScore] = useState(0);
@@ -58,7 +59,6 @@ export default function PracticeScreen() {
       const all = [w, ...distractors];
       const correct = i % 4;
       const options = [...all];
-      // place correct at position
       const tmp = options[0];
       options[0] = options[correct];
       options[correct] = tmp;
@@ -74,6 +74,8 @@ export default function PracticeScreen() {
     setIdx(0);
     setScore(0);
     setSel(null);
+    setShowFeedback(false);
+    setPhase("playing");
   };
 
   const onPick = (i: number) => {
@@ -89,9 +91,7 @@ export default function PracticeScreen() {
   const nextQ = () => {
     if (!questions) return;
     if (idx + 1 >= questions.length) {
-      // done
-      setQuestions(null);
-      setIdx(0);
+      setPhase("done");
       return;
     }
     setIdx((i) => i + 1);
@@ -99,9 +99,72 @@ export default function PracticeScreen() {
     setShowFeedback(false);
   };
 
+  const restartOrExit = (toExit: boolean) => {
+    if (toExit) {
+      setPhase("idle");
+      setQuestions(null);
+      setIdx(0);
+      setScore(0);
+      router.back();
+    } else {
+      startQuiz();
+    }
+  };
+
   // === RENDERS ===
+  // Done → result screen
+  if (phase === "done" && questions) {
+    const total = questions.length;
+    const pct = Math.round((score / total) * 100);
+    const earnedXp = score * 5;
+    const stars = pct >= 90 ? 3 : pct >= 70 ? 2 : pct >= 50 ? 1 : 0;
+    const msg = pct === 100 ? "Bêkêmasî! 🌟" : pct >= 70 ? "Pir baş! 🎉" : pct >= 50 ? "Baş e, dewam bike!" : "Tekrar bike, tu yê fêr bibî!";
+    const msgTr = pct === 100 ? "Kusursuz!" : pct >= 70 ? "Çok iyi!" : pct >= 50 ? "İyi, devam et!" : "Tekrarla, öğreneceksin!";
+
+    return (
+      <SafeAreaView style={{ flex: 1, backgroundColor: th.bg }} edges={["top"]}>
+        <ScrollView contentContainerStyle={styles.intro}>
+          <View style={styles.kevoWrap}>
+            <KevoMascot size={130} mood={pct >= 50 ? "happy" : "neutral"} speaking idle />
+          </View>
+
+          <View style={styles.starsRow}>
+            {[0, 1, 2].map((i) => (
+              <Text key={i} style={[styles.starBig, { opacity: i < stars ? 1 : 0.2 }]}>⭐</Text>
+            ))}
+          </View>
+
+          <Text style={[styles.bigTitle, { color: th.primary }]}>{msg}</Text>
+          <Text style={[styles.bigSub, { color: th.textMid }]}>{msgTr}</Text>
+
+          <View style={[styles.card, { backgroundColor: th.card, borderColor: th.cardBorder }]}>
+            <View style={styles.resultRow}>
+              <Text style={{ fontSize: 13, color: th.textMid, fontWeight: "600" }}>Bersivên rast</Text>
+              <Text style={{ fontWeight: "900", color: th.correct, fontSize: 18 }}>{score}/{total}</Text>
+            </View>
+            <View style={styles.resultRow}>
+              <Text style={{ fontSize: 13, color: th.textMid, fontWeight: "600" }}>Serkeftin</Text>
+              <Text style={{ fontWeight: "900", color: th.primary, fontSize: 18 }}>{pct}%</Text>
+            </View>
+            <View style={styles.resultRow}>
+              <Text style={{ fontSize: 13, color: th.textMid, fontWeight: "600" }}>XP Wergirt</Text>
+              <Text style={{ fontWeight: "900", color: th.accent, fontSize: 18 }}>+{earnedXp} ⭐</Text>
+            </View>
+          </View>
+
+          <Pressable onPress={() => restartOrExit(false)} style={[styles.startBtn, { backgroundColor: th.primary }]}>
+            <Text style={styles.startBtnText}>Dîsa bilîze 🔄</Text>
+          </Pressable>
+          <Pressable onPress={() => restartOrExit(true)} style={[styles.exitBtn, { borderColor: th.cardBorder, backgroundColor: th.card }]}>
+            <Text style={{ fontSize: 14, fontWeight: "800", color: th.text }}>Vegere malê</Text>
+          </Pressable>
+        </ScrollView>
+      </SafeAreaView>
+    );
+  }
+
   // Idle → start screen
-  if (!questions) {
+  if (phase === "idle" || !questions) {
     return (
       <SafeAreaView style={{ flex: 1, backgroundColor: th.bg }} edges={["top"]}>
         <LinearGradient colors={th.headerGrad as unknown as readonly [string, string, ...string[]]} style={styles.header}>
@@ -143,7 +206,7 @@ export default function PracticeScreen() {
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: th.bg }} edges={["top"]}>
       <View style={styles.topBar}>
-        <Pressable onPress={() => setQuestions(null)}>
+        <Pressable onPress={() => { setPhase("idle"); setQuestions(null); }}>
           <Text style={{ fontSize: 22, color: th.textMid }}>✕</Text>
         </Pressable>
         <View style={[styles.progressBar, { backgroundColor: th.bgDark }]}>
@@ -199,18 +262,6 @@ export default function PracticeScreen() {
         )}
       </ScrollView>
 
-      {/* Score footer */}
-      {idx + 1 >= questions.length && sel !== null && (
-        <View style={[styles.scoreFooter, { backgroundColor: th.card, borderColor: th.cardBorder }]}>
-          <Text style={{ fontSize: 11, color: th.textMid }}>Encam</Text>
-          <Text style={{ fontSize: 18, fontWeight: "900", color: th.primary }}>
-            {score + (ok ? 1 : 0)}/{questions.length}
-          </Text>
-          <Text style={{ fontSize: 10, color: th.accent, fontWeight: "700" }}>
-            +{(score + (ok ? 1 : 0)) * 5} XP
-          </Text>
-        </View>
-      )}
     </SafeAreaView>
   );
 }
@@ -273,13 +324,8 @@ const styles = StyleSheet.create({
   nextBtn: { padding: 14, borderRadius: 14, alignItems: "center", marginTop: 10 },
   nextBtnText: { fontSize: 15, fontWeight: "900", color: "#fff" },
 
-  scoreFooter: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-around",
-    padding: 14,
-    margin: 18,
-    borderRadius: 14,
-    borderWidth: 1,
-  },
+  starsRow: { flexDirection: "row", gap: 6, justifyContent: "center", marginTop: 6 },
+  starBig: { fontSize: 40 },
+  resultRow: { flexDirection: "row", justifyContent: "space-between", alignItems: "center" },
+  exitBtn: { padding: 14, borderRadius: 14, alignItems: "center", borderWidth: 1.5, marginTop: 4 },
 });

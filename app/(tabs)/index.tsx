@@ -48,6 +48,10 @@ function AdultHome() {
   ) * 100);
 
   const filteredCats = CATEGORIES.filter((c) => c.level === selectedLevel);
+  // Sadece kategorisi olan seviyeleri göster
+  const availableLevels = LEVELS.filter((lv) =>
+    CATEGORIES.some((c) => c.level === lv.key),
+  );
 
   // CONTINUE: bul son tamamlanan kategoriyi ve içindeki sıradaki dersi
   const continueData = (() => {
@@ -185,7 +189,7 @@ function AdultHome() {
           showsHorizontalScrollIndicator={false}
           contentContainerStyle={styles.levelTabs}
         >
-          {LEVELS.map((lv) => {
+          {availableLevels.map((lv) => {
             const active = lv.key === selectedLevel;
             return (
               <Pressable

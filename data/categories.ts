@@ -20,7 +20,9 @@ export type CategoryKey =
   // A2
   | "mitfax" | "bazar" | "gerr" | "hewa" | "rojane" | "xweza"
   // B1
-  | "cihan" | "tendurusti" | "karkirin" | "cand" | "hobi" | "teknoloji";
+  | "cihan" | "tendurusti" | "karkirin" | "cand" | "hobi" | "teknoloji"
+  // B2
+  | "edebiyat" | "siyaset";
 
 export type CategoryWord = {
   ku: string;
@@ -1382,6 +1384,144 @@ const TEKNOLOJI: Category = {
 };
 
 // =============================================================
+//  EK B2 — EDEBİYAT (KLASİK KÜRT EDEBİYATI)
+// =============================================================
+
+const EDEBIYAT: Category = {
+  key: "edebiyat",
+  title: "Edebiyat",
+  titleTr: "Edebiyat",
+  icon: "📜",
+  color: "#8549BA",
+  level: "b2",
+  description: "Helbest, roman û nivîskarên kurd",
+  descriptionTr: "Şiir, roman ve Kürt yazarları",
+  words: [
+    { ku: "edebiyat", tr: "edebiyat", emoji: "📜", example: { ku: "Edebiyata kurdî kevn e.", tr: "Kürt edebiyatı kadimdir." } },
+    { ku: "helbest", tr: "şiir", emoji: "📝", example: { ku: "Helbestek delal.", tr: "Güzel bir şiir." } },
+    { ku: "helbestvan", tr: "şair", emoji: "✍️", example: { ku: "Cizîrî helbestvanekî mezin e.", tr: "Cizîrî büyük bir şairdir." } },
+    { ku: "roman", tr: "roman", emoji: "📕", example: { ku: "Romanên Mehmed Uzun.", tr: "Mehmed Uzun romanları." } },
+    { ku: "kurte-çîrok", tr: "öykü", emoji: "📖", example: { ku: "Kurte-çîrokek bandor li min kir.", tr: "Bir öykü beni etkiledi." } },
+    { ku: "nivîskar", tr: "yazar", emoji: "🖋️", example: { ku: "Nivîskarê navdar.", tr: "Ünlü yazar." } },
+    { ku: "rîwayet", tr: "rivayet/anlatı", emoji: "📚", example: { ku: "Rîwayeta dîrokî.", tr: "Tarihî rivayet." } },
+    { ku: "destan", tr: "destan", emoji: "⚔️", example: { ku: "Destana Memê Alan.", tr: "Mem û Zîn destanı." } },
+    { ku: "kilam", tr: "klam (lirik)", emoji: "🎼", example: { ku: "Kilamên dengbêjan.", tr: "Dengbêj klamları." } },
+    { ku: "wêje", tr: "yazın", emoji: "📚", example: { ku: "Wêjeya kurdî.", tr: "Kürt yazını." } },
+    { ku: "metafor", tr: "mecaz/metafor", emoji: "🎭", example: { ku: "Metaforên xurt.", tr: "Güçlü mecazlar." } },
+    { ku: "wateyek kûr", tr: "derin anlam", emoji: "🌊", example: { ku: "Helbest wateyên kûr vedişêre.", tr: "Şiir derin anlamlar saklar." } },
+    { ku: "rexnegir", tr: "eleştirmen", emoji: "🔍", example: { ku: "Rexnegirê edebiyatê.", tr: "Edebiyat eleştirmeni." } },
+    { ku: "weşan", tr: "yayın", emoji: "📰", example: { ku: "Weşana nû.", tr: "Yeni yayın." } },
+    { ku: "pirtûkxane", tr: "kütüphane", emoji: "🏛️", example: { ku: "Pirtûkxana neteweyî.", tr: "Ulusal kütüphane." } },
+  ],
+  lessons: [
+    {
+      id: "cat-edebiyat-1",
+      title: "Edebiyata Kurdî",
+      titleTr: "Kürt Edebiyatı",
+      icon: "📜",
+      xp: 40,
+      steps: [
+        { type: "dialogue", title: "Li Pirtûkxaneyê", setting: "🏛️ Pirtûkxane", lines: [
+          { speaker: "Diren", emoji: "👤", text: "Tu kîjan nivîskaran hez dikî?", tr: "Hangi yazarları seviyorsun?" },
+          { speaker: "Bager", emoji: "🧑", text: "Ez Mehmed Uzun û Cigerxwîn dixwînim.", tr: "Mehmed Uzun ve Cigerxwîn okuyorum." },
+          { speaker: "Diren", emoji: "👤", text: "Cigerxwîn helbestvanekî girîng e.", tr: "Cigerxwîn önemli bir şairdir." },
+          { speaker: "Bager", emoji: "🧑", text: "Erê, helbestên wî bandorê li min dikin.", tr: "Evet, şiirleri beni etkiliyor." },
+          { speaker: "Diren", emoji: "👤", text: "'Mem û Zîn' jî klasîkek e.", tr: "'Mem û Zîn' de klasiktir." },
+        ]},
+        { type: "teach", word: "Edebiyat", meaning: "Edebiyat", emoji: "📜", sentence: "Edebiyata kurdî kevn û dewlemend e.", sentenceTr: "Kürt edebiyatı kadim ve zengindir.", tip: "Yazılı eserlerin tümü." },
+        { type: "teach", word: "Helbest", meaning: "Şiir", emoji: "📝", sentence: "Helbesta evînê.", sentenceTr: "Aşk şiiri.", tip: "Lirik anlatım." },
+        { type: "teach", word: "Helbestvan", meaning: "Şair", emoji: "✍️", sentence: "Cizîrî helbestvanekî klasîk e.", sentenceTr: "Cizîrî klasik bir şairdir.", tip: "Şiir yazan kişi." },
+        { type: "teach", word: "Roman", meaning: "Roman", emoji: "📕", sentence: "Romana 'Bîra Qederê'.", sentenceTr: "'Kader Kuyusu' romanı.", tip: "Mehmed Uzun'un eseri." },
+        { type: "teach", word: "Destan", meaning: "Destan", emoji: "⚔️", sentence: "Destana Memê Alan epîk e.", sentenceTr: "Mem û Alan destanı epiktir.", tip: "Halk anlatısı." },
+        { type: "teach", word: "Kilam", meaning: "Klam", emoji: "🎼", sentence: "Kilamên dengbêjan dewlemend in.", sentenceTr: "Dengbêj klamları zengindir.", tip: "Lirik halk şarkısı." },
+        { type: "pick", question: "'Şair' Kurmancî nedir?", options: ["Nivîskar", "Helbestvan", "Rexnegir", "Stranbêj"], correct: 1 },
+        { type: "teach", word: "Nivîskar", meaning: "Yazar", emoji: "🖋️", sentence: "Mehmed Uzun nivîskarekî kurd e.", sentenceTr: "Mehmed Uzun bir Kürt yazarıdır.", tip: "Önde gelen modern Kürt yazarı." },
+        { type: "teach", word: "Wêje", meaning: "Yazın", emoji: "📚", sentence: "Wêjeya nûjen.", sentenceTr: "Modern yazın.", tip: "Edebiyat sözcüğüne yakın." },
+        { type: "teach", word: "Pirtûkxane", meaning: "Kütüphane", emoji: "🏛️", sentence: "Pirtûkxana mezin a Amedê.", sentenceTr: "Diyarbakır'ın büyük kütüphanesi.", tip: "'Pirtûk' + '-xane'." },
+        { type: "match", instruction: "Eşleştir!", pairs: [
+          { word: "Helbest", meaning: "Şiir" },
+          { word: "Roman", meaning: "Roman" },
+          { word: "Destan", meaning: "Destan" },
+          { word: "Nivîskar", meaning: "Yazar" },
+        ]},
+        { type: "fill", sentence: "___ a Mem û Zîn klasîk e.", sentenceTr: "Mem û Zîn ___ı klasiktir.", hint: "⚔️", options: ["Helbest", "Destan", "Roman"], correct: 1 },
+        { type: "pick", question: "Cigerxwîn kimdir?", options: ["Nivîskarê romanan", "Helbestvanekî kurd", "Stranbêj", "Rexnegir"], correct: 1 },
+        { type: "fill", sentence: "Edebiyata kurdî ___ e.", sentenceTr: "Kürt edebiyatı ___.", hint: "📜", options: ["nû", "kevn û dewlemend", "biçûk"], correct: 1 },
+      ],
+    },
+  ],
+};
+
+// =============================================================
+//  EK B2 — SİYASET Û CIVAK (POLİTİKA & TOPLUM)
+// =============================================================
+
+const SIYASET: Category = {
+  key: "siyaset",
+  title: "Siyaset û Civak",
+  titleTr: "Siyaset & Toplum",
+  icon: "🏛️",
+  color: "#4B4B4B",
+  level: "b2",
+  description: "Civat, hiqûq û siyaseta nûjen",
+  descriptionTr: "Toplum, hukuk ve modern siyaset",
+  words: [
+    { ku: "siyaset", tr: "siyaset", emoji: "🏛️", example: { ku: "Siyaseta nûjen.", tr: "Modern siyaset." } },
+    { ku: "civak", tr: "toplum", emoji: "👥", example: { ku: "Civaka kurd.", tr: "Kürt toplumu." } },
+    { ku: "hilbijartin", tr: "seçim", emoji: "🗳️", example: { ku: "Roja hilbijartinê.", tr: "Seçim günü." } },
+    { ku: "deng", tr: "oy/ses", emoji: "📢", example: { ku: "Dengê min ji bo aştî ye.", tr: "Oyum barış için." } },
+    { ku: "partî", tr: "parti", emoji: "🚩", example: { ku: "Partiya nû.", tr: "Yeni parti." } },
+    { ku: "serok", tr: "lider/başkan", emoji: "👨‍💼", example: { ku: "Serokê dewletê.", tr: "Devlet başkanı." } },
+    { ku: "parlamento", tr: "parlamento", emoji: "🏛️", example: { ku: "Parlamentoya neteweyî.", tr: "Ulusal meclis." } },
+    { ku: "yasa", tr: "yasa/kanun", emoji: "📜", example: { ku: "Yasa nû derket.", tr: "Yeni yasa çıktı." } },
+    { ku: "maf", tr: "hak", emoji: "⚖️", example: { ku: "Mafên mirovan.", tr: "İnsan hakları." } },
+    { ku: "azadî", tr: "özgürlük", emoji: "🕊️", example: { ku: "Azadiya derbirînê.", tr: "İfade özgürlüğü." } },
+    { ku: "wekhevî", tr: "eşitlik", emoji: "⚖️", example: { ku: "Wekheviya jin û mêran.", tr: "Kadın erkek eşitliği." } },
+    { ku: "aştî", tr: "barış", emoji: "🕊️", example: { ku: "Aştiyek mayînde.", tr: "Kalıcı barış." } },
+    { ku: "şer", tr: "savaş", emoji: "⚔️", example: { ku: "Şerê navxweyî.", tr: "İç savaş." } },
+    { ku: "hiqûq", tr: "hukuk", emoji: "⚖️", example: { ku: "Hiqûqa navneteweyî.", tr: "Uluslararası hukuk." } },
+    { ku: "demokrasî", tr: "demokrasi", emoji: "🗳️", example: { ku: "Demokrasiya parlamenter.", tr: "Parlamenter demokrasi." } },
+  ],
+  lessons: [
+    {
+      id: "cat-siyaset-1",
+      title: "Civaka Nûjen",
+      titleTr: "Modern Toplum",
+      icon: "🏛️",
+      xp: 40,
+      steps: [
+        { type: "dialogue", title: "Hilbijartin", setting: "🗳️ Sandûqa dengan", lines: [
+          { speaker: "Diren", emoji: "👤", text: "Tu yê dengê xwe bidî?", tr: "Oyunu vereceksin mi?" },
+          { speaker: "Bager", emoji: "🧑", text: "Erê, deng dan parêza me ye.", tr: "Evet, oy vermek görevimizdir." },
+          { speaker: "Diren", emoji: "👤", text: "Tu kîjan partiyê hez dikî?", tr: "Hangi partiyi tercih ediyorsun?" },
+          { speaker: "Bager", emoji: "🧑", text: "Ez ji partiya ku mafên mirovan diparêze hez dikim.", tr: "İnsan haklarını koruyan partiyi tercih ederim." },
+          { speaker: "Diren", emoji: "👤", text: "Aştî û azadî girîng in.", tr: "Barış ve özgürlük önemlidir." },
+        ]},
+        { type: "teach", word: "Siyaset", meaning: "Siyaset", emoji: "🏛️", sentence: "Siyaseta cîhanê.", sentenceTr: "Dünya siyaseti.", tip: "Yönetim ve karar alma sanatı." },
+        { type: "teach", word: "Civak", meaning: "Toplum", emoji: "👥", sentence: "Civaka kurd dewlemend e.", sentenceTr: "Kürt toplumu zengindir.", tip: "İnsanların oluşturduğu yapı." },
+        { type: "teach", word: "Hilbijartin", meaning: "Seçim", emoji: "🗳️", sentence: "Hilbijartinên giştî.", sentenceTr: "Genel seçimler.", tip: "'Hilbijartin' = seçmek isminden." },
+        { type: "teach", word: "Maf", meaning: "Hak", emoji: "⚖️", sentence: "Mafên mirovan girîng in.", sentenceTr: "İnsan hakları önemlidir.", tip: "'Mafnasî' = hukuk." },
+        { type: "teach", word: "Azadî", meaning: "Özgürlük", emoji: "🕊️", sentence: "Azadî mafê herî bingehîn e.", sentenceTr: "Özgürlük en temel haktır.", tip: "'Azad' = özgür." },
+        { type: "teach", word: "Wekhevî", meaning: "Eşitlik", emoji: "⚖️", sentence: "Wekheviya jin û mêran giring e.", sentenceTr: "Cinsiyet eşitliği önemlidir.", tip: "'Wekhev' = eşit." },
+        { type: "pick", question: "'Hak' Kurmancî nedir?", options: ["Yasa", "Maf", "Aştî", "Şer"], correct: 1 },
+        { type: "teach", word: "Aştî", meaning: "Barış", emoji: "🕊️", sentence: "Aştî daxwaza me ye.", sentenceTr: "Barış arzumuzdur.", tip: "Tersi: 'şer' (savaş)." },
+        { type: "teach", word: "Demokrasî", meaning: "Demokrasi", emoji: "🗳️", sentence: "Demokrasî gel xwe diparêze.", sentenceTr: "Demokrasi halkı korur.", tip: "Halkın yönetimi." },
+        { type: "teach", word: "Yasa", meaning: "Yasa", emoji: "📜", sentence: "Yasa ji bo hemûyan e.", sentenceTr: "Yasa herkes içindir.", tip: "Hukuki kural." },
+        { type: "match", instruction: "Eşleştir!", pairs: [
+          { word: "Maf", meaning: "Hak" },
+          { word: "Azadî", meaning: "Özgürlük" },
+          { word: "Aştî", meaning: "Barış" },
+          { word: "Yasa", meaning: "Yasa" },
+        ]},
+        { type: "fill", sentence: "Mafên ___ girîng in.", sentenceTr: "İnsan ___ önemlidir.", hint: "⚖️", options: ["mirovan", "civakê", "siyasî"], correct: 0 },
+        { type: "pick", question: "'Demokrasi' anlamı?", options: ["Aşk", "Halkın yönetimi", "Savaş", "Şiir"], correct: 1 },
+        { type: "fill", sentence: "Em ___ dixwazin.", sentenceTr: "___ istiyoruz.", hint: "🕊️", options: ["aştî", "şer", "deng"], correct: 0 },
+      ],
+    },
+  ],
+};
+
+// =============================================================
 //  EK BEŞ 2 — A1 (İLERİ TEKRAR)
 // =============================================================
 
@@ -1461,6 +1601,8 @@ const _RAW_CATEGORIES: Category[] = [
   XWARIN, MITFAX, BAZAR, GERR, HEWA, ROJANE, XWEZA,
   // B1
   CIHAN, TENDURUSTI, KARKIRIN, CAND, HOBI, TEKNOLOJI,
+  // B2
+  EDEBIYAT, SIYASET,
 ];
 
 /**
