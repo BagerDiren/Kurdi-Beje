@@ -112,15 +112,28 @@ export const SHADOW = (color: string, intensity: "sm" | "md" | "lg" | "glow" = "
   }
 };
 
+/**
+ * Lingokids/Drops tarzı premium tipografi.
+ * Başlıklar Fredoka (yuvarlak, eğlenceli), gövde Nunito (okunabilir).
+ */
+const FONT_DISPLAY = "Fredoka_700Bold";
+const FONT_HEADING = "Fredoka_600SemiBold";
+const FONT_TITLE   = "Fredoka_500Medium";
+const FONT_BODY    = "Nunito_700Bold";
+const FONT_BODY_REG = "Nunito_400Regular";
+const FONT_BODY_HEAVY = "Nunito_800ExtraBold";
+
 export const TYPO = {
-  // Hero tipografi
-  hero:    { fontSize: 36, fontWeight: "900" as const, letterSpacing: -1 },
-  display: { fontSize: 28, fontWeight: "900" as const, letterSpacing: -0.6 },
-  h1:      { fontSize: 24, fontWeight: "900" as const, letterSpacing: -0.3 },
-  h2:      { fontSize: 20, fontWeight: "800" as const, letterSpacing: -0.2 },
-  h3:      { fontSize: 17, fontWeight: "800" as const },
-  body:    { fontSize: 14, fontWeight: "600" as const },
-  bodyLg:  { fontSize: 15, fontWeight: "700" as const },
-  caption: { fontSize: 11, fontWeight: "700" as const, letterSpacing: 0.5 },
-  micro:   { fontSize: 9, fontWeight: "900" as const, letterSpacing: 1.5, textTransform: "uppercase" as const },
+  hero:    { fontSize: 36, fontFamily: FONT_DISPLAY, letterSpacing: -1 },
+  display: { fontSize: 28, fontFamily: FONT_DISPLAY, letterSpacing: -0.6 },
+  h1:      { fontSize: 24, fontFamily: FONT_DISPLAY, letterSpacing: -0.3 },
+  h2:      { fontSize: 20, fontFamily: FONT_HEADING, letterSpacing: -0.2 },
+  h3:      { fontSize: 17, fontFamily: FONT_HEADING },
+  body:    { fontSize: 14, fontFamily: FONT_BODY },
+  bodyLg:  { fontSize: 15, fontFamily: FONT_BODY_HEAVY },
+  bodyReg: { fontSize: 14, fontFamily: FONT_BODY_REG },
+  caption: { fontSize: 11, fontFamily: FONT_BODY, letterSpacing: 0.5 },
+  micro:   { fontSize: 9, fontFamily: FONT_BODY_HEAVY, letterSpacing: 1.5, textTransform: "uppercase" as const },
+  // Buton tipografisi (büyük, kalın)
+  button:  { fontSize: 16, fontFamily: FONT_DISPLAY, letterSpacing: 0.3 },
 };

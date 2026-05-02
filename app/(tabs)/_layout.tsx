@@ -1,18 +1,36 @@
 import { Tabs } from "expo-router";
 import { Text, View } from "react-native";
 import { useApp } from "@/data/app-context";
+import { KIDS_THEME, TYPO } from "@/components/kids/design";
 
-function TabIcon({ icon, label, focused, color }: { icon: string; label: string; focused: boolean; color: string }) {
+function TabIcon({ icon, label, focused, isKid }: { icon: string; label: string; focused: boolean; isKid: boolean }) {
   return (
-    <View style={{ alignItems: "center", gap: 2, paddingTop: 6 }}>
-      <Text style={{ fontSize: 22, opacity: focused ? 1 : 0.45 }}>{icon}</Text>
+    <View style={{ alignItems: "center", gap: 2, paddingTop: 8, minWidth: 60 }}>
+      {focused && isKid && (
+        <View
+          style={{
+            position: "absolute",
+            top: 0,
+            width: 32,
+            height: 4,
+            borderRadius: 2,
+            backgroundColor: KIDS_THEME.primary,
+          }}
+        />
+      )}
       <Text
         style={{
-          fontSize: 9,
-          fontWeight: focused ? "800" : "600",
-          opacity: focused ? 1 : 0.55,
-          color: focused ? color : undefined,
-          letterSpacing: 0.2,
+          fontSize: 24,
+          opacity: focused ? 1 : 0.45,
+        }}
+      >
+        {icon}
+      </Text>
+      <Text
+        style={{
+          ...(isKid ? TYPO.micro : { fontSize: 9, fontWeight: "800", letterSpacing: 0.5 }),
+          color: focused ? (isKid ? KIDS_THEME.primary : "#1F6B41") : "#999",
+          marginTop: 1,
         }}
       >
         {label}
@@ -22,28 +40,36 @@ function TabIcon({ icon, label, focused, color }: { icon: string; label: string;
 }
 
 export default function TabsLayout() {
-  const { th } = useApp();
+  const { age } = useApp();
+  const isKid = age === "child";
 
   return (
     <Tabs
       screenOptions={{
         headerShown: false,
         tabBarStyle: {
-          backgroundColor: th.card,
-          borderTopColor: th.cardBorder,
-          paddingBottom: 6,
+          backgroundColor: isKid ? "#FFFFFF" : "#1E4D32",
+          borderTopColor: isKid ? "#0000000A" : "#2E7D46",
+          borderTopWidth: 1,
+          paddingBottom: 8,
           paddingTop: 4,
-          height: 70,
+          height: 76,
+          ...(isKid && {
+            shadowColor: "#000",
+            shadowOpacity: 0.08,
+            shadowRadius: 12,
+            shadowOffset: { width: 0, height: -4 },
+            elevation: 12,
+          }),
         },
         tabBarShowLabel: false,
-        tabBarActiveTintColor: th.primary,
       }}
     >
       <Tabs.Screen
         name="index"
         options={{
           tabBarIcon: ({ focused }) => (
-            <TabIcon icon="📚" label="Öğren" focused={focused} color={th.primary} />
+            <TabIcon icon="📚" label={isKid ? "Öğren" : "ÖĞREN"} focused={focused} isKid={isKid} />
           ),
         }}
       />
@@ -51,7 +77,7 @@ export default function TabsLayout() {
         name="games"
         options={{
           tabBarIcon: ({ focused }) => (
-            <TabIcon icon="🎮" label="Oyunlar" focused={focused} color={th.primary} />
+            <TabIcon icon="🎮" label={isKid ? "Oyun" : "OYUN"} focused={focused} isKid={isKid} />
           ),
         }}
       />
@@ -59,7 +85,7 @@ export default function TabsLayout() {
         name="league"
         options={{
           tabBarIcon: ({ focused }) => (
-            <TabIcon icon="🏆" label="Liderlik" focused={focused} color={th.primary} />
+            <TabIcon icon="🏆" label={isKid ? "Lig" : "LİG"} focused={focused} isKid={isKid} />
           ),
         }}
       />
@@ -67,7 +93,7 @@ export default function TabsLayout() {
         name="profile"
         options={{
           tabBarIcon: ({ focused }) => (
-            <TabIcon icon="👤" label="Profil" focused={focused} color={th.primary} />
+            <TabIcon icon="👤" label={isKid ? "Profil" : "PROFİL"} focused={focused} isKid={isKid} />
           ),
         }}
       />

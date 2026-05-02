@@ -1,275 +1,224 @@
 import { useEffect } from "react";
-import { View, Text, StyleSheet, Dimensions } from "react-native";
+import { View, Text, StyleSheet, Dimensions, Image } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
 import { router } from "expo-router";
 import Animated, {
   useSharedValue, useAnimatedStyle, withTiming, withDelay,
-  withSequence, withRepeat, Easing,
+  withSpring, withRepeat, withSequence, Easing,
 } from "react-native-reanimated";
 
-import { KevoMascot } from "@/components/kevo-mascot";
-import { BRAND } from "@/data/brand";
+import { KidCharacter } from "@/components/kids/kid-character";
+import { KIDS_THEME, RADIUS, TYPO } from "@/components/kids/design";
 
-const { width } = Dimensions.get("window");
+const { width: SW } = Dimensions.get("window");
 
 /**
- * Açılış ekranı — KurdîBêje özgün kimliği.
- * Sinematik: gece dağ silüeti → güneş yükselir → Kevo görünür → logo açılır
- * Tamamen Türkçe (uygulamanın hedef kitlesi Türkçe konuşanlar)
+ * KurdîBêje açılış ekranı — premium sinematik.
+ *
+ * Sahne kompozisyonu (3 sn):
+ *  • Pembe→sarı→turkuaz gradient arka plan
+ *  • Üstte parıldayan yıldızlar (3 farklı pozisyon)
+ *  • Ortada Kevo (zıplayarak gelir)
+ *  • Altta logo + tagline + yükleme barı
+ *  • 4 köşede dekoratif balon emoji
  */
 export default function SplashScreen() {
-  // Animasyon değerleri
-  const sunY = useSharedValue(150);
-  const sunScale = useSharedValue(0.4);
-  const sunGlow = useSharedValue(0);
+  // Animasyon state
+  const kevoY = useSharedValue(80);
   const kevoOpacity = useSharedValue(0);
-  const kevoScale = useSharedValue(0.6);
-  const brandOpacity = useSharedValue(0);
-  const brandY = useSharedValue(20);
-  const subOpacity = useSharedValue(0);
+  const logoOpacity = useSharedValue(0);
+  const logoY = useSharedValue(20);
+  const tagOpacity = useSharedValue(0);
   const barWidth = useSharedValue(0);
-  const mountainOpacity = useSharedValue(0);
+  const star1 = useSharedValue(0);
+  const star2 = useSharedValue(0);
+  const star3 = useSharedValue(0);
+  const balloon1 = useSharedValue(0);
+  const balloon2 = useSharedValue(0);
 
   useEffect(() => {
-    // 1. Dağ silüeti belirir
-    mountainOpacity.value = withTiming(1, { duration: 600 });
+    // Kevo zıplayarak gelir
+    kevoOpacity.value = withTiming(1, { duration: 500 });
+    kevoY.value = withSpring(0, { damping: 6, stiffness: 90 });
 
-    // 2. Güneş doğar (yukarı çıkar + büyür)
-    sunY.value = withDelay(200, withTiming(0, { duration: 1100, easing: Easing.out(Easing.cubic) }));
-    sunScale.value = withDelay(200, withTiming(1, { duration: 1100, easing: Easing.out(Easing.back(1.1)) }));
+    // Logo
+    logoOpacity.value = withDelay(500, withTiming(1, { duration: 500 }));
+    logoY.value = withDelay(500, withSpring(0, { damping: 10 }));
 
-    // 3. Güneş parıltısı (sürekli pulse)
-    sunGlow.value = withDelay(900, withRepeat(
-      withSequence(
-        withTiming(1, { duration: 1400, easing: Easing.inOut(Easing.quad) }),
-        withTiming(0.5, { duration: 1400, easing: Easing.inOut(Easing.quad) }),
-      ),
-      -1, true
+    // Tagline
+    tagOpacity.value = withDelay(900, withTiming(1, { duration: 400 }));
+
+    // Yıldızlar parıldama döngüsü
+    star1.value = withDelay(700, withRepeat(
+      withSequence(withTiming(1, { duration: 700 }), withTiming(0.3, { duration: 700 })),
+      -1, true,
+    ));
+    star2.value = withDelay(900, withRepeat(
+      withSequence(withTiming(1, { duration: 600 }), withTiming(0.3, { duration: 600 })),
+      -1, true,
+    ));
+    star3.value = withDelay(1100, withRepeat(
+      withSequence(withTiming(1, { duration: 800 }), withTiming(0.3, { duration: 800 })),
+      -1, true,
     ));
 
-    // 4. Kevo görünür
-    kevoOpacity.value = withDelay(800, withTiming(1, { duration: 500 }));
-    kevoScale.value = withDelay(800, withTiming(1, { duration: 700, easing: Easing.out(Easing.back(1.3)) }));
+    // Balonlar yumuşak salınım
+    balloon1.value = withRepeat(
+      withSequence(
+        withTiming(-8, { duration: 1500, easing: Easing.inOut(Easing.sin) }),
+        withTiming(0, { duration: 1500, easing: Easing.inOut(Easing.sin) }),
+      ),
+      -1, false,
+    );
+    balloon2.value = withDelay(400, withRepeat(
+      withSequence(
+        withTiming(-10, { duration: 1700, easing: Easing.inOut(Easing.sin) }),
+        withTiming(0, { duration: 1700, easing: Easing.inOut(Easing.sin) }),
+      ),
+      -1, false,
+    ));
 
-    // 5. Logo + slogan
-    brandOpacity.value = withDelay(1200, withTiming(1, { duration: 500 }));
-    brandY.value = withDelay(1200, withTiming(0, { duration: 500, easing: Easing.out(Easing.cubic) }));
-    subOpacity.value = withDelay(1700, withTiming(1, { duration: 400 }));
+    // Yükleme barı 3sn'de dolar
+    barWidth.value = withTiming(100, { duration: 2800, easing: Easing.inOut(Easing.quad) });
 
-    // 6. Yükleme barı
-    barWidth.value = withDelay(900, withTiming(100, {
-      duration: 2400,
-      easing: Easing.inOut(Easing.quad),
-    }));
-
-    const tm = setTimeout(() => router.replace("/welcome"), 3500);
-    return () => clearTimeout(tm);
+    // Welcome'a geçiş
+    const t = setTimeout(() => router.replace("/welcome"), 3200);
+    return () => clearTimeout(t);
   }, []);
 
-  const mountainStyle = useAnimatedStyle(() => ({ opacity: mountainOpacity.value }));
-  const sunStyle = useAnimatedStyle(() => ({
-    opacity: 1,
-    transform: [{ translateY: sunY.value }, { scale: sunScale.value }],
-  }));
-  const sunGlowStyle = useAnimatedStyle(() => ({
-    opacity: sunGlow.value * 0.6,
-    transform: [{ scale: 1 + sunGlow.value * 0.1 }],
-  }));
   const kevoStyle = useAnimatedStyle(() => ({
     opacity: kevoOpacity.value,
-    transform: [{ scale: kevoScale.value }],
+    transform: [{ translateY: kevoY.value }],
   }));
-  const brandStyle = useAnimatedStyle(() => ({
-    opacity: brandOpacity.value,
-    transform: [{ translateY: brandY.value }],
+  const logoStyle = useAnimatedStyle(() => ({
+    opacity: logoOpacity.value,
+    transform: [{ translateY: logoY.value }],
   }));
-  const subStyle = useAnimatedStyle(() => ({ opacity: subOpacity.value }));
-  const barStyle = useAnimatedStyle(() => ({ width: `${barWidth.value}%` as `${number}%` }));
+  const tagStyle = useAnimatedStyle(() => ({ opacity: tagOpacity.value }));
+  const barStyle = useAnimatedStyle(() => ({
+    width: `${barWidth.value}%` as `${number}%`,
+  }));
+  const star1Style = useAnimatedStyle(() => ({ opacity: star1.value }));
+  const star2Style = useAnimatedStyle(() => ({ opacity: star2.value }));
+  const star3Style = useAnimatedStyle(() => ({ opacity: star3.value }));
+  const balloon1Style = useAnimatedStyle(() => ({ transform: [{ translateY: balloon1.value }] }));
+  const balloon2Style = useAnimatedStyle(() => ({ transform: [{ translateY: balloon2.value }] }));
 
   return (
     <View style={styles.root}>
-      {/* Sky gradient */}
       <LinearGradient
-        colors={["#FFE4B0", "#FFD180", "#FFAB91"]}
+        colors={["#FFE0EC", "#FFF4DC", "#E0F7FA"] as unknown as readonly [string, string, ...string[]]}
         style={StyleSheet.absoluteFillObject}
       />
 
-      {/* Sun + glow */}
-      <View style={styles.sunWrap}>
-        <Animated.View style={[styles.sunGlow, sunGlowStyle]} />
-        <Animated.View style={[styles.sun, sunStyle]} />
+      {/* 4 köşe dekoratif balon */}
+      <Animated.Text style={[styles.cornerEmoji, { top: 40, left: 30 }, balloon1Style]}>🎈</Animated.Text>
+      <Animated.Text style={[styles.cornerEmoji, { top: 50, right: 30 }, balloon2Style]}>⭐</Animated.Text>
+      <Animated.Text style={[styles.cornerEmoji, { bottom: 90, left: 40 }, balloon2Style]}>🎁</Animated.Text>
+      <Animated.Text style={[styles.cornerEmoji, { bottom: 100, right: 30 }, balloon1Style]}>🌟</Animated.Text>
+
+      {/* Parıldayan yıldızlar */}
+      <Animated.Text style={[styles.starDeco, { top: 120, left: SW * 0.25 }, star1Style]}>✨</Animated.Text>
+      <Animated.Text style={[styles.starDeco, { top: 80, right: SW * 0.30, fontSize: 22 }, star2Style]}>✨</Animated.Text>
+      <Animated.Text style={[styles.starDeco, { top: 180, left: SW * 0.7 }, star3Style]}>✨</Animated.Text>
+
+      {/* MERKEZ İÇERİK */}
+      <View style={styles.center}>
+        <Animated.View style={[styles.kevoCircle, kevoStyle]}>
+          <KidCharacter character="kevo" size={150} bounce />
+        </Animated.View>
+
+        <Animated.View style={logoStyle}>
+          <Text style={styles.logo}>KurdîBêje</Text>
+          <View style={styles.logoUnderline} />
+        </Animated.View>
+
+        <Animated.Text style={[styles.tag, tagStyle]}>
+          Kürtçe öğrenmenin{"\n"}<Text style={{ color: KIDS_THEME.primary }}>en eğlenceli</Text> yolu
+        </Animated.Text>
       </View>
 
-      {/* Mountain silhouettes */}
-      <Animated.View style={[styles.mountainsWrap, mountainStyle]}>
-        {/* Back layer */}
-        <View style={[styles.mountain, styles.mountainBack, { left: -40 }]} />
-        <View style={[styles.mountain, styles.mountainBack, { left: width * 0.25 }]} />
-        <View style={[styles.mountain, styles.mountainBack, { left: width * 0.55 }]} />
-        {/* Front layer */}
-        <View style={[styles.mountain, styles.mountainFront, { left: -80, height: 120 }]} />
-        <View style={[styles.mountain, styles.mountainFront, { left: width * 0.35, height: 140 }]} />
-        <View style={[styles.mountain, styles.mountainFront, { left: width * 0.7, height: 100 }]} />
-      </Animated.View>
-
-      {/* Ground */}
-      <View style={styles.ground} />
-
-      {/* Content */}
-      <View style={styles.content}>
-        <View style={styles.spacer} />
-
-        <Animated.View style={[styles.kevoWrap, kevoStyle]}>
-          <KevoMascot size={160} mood="happy" speaking idle={false} />
-        </Animated.View>
-
-        <Animated.View style={brandStyle}>
-          <Text style={styles.brand}>KurdîBêje</Text>
-        </Animated.View>
-
-        <Animated.View style={[{ marginTop: 6 }, subStyle]}>
-          <Text style={styles.tagline}>Türkçe konuşanlar için Kürtçe</Text>
-          <Text style={styles.taglineSm}>Dağlardan gelen ses</Text>
-        </Animated.View>
-
-        <View style={styles.spacer} />
-
+      {/* Alt: yükleme barı */}
+      <View style={styles.bottom}>
         <View style={styles.barTrack}>
-          <Animated.View style={[styles.barFill, barStyle]} />
+          <Animated.View style={[styles.barFill, barStyle]}>
+            <LinearGradient
+              colors={[KIDS_THEME.primary, KIDS_THEME.yellowDark, KIDS_THEME.primary] as unknown as readonly [string, string, ...string[]]}
+              start={{ x: 0, y: 0 }}
+              end={{ x: 1, y: 0 }}
+              style={StyleSheet.absoluteFillObject}
+            />
+          </Animated.View>
         </View>
-        <Text style={styles.loading}>Yükleniyor…</Text>
-
-        <View style={{ height: 32 }} />
+        <Text style={styles.loading}>HAZIRLANIYOR...</Text>
       </View>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  root: { flex: 1, backgroundColor: BRAND.dawn },
+  root: { flex: 1, backgroundColor: KIDS_THEME.bg, alignItems: "center" },
 
-  // Güneş
-  sunWrap: {
-    position: "absolute",
-    top: "18%",
-    alignSelf: "center",
+  cornerEmoji: { position: "absolute", fontSize: 32, opacity: 0.85 },
+  starDeco: { position: "absolute", fontSize: 18 },
+
+  center: {
+    flex: 1,
     alignItems: "center",
     justifyContent: "center",
+    gap: 16,
   },
-  sun: {
-    width: 160,
-    height: 160,
-    borderRadius: 80,
-    backgroundColor: BRAND.sun,
-    shadowColor: BRAND.sun,
-    shadowOpacity: 0.8,
-    shadowRadius: 50,
-    shadowOffset: { width: 0, height: 0 },
+  kevoCircle: {
+    width: 180, height: 180, borderRadius: 90,
+    backgroundColor: "rgba(255,255,255,0.9)",
+    alignItems: "center", justifyContent: "center",
+    shadowColor: KIDS_THEME.primary,
+    shadowOpacity: 0.3, shadowRadius: 24,
+    shadowOffset: { width: 0, height: 12 },
+    elevation: 12,
+    borderWidth: 4, borderColor: "#fff",
   },
-  sunGlow: {
-    position: "absolute",
-    width: 280,
-    height: 280,
-    borderRadius: 140,
-    backgroundColor: BRAND.sunLight,
-  },
-
-  // Dağ silüetleri
-  mountainsWrap: {
-    position: "absolute",
-    bottom: "22%",
-    width: "100%",
-    height: 200,
-  },
-  mountain: {
-    position: "absolute",
-    width: 0,
-    height: 0,
-    bottom: 0,
-    borderStyle: "solid",
-    borderLeftWidth: 130,
-    borderRightWidth: 130,
-    borderBottomWidth: 0,
-    borderLeftColor: "transparent",
-    borderRightColor: "transparent",
-  },
-  mountainBack: {
-    borderTopWidth: 0,
-    height: 100,
-    borderTopColor: "transparent",
-    backgroundColor: "transparent",
-    width: 260,
-    borderTopLeftRadius: 0,
-    transform: [{ skewX: "0deg" }],
-  },
-  mountainFront: {},
-
-  // Yer
-  ground: {
-    position: "absolute",
-    bottom: 0,
-    left: 0,
-    right: 0,
-    height: "22%",
-    backgroundColor: BRAND.mountainDark,
-  },
-
-  // İçerik
-  content: {
-    flex: 1,
-    paddingHorizontal: 32,
-    paddingBottom: 16,
-    alignItems: "center",
-    zIndex: 2,
-  },
-  spacer: { flex: 1 },
-  kevoWrap: { alignItems: "center" },
-  brand: {
-    fontSize: 44,
+  logo: {
+    fontSize: 46,
     fontWeight: "900",
-    color: "#fff",
-    letterSpacing: -1,
+    color: KIDS_THEME.ink,
+    letterSpacing: -1.4,
     textAlign: "center",
-    marginTop: 16,
-    textShadowColor: "rgba(0,0,0,0.35)",
+    marginTop: 12,
+    textShadowColor: KIDS_THEME.primary + "33",
     textShadowOffset: { width: 0, height: 3 },
-    textShadowRadius: 12,
-  },
-  tagline: {
-    fontSize: 16,
-    fontWeight: "800",
-    color: "#fff",
-    textAlign: "center",
-    textShadowColor: "rgba(0,0,0,0.4)",
-    textShadowOffset: { width: 0, height: 2 },
     textShadowRadius: 8,
   },
-  taglineSm: {
-    fontSize: 12,
-    fontWeight: "600",
-    color: "rgba(255,255,255,0.85)",
+  logoUnderline: {
+    width: 80, height: 5, borderRadius: 3,
+    backgroundColor: KIDS_THEME.primary,
+    alignSelf: "center", marginTop: 6,
+  },
+  tag: {
+    ...TYPO.h3,
+    color: KIDS_THEME.graphite,
     textAlign: "center",
-    marginTop: 4,
-    fontStyle: "italic",
+    marginTop: 14,
+    lineHeight: 24,
+  },
+
+  bottom: {
+    paddingHorizontal: 32,
+    paddingBottom: 60,
+    width: "100%",
+    alignItems: "center",
+    gap: 8,
   },
   barTrack: {
-    width: 160,
-    height: 4,
-    borderRadius: 2,
-    backgroundColor: "rgba(255,255,255,0.3)",
+    width: 200, height: 6,
+    borderRadius: 3,
+    backgroundColor: "rgba(0,0,0,0.08)",
     overflow: "hidden",
   },
-  barFill: {
-    height: "100%",
-    borderRadius: 2,
-    backgroundColor: BRAND.sun,
-  },
+  barFill: { height: "100%", borderRadius: 3 },
   loading: {
-    fontSize: 11,
-    color: "rgba(255,255,255,0.7)",
-    fontWeight: "600",
-    marginTop: 10,
-    letterSpacing: 1.5,
-    textTransform: "uppercase",
+    ...TYPO.caption,
+    color: KIDS_THEME.smoke,
+    letterSpacing: 2.5,
   },
 });

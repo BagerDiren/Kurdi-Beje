@@ -1,109 +1,85 @@
-import { useEffect } from "react";
-import { View, Text, Pressable, StyleSheet, Dimensions, Image } from "react-native";
+import { useEffect, useState, useRef } from "react";
+import {
+  View, Text, Pressable, StyleSheet, Dimensions, ScrollView, Image,
+  NativeSyntheticEvent, NativeScrollEvent,
+} from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
 import { router } from "expo-router";
 import { SafeAreaView } from "react-native-safe-area-context";
 import Animated, {
-  useSharedValue, useAnimatedStyle, withTiming, withDelay,
-  withRepeat, withSequence, Easing,
+  useSharedValue, useAnimatedStyle, withTiming, withRepeat,
+  withSequence, Easing,
 } from "react-native-reanimated";
 
-import { KevoMascot } from "@/components/kevo-mascot";
-import { FloatingBalloons } from "@/components/kids/floating-balloons";
-import { BRAND, SHADOWS } from "@/data/brand";
+import { KidCharacter } from "@/components/kids/kid-character";
+import { KIDS_THEME, RADIUS, SHADOW, SPACING, TYPO } from "@/components/kids/design";
 import { useApp } from "@/data/app-context";
-
-// Telifsiz Pexels: çocuk öğreniyor / renkli kalemler
-const WELCOME_HERO = "https://images.pexels.com/photos/8617773/pexels-photo-8617773.jpeg?auto=compress&cs=tinysrgb&w=900";
 
 const { width: SW } = Dimensions.get("window");
 
 /**
- * Karşılama ekranı — çocuk dostu eğlenceli versiyon.
- * Yüzen balonlar, animasyonlu Kevo, parıldayan yıldızlar, dans eden
- * hayvanlar… Türkçe konuşan çocuklara Kürtçe öğretiyoruz, keyifle!
+ * Karşılama / onboarding — Babbel/Drops tarzı 3-slayt swipeable.
+ * Her slayt:
+ *   • Üstte büyük görsel/karakter
+ *   • Ortada başlık (Fredoka)
+ *   • Altta açıklama (Nunito)
+ * Alt: 3 nokta indikatör + CTA
  */
+
+type Slide = {
+  id: string;
+  title: string;
+  description: string;
+  character: "kevo" | "roj" | "sterk" | "mes";
+  bgColors: readonly [string, string, string];
+  emojiAround: string[];
+};
+
+const SLIDES: Slide[] = [
+  {
+    id: "1",
+    title: "Kürtçe öğrenmek\neğlenceli!",
+    description: "Türkçe konuşan çocuklar ve yetişkinler için Kurmancî öğrenme deneyimi.",
+    character: "kevo",
+    bgColors: ["#FFE0EC", "#FFF4DC", "#FFE0EC"] as const,
+    emojiAround: ["🎈", "⭐", "🎁", "🌈"],
+  },
+  {
+    id: "2",
+    title: "Oyunlarla,\nşarkılarla!",
+    description: "Çizgi filmler izle, mini oyunlar oyna, balon patlat, roketle aya çık.",
+    character: "sterk",
+    bgColors: ["#E1F5FE", "#FFF4DC", "#FFE0EC"] as const,
+    emojiAround: ["🎮", "🚀", "🎵", "🎨"],
+  },
+  {
+    id: "3",
+    title: "Her gün\n5 dakika!",
+    description: "Düzenli pratik. Yıldız topla, seri yap, ödüller kazan.",
+    character: "roj",
+    bgColors: ["#FFF4DC", "#FFEFD5", "#FFE0B2"] as const,
+    emojiAround: ["⭐", "🔥", "🏆", "💎"],
+  },
+];
+
 export default function WelcomeScreen() {
   const { setAge, setLvl } = useApp();
+  const [page, setPage] = useState(0);
+  const scrollRef = useRef<ScrollView>(null);
 
-  // Hero animasyonları
-  const kevoY = useSharedValue(50);
-  const kevoOp = useSharedValue(0);
-  const kevoBounce = useSharedValue(0);
-  const brandScale = useSharedValue(0.6);
-  const brandOp = useSharedValue(0);
-  const sub1Op = useSharedValue(0);
-  const featureY = useSharedValue(60);
-  const featureOp = useSharedValue(0);
-  const ctaOp = useSharedValue(0);
-  const ctaScale = useSharedValue(0.7);
-  const star1 = useSharedValue(0);
-  const star2 = useSharedValue(0);
-  const star3 = useSharedValue(0);
+  const onScroll = (e: NativeSyntheticEvent<NativeScrollEvent>) => {
+    const x = e.nativeEvent.contentOffset.x;
+    const newPage = Math.round(x / SW);
+    if (newPage !== page) setPage(newPage);
+  };
 
-  useEffect(() => {
-    // Faz 1: Kevo gelir
-    kevoOp.value = withTiming(1, { duration: 600 });
-    kevoY.value = withTiming(0, { duration: 700, easing: Easing.out(Easing.back(1.2)) });
-    // Sürekli zıplama
-    kevoBounce.value = withRepeat(
-      withSequence(
-        withTiming(-12, { duration: 600, easing: Easing.inOut(Easing.sin) }),
-        withTiming(0, { duration: 600, easing: Easing.inOut(Easing.sin) }),
-      ),
-      -1, false,
-    );
-
-    // Faz 2: Brand pop
-    brandScale.value = withDelay(400, withTiming(1, { duration: 500, easing: Easing.out(Easing.back(1.4)) }));
-    brandOp.value = withDelay(400, withTiming(1, { duration: 400 }));
-    sub1Op.value = withDelay(700, withTiming(1, { duration: 400 }));
-
-    // Faz 3: Yıldızlar parıldar
-    star1.value = withDelay(900, withRepeat(
-      withSequence(withTiming(1, { duration: 800 }), withTiming(0.3, { duration: 800 })),
-      -1, true,
-    ));
-    star2.value = withDelay(1100, withRepeat(
-      withSequence(withTiming(1, { duration: 700 }), withTiming(0.3, { duration: 700 })),
-      -1, true,
-    ));
-    star3.value = withDelay(1300, withRepeat(
-      withSequence(withTiming(1, { duration: 900 }), withTiming(0.3, { duration: 900 })),
-      -1, true,
-    ));
-
-    // Faz 4: Özellikler
-    featureY.value = withDelay(900, withTiming(0, { duration: 500, easing: Easing.out(Easing.cubic) }));
-    featureOp.value = withDelay(900, withTiming(1, { duration: 500 }));
-
-    // Faz 5: CTA
-    ctaOp.value = withDelay(1200, withTiming(1, { duration: 400 }));
-    ctaScale.value = withDelay(1200, withTiming(1, { duration: 500, easing: Easing.out(Easing.back(1.3)) }));
-  }, []);
-
-  const kevoStyle = useAnimatedStyle(() => ({
-    opacity: kevoOp.value,
-    transform: [
-      { translateY: kevoY.value + kevoBounce.value },
-    ],
-  }));
-  const brandStyle = useAnimatedStyle(() => ({
-    opacity: brandOp.value,
-    transform: [{ scale: brandScale.value }],
-  }));
-  const sub1Style = useAnimatedStyle(() => ({ opacity: sub1Op.value }));
-  const star1Style = useAnimatedStyle(() => ({ opacity: star1.value }));
-  const star2Style = useAnimatedStyle(() => ({ opacity: star2.value }));
-  const star3Style = useAnimatedStyle(() => ({ opacity: star3.value }));
-  const featureStyle = useAnimatedStyle(() => ({
-    opacity: featureOp.value,
-    transform: [{ translateY: featureY.value }],
-  }));
-  const ctaStyle = useAnimatedStyle(() => ({
-    opacity: ctaOp.value,
-    transform: [{ scale: ctaScale.value }],
-  }));
+  const next = () => {
+    if (page < SLIDES.length - 1) {
+      scrollRef.current?.scrollTo({ x: (page + 1) * SW, animated: true });
+    } else {
+      router.push("/onboarding/mode");
+    }
+  };
 
   const skipToTabs = () => {
     setAge("adult");
@@ -111,261 +87,209 @@ export default function WelcomeScreen() {
     router.replace("/(tabs)");
   };
 
-  const features = [
-    { icon: "🎮", title: "Eğlenceli Oyunlar", color: "#FF6B9D" },
-    { icon: "📺", title: "Çizgi Filmler",     color: "#1CB0F6" },
-    { icon: "🎵", title: "Şarkı & Sesler",    color: "#F39C12" },
-    { icon: "⭐", title: "Yıldız Topla",       color: "#9B59B6" },
-  ];
-
   return (
-    <View style={{ flex: 1, backgroundColor: BRAND.cream }}>
-      {/* Renkli yumuşak gradient bg */}
-      <LinearGradient
-        colors={["#FFE4F3", "#FFF4DC", "#E0F7FA"] as unknown as readonly [string, string, ...string[]]}
-        style={StyleSheet.absoluteFillObject}
-      />
+    <View style={styles.root}>
+      <ScrollView
+        ref={scrollRef}
+        horizontal
+        pagingEnabled
+        showsHorizontalScrollIndicator={false}
+        onScroll={onScroll}
+        scrollEventThrottle={16}
+      >
+        {SLIDES.map((slide) => (
+          <SlideView key={slide.id} slide={slide} />
+        ))}
+      </ScrollView>
 
-      {/* Yüzen balonlar — sade arka plan */}
-      <FloatingBalloons count={4} />
+      <SafeAreaView edges={["top"]} style={styles.topAbsolute}>
+        <Pressable onPress={skipToTabs} style={styles.skipBtn}>
+          <Text style={styles.skipText}>Atla</Text>
+        </Pressable>
+      </SafeAreaView>
 
-      <SafeAreaView style={{ flex: 1 }}>
-        <View style={styles.content}>
-          {/* HERO */}
-          <View style={styles.hero}>
-            <Animated.View style={[styles.kevoWrap, kevoStyle]}>
-              {/* Foto + Kevo overlay */}
-              <View style={styles.heroPhotoFrame}>
-                <Image source={{ uri: WELCOME_HERO }} style={styles.heroPhoto} resizeMode="cover" />
-                <View style={styles.heroPhotoOverlay} />
-                <View style={styles.heroKevoOverlay}>
-                  <KevoMascot size={140} mood="happy" speaking idle />
-                </View>
-              </View>
-            </Animated.View>
-
-            <Animated.View style={brandStyle}>
-              <Text style={styles.brand}>KurdîBêje</Text>
-              <View style={styles.brandUnderline} />
-            </Animated.View>
-
-            <Animated.View style={sub1Style}>
-              <Text style={styles.headline}>
-                Kürtçe öğrenmenin{"\n"}<Text style={{ color: "#FF6B9D" }}>en eğlenceli</Text> yolu!
-              </Text>
-              <Text style={styles.sub}>🎉 Çocuklar ve yetişkinler için 🎉</Text>
-            </Animated.View>
-          </View>
-
-          {/* ÖZELLİK BADGES */}
-          <Animated.View style={[styles.features, featureStyle]}>
-            {features.map((f, i) => (
-              <View
-                key={i}
-                style={[
-                  styles.feature,
-                  {
-                    backgroundColor: "#fff",
-                    borderColor: f.color,
-                  },
-                ]}
-              >
-                <View style={[styles.featureIcon, { backgroundColor: f.color }]}>
-                  <Text style={{ fontSize: 22 }}>{f.icon}</Text>
-                </View>
-                <Text style={[styles.featureTitle, { color: f.color }]}>{f.title}</Text>
-              </View>
-            ))}
-          </Animated.View>
-
-          {/* CTA */}
-          <Animated.View style={[styles.actions, ctaStyle]}>
-            <Pressable
-              onPress={() => router.push("/onboarding/mode")}
-              style={({ pressed }) => [
-                styles.primaryBtn,
-                pressed && { opacity: 0.92, transform: [{ scale: 0.97 }] },
+      <SafeAreaView edges={["bottom"]} style={styles.bottomAbsolute}>
+        {/* Sayfa indikatörü */}
+        <View style={styles.dots}>
+          {SLIDES.map((_, i) => (
+            <View
+              key={i}
+              style={[
+                styles.dot,
+                {
+                  width: i === page ? 24 : 8,
+                  backgroundColor: i === page ? KIDS_THEME.primary : KIDS_THEME.silver,
+                },
               ]}
-            >
-              <LinearGradient
-                colors={["#FF6B9D", "#FF4778", "#E91E63"] as unknown as readonly [string, string, ...string[]]}
-                start={{ x: 0, y: 0 }}
-                end={{ x: 1, y: 1 }}
-                style={styles.primaryBtnInner}
-              >
-                <Text style={styles.primaryBtnEmoji}>🚀</Text>
-                <Text style={styles.primaryBtnText}>HADİ BAŞLAYALIM</Text>
-                <Text style={styles.primaryBtnArrow}>→</Text>
-              </LinearGradient>
-            </Pressable>
-
-            <Pressable
-              onPress={skipToTabs}
-              style={({ pressed }) => [
-                styles.secondaryBtn,
-                pressed && { opacity: 0.85 },
-              ]}
-            >
-              <Text style={styles.secondaryBtnText}>Hesabım var · giriş yap</Text>
-            </Pressable>
-          </Animated.View>
+            />
+          ))}
         </View>
+
+        {/* CTA */}
+        <Pressable
+          onPress={next}
+          style={({ pressed }) => [
+            styles.cta,
+            SHADOW(KIDS_THEME.primary, "lg"),
+            pressed && { transform: [{ scale: 0.97 }], opacity: 0.95 },
+          ]}
+        >
+          <LinearGradient
+            colors={[KIDS_THEME.primary, KIDS_THEME.primaryDark] as unknown as readonly [string, string, ...string[]]}
+            start={{ x: 0, y: 0 }}
+            end={{ x: 1, y: 1 }}
+            style={styles.ctaGrad}
+          >
+            <Text style={styles.ctaText}>
+              {page < SLIDES.length - 1 ? "DEVAM" : "HADİ BAŞLAYALIM"}
+            </Text>
+            <Text style={styles.ctaArrow}>→</Text>
+          </LinearGradient>
+        </Pressable>
       </SafeAreaView>
     </View>
   );
 }
 
+// =====================================================================
+//  TEK SLAYT
+// =====================================================================
+function SlideView({ slide }: { slide: Slide }) {
+  // Etrafta yumuşak salınan emoji'ler
+  const float1 = useSharedValue(0);
+  const float2 = useSharedValue(0);
+
+  useEffect(() => {
+    float1.value = withRepeat(
+      withSequence(
+        withTiming(-12, { duration: 1800, easing: Easing.inOut(Easing.sin) }),
+        withTiming(0, { duration: 1800, easing: Easing.inOut(Easing.sin) }),
+      ),
+      -1, false,
+    );
+    float2.value = withRepeat(
+      withSequence(
+        withTiming(0, { duration: 2000, easing: Easing.inOut(Easing.sin) }),
+        withTiming(-14, { duration: 2000, easing: Easing.inOut(Easing.sin) }),
+      ),
+      -1, false,
+    );
+  }, []);
+
+  const f1 = useAnimatedStyle(() => ({ transform: [{ translateY: float1.value }] }));
+  const f2 = useAnimatedStyle(() => ({ transform: [{ translateY: float2.value }] }));
+
+  return (
+    <View style={styles.slide}>
+      <LinearGradient
+        colors={slide.bgColors as unknown as readonly [string, string, ...string[]]}
+        style={StyleSheet.absoluteFillObject}
+      />
+
+      {/* Etraf süsleri */}
+      <Animated.Text style={[styles.cornerEmoji, { top: 90, left: 30 }, f1]}>
+        {slide.emojiAround[0]}
+      </Animated.Text>
+      <Animated.Text style={[styles.cornerEmoji, { top: 110, right: 40 }, f2]}>
+        {slide.emojiAround[1]}
+      </Animated.Text>
+      <Animated.Text style={[styles.cornerEmoji, { bottom: 220, left: 40 }, f2]}>
+        {slide.emojiAround[2]}
+      </Animated.Text>
+      <Animated.Text style={[styles.cornerEmoji, { bottom: 240, right: 30 }, f1]}>
+        {slide.emojiAround[3]}
+      </Animated.Text>
+
+      <View style={styles.slideCenter}>
+        {/* Karakter dairesinde */}
+        <View style={styles.characterCircle}>
+          <KidCharacter character={slide.character} size={140} bounce />
+        </View>
+
+        <Text style={styles.slideTitle}>{slide.title}</Text>
+        <Text style={styles.slideDesc}>{slide.description}</Text>
+      </View>
+    </View>
+  );
+}
+
 const styles = StyleSheet.create({
-  content: {
-    flex: 1,
-    paddingHorizontal: 22,
-    paddingTop: 8,
-    paddingBottom: 16,
-  },
+  root: { flex: 1, backgroundColor: KIDS_THEME.bg },
 
-  starDeco: {
+  topAbsolute: {
     position: "absolute",
-    fontSize: 24,
-    zIndex: 1,
-  },
-
-  // Hero
-  hero: {
-    alignItems: "center",
-    marginTop: 28,
-  },
-  kevoWrap: {
-    alignItems: "center",
-    marginBottom: 6,
-  },
-  heroPhotoFrame: {
-    width: 200,
-    height: 200,
-    borderRadius: 100,
-    overflow: "hidden",
-    borderWidth: 5,
-    borderColor: "#FF6B9D",
-    shadowColor: "#FF6B9D",
-    shadowOpacity: 0.4,
-    shadowRadius: 16,
-    shadowOffset: { width: 0, height: 8 },
-    elevation: 8,
-    position: "relative",
-  },
-  heroPhoto: { width: "100%", height: "100%" },
-  heroPhotoOverlay: {
-    ...StyleSheet.absoluteFillObject,
-    backgroundColor: "rgba(255, 244, 220, 0.5)",
-  },
-  heroKevoOverlay: {
-    ...StyleSheet.absoluteFillObject,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  brand: {
-    fontSize: 46,
-    fontWeight: "900",
-    color: BRAND.mountainDark,
-    letterSpacing: -1.4,
-    textAlign: "center",
-    textShadowColor: "rgba(255,107,157,0.25)",
-    textShadowOffset: { width: 0, height: 2 },
-    textShadowRadius: 8,
-  },
-  brandUnderline: {
-    width: 80,
-    height: 5,
-    borderRadius: 3,
-    backgroundColor: "#FF6B9D",
-    alignSelf: "center",
-    marginTop: 4,
-  },
-  headline: {
-    fontSize: 22,
-    fontWeight: "900",
-    color: BRAND.ink,
-    textAlign: "center",
-    marginTop: 18,
-    lineHeight: 30,
-    letterSpacing: -0.4,
-  },
-  sub: {
-    fontSize: 13,
-    fontWeight: "700",
-    color: BRAND.charcoal,
-    textAlign: "center",
-    marginTop: 8,
-  },
-
-  // Özellik badges (4'lü grid)
-  features: {
+    top: 0, left: 0, right: 0,
     flexDirection: "row",
-    flexWrap: "wrap",
-    justifyContent: "center",
-    gap: 10,
-    marginTop: 24,
+    justifyContent: "flex-end",
   },
-  feature: {
-    width: "47%",
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 10,
-    padding: 12,
-    borderRadius: 16,
-    borderWidth: 2,
-    ...SHADOWS.sm,
+  skipBtn: {
+    paddingHorizontal: 16, paddingVertical: 10,
+    margin: 12,
   },
-  featureIcon: {
-    width: 36, height: 36, borderRadius: 12,
-    alignItems: "center", justifyContent: "center",
-  },
-  featureTitle: {
-    fontSize: 12,
-    fontWeight: "900",
+  skipText: { ...TYPO.body, color: KIDS_THEME.smoke },
+
+  // Slayt
+  slide: {
+    width: SW,
     flex: 1,
+    alignItems: "center",
+    justifyContent: "center",
+    paddingHorizontal: 24,
+  },
+  cornerEmoji: { position: "absolute", fontSize: 32, opacity: 0.85 },
+  slideCenter: { alignItems: "center", gap: 18 },
+  characterCircle: {
+    width: 200, height: 200, borderRadius: 100,
+    backgroundColor: "rgba(255,255,255,0.85)",
+    alignItems: "center", justifyContent: "center",
+    borderWidth: 4, borderColor: "#fff",
+    ...SHADOW(KIDS_THEME.primary, "glow"),
+    marginBottom: 8,
+  },
+  slideTitle: {
+    ...TYPO.hero,
+    color: KIDS_THEME.ink,
+    textAlign: "center",
+    lineHeight: 42,
+  },
+  slideDesc: {
+    ...TYPO.bodyLg,
+    color: KIDS_THEME.graphite,
+    textAlign: "center",
+    paddingHorizontal: 16,
+    marginTop: 4,
+    lineHeight: 22,
   },
 
-  // Actions
-  actions: {
-    marginTop: "auto",
-    gap: 12,
+  // Alt: indikatör + CTA
+  bottomAbsolute: {
+    position: "absolute",
+    bottom: 0, left: 0, right: 0,
+    paddingHorizontal: 24,
+    paddingTop: 8,
+    paddingBottom: 24,
+    gap: 18,
   },
-  primaryBtn: {
-    borderRadius: 22,
+  dots: {
+    flexDirection: "row",
+    justifyContent: "center",
+    gap: 6,
+  },
+  dot: {
+    height: 8,
+    borderRadius: 4,
+  },
+  cta: {
+    borderRadius: RADIUS.xl,
     overflow: "hidden",
-    shadowColor: "#FF6B9D",
-    shadowOpacity: 0.5,
-    shadowRadius: 14,
-    shadowOffset: { width: 0, height: 8 },
-    elevation: 8,
   },
-  primaryBtnInner: {
+  ctaGrad: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
     paddingVertical: 18,
     gap: 12,
   },
-  primaryBtnEmoji: { fontSize: 24 },
-  primaryBtnText: {
-    fontSize: 17,
-    fontWeight: "900",
-    color: "#fff",
-    letterSpacing: 0.5,
-  },
-  primaryBtnArrow: {
-    fontSize: 22,
-    color: "#fff",
-    fontWeight: "900",
-  },
-  secondaryBtn: {
-    paddingVertical: 12,
-    alignItems: "center",
-  },
-  secondaryBtnText: {
-    fontSize: 13,
-    fontWeight: "700",
-    color: BRAND.charcoal,
-    textDecorationLine: "underline",
-  },
+  ctaText: { ...TYPO.button, color: "#fff" },
+  ctaArrow: { fontSize: 22, color: "#fff", fontFamily: "Fredoka_700Bold" },
 });
