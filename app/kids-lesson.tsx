@@ -11,6 +11,9 @@ import Animated, {
 
 import { KevoMascot } from "@/components/kevo-mascot";
 import { SoundButton } from "@/components/kids/sound-button";
+import { Confetti } from "@/components/kids/confetti";
+import { StoryIntro } from "@/components/kids/story-intro";
+import { FloatingBalloons } from "@/components/kids/floating-balloons";
 import { useApp } from "@/data/app-context";
 import {
   getKidsCategoryByKey, getKidsLessons,
@@ -27,9 +30,11 @@ import {
 
 export default function KidsLessonScreen() {
   const { activeCategory, completed, addXp, finishLesson, curLesson, startLesson } = useApp();
+  const [showIntro, setShowIntro] = useState(true);
   const [stepIdx, setStepIdx] = useState(0);
   const [correctCount, setCorrectCount] = useState(0);
   const [done, setDone] = useState(false);
+  const [confettiOn, setConfettiOn] = useState(false);
 
   const cat = activeCategory ? getKidsCategoryByKey(activeCategory) : null;
   const lessons = cat ? getKidsLessons(cat, 5) : [];
@@ -38,6 +43,11 @@ export default function KidsLessonScreen() {
   if (!cat || !lesson) {
     router.replace("/(tabs)");
     return null;
+  }
+
+  // Story intro açıksa onu göster
+  if (showIntro) {
+    return <StoryIntro category={cat} onDone={() => setShowIntro(false)} />;
   }
 
   const step = lesson.steps[stepIdx];
@@ -55,6 +65,8 @@ export default function KidsLessonScreen() {
 
   const onCorrect = () => {
     setCorrectCount((c) => c + 1);
+    setConfettiOn(true);
+    setTimeout(() => setConfettiOn(false), 1500);
     try { Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success); } catch {}
   };
 
@@ -69,28 +81,36 @@ export default function KidsLessonScreen() {
   }
 
   return (
-    <SafeAreaView style={[styles.safe, { backgroundColor: "#FFF8E7" }]} edges={["top"]}>
-      {/* Top bar: progress + heart */}
-      <View style={styles.topBar}>
-        <Pressable onPress={() => router.replace("/(tabs)")} hitSlop={12}>
-          <Text style={{ fontSize: 24, color: "#5C4033" }}>✕</Text>
-        </Pressable>
-        <View style={styles.progressTrack}>
-          <View style={[styles.progressFill, { width: `${progressPct}%`, backgroundColor: cat.color }]} />
-        </View>
-        <Text style={{ fontSize: 14, fontWeight: "900", color: cat.color }}>
-          {stepIdx + 1}/{totalSteps}
-        </Text>
-      </View>
+    <View style={{ flex: 1, backgroundColor: "#FFF8E7" }}>
+      {/* Hafif yüzen balon arka plan (4 balon) */}
+      <FloatingBalloons count={4} />
 
-      {step.type === "learn" && <LearnStep step={step} cat={cat} onNext={next} />}
-      {step.type === "pickEmoji" && (
-        <PickEmojiStep step={step} cat={cat} onNext={next} onCorrect={onCorrect} onWrong={onWrong} />
-      )}
-      {step.type === "pickWord" && (
-        <PickWordStep step={step} cat={cat} onNext={next} onCorrect={onCorrect} onWrong={onWrong} />
-      )}
-    </SafeAreaView>
+      <SafeAreaView style={[styles.safe, { backgroundColor: "transparent" }]} edges={["top"]}>
+        {/* Top bar: progress + heart */}
+        <View style={styles.topBar}>
+          <Pressable onPress={() => router.replace("/(tabs)")} hitSlop={12}>
+            <Text style={{ fontSize: 24, color: "#5C4033" }}>✕</Text>
+          </Pressable>
+          <View style={styles.progressTrack}>
+            <View style={[styles.progressFill, { width: `${progressPct}%`, backgroundColor: cat.color }]} />
+          </View>
+          <Text style={{ fontSize: 14, fontWeight: "900", color: cat.color }}>
+            {stepIdx + 1}/{totalSteps}
+          </Text>
+        </View>
+
+        {step.type === "learn" && <LearnStep step={step} cat={cat} onNext={next} />}
+        {step.type === "pickEmoji" && (
+          <PickEmojiStep step={step} cat={cat} onNext={next} onCorrect={onCorrect} onWrong={onWrong} />
+        )}
+        {step.type === "pickWord" && (
+          <PickWordStep step={step} cat={cat} onNext={next} onCorrect={onCorrect} onWrong={onWrong} />
+        )}
+      </SafeAreaView>
+
+      {/* Kutlama efekti */}
+      <Confetti visible={confettiOn} count={45} />
+    </View>
   );
 }
 
