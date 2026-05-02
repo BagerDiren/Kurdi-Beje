@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { View, Text, Pressable, StyleSheet, ScrollView } from "react-native";
+import { View, Text, Pressable, StyleSheet, ScrollView, Image } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
 import { router } from "expo-router";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -142,7 +142,16 @@ function LearnStep({ step, cat, onNext }: {
       <Text style={styles.lead}>YENİ KELİME ÖĞREN</Text>
 
       <Animated.View style={[styles.bigEmojiCard, { backgroundColor: cat.color + "18", borderColor: cat.color }, heroStyle]}>
-        <Text style={styles.bigEmoji}>{w.emoji}</Text>
+        {w.photo ? (
+          <View style={styles.photoWrap}>
+            <Image source={{ uri: w.photo }} style={styles.photoImg} resizeMode="cover" />
+            <View style={[styles.photoEmojiTag, { backgroundColor: cat.color }]}>
+              <Text style={{ fontSize: 32 }}>{w.emoji}</Text>
+            </View>
+          </View>
+        ) : (
+          <Text style={styles.bigEmoji}>{w.emoji}</Text>
+        )}
       </Animated.View>
 
       <View style={styles.wordWithSound}>
@@ -230,7 +239,16 @@ function PickEmojiStep({ step, cat, onNext, onCorrect, onWrong }: {
                 },
               ]}
             >
-              <Text style={styles.tileEmoji}>{opt.emoji}</Text>
+              {opt.photo ? (
+                <View style={styles.tilePhotoWrap}>
+                  <Image source={{ uri: opt.photo }} style={styles.tilePhoto} resizeMode="cover" />
+                  <View style={styles.tilePhotoEmoji}>
+                    <Text style={{ fontSize: 22 }}>{opt.emoji}</Text>
+                  </View>
+                </View>
+              ) : (
+                <Text style={styles.tileEmoji}>{opt.emoji}</Text>
+              )}
               {isCorrect && <Text style={styles.tileMark}>✓</Text>}
               {isWrong && <Text style={styles.tileMark}>✗</Text>}
             </Pressable>
@@ -438,6 +456,30 @@ const styles = StyleSheet.create({
     minHeight: 200,
   },
   bigEmoji: { fontSize: 110 },
+  photoWrap: {
+    width: "100%",
+    aspectRatio: 1.4,
+    borderRadius: 22,
+    overflow: "hidden",
+    position: "relative",
+  },
+  photoImg: { width: "100%", height: "100%" },
+  photoEmojiTag: {
+    position: "absolute",
+    bottom: 12,
+    right: 12,
+    width: 60,
+    height: 60,
+    borderRadius: 18,
+    alignItems: "center",
+    justifyContent: "center",
+    borderWidth: 3,
+    borderColor: "#fff",
+    shadowColor: "#000",
+    shadowOpacity: 0.25,
+    shadowRadius: 6,
+    elevation: 4,
+  },
 
   // Word + sound combo
   wordWithSound: {
@@ -482,6 +524,25 @@ const styles = StyleSheet.create({
     position: "relative",
   },
   tileEmoji: { fontSize: 70 },
+  tilePhotoWrap: { width: "100%", height: "100%", borderRadius: 18, overflow: "hidden", position: "relative" },
+  tilePhoto: { width: "100%", height: "100%" },
+  tilePhotoEmoji: {
+    position: "absolute",
+    bottom: 4,
+    right: 4,
+    width: 36,
+    height: 36,
+    borderRadius: 12,
+    backgroundColor: "rgba(255,255,255,0.95)",
+    alignItems: "center",
+    justifyContent: "center",
+    borderWidth: 2,
+    borderColor: "#fff",
+    shadowColor: "#000",
+    shadowOpacity: 0.2,
+    shadowRadius: 4,
+    elevation: 3,
+  },
   tileMark: {
     position: "absolute",
     top: 8,

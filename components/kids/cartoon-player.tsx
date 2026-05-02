@@ -1,6 +1,6 @@
-import { useState } from "react";
+import { useState, useCallback } from "react";
 import { View, Text, ActivityIndicator, StyleSheet, Dimensions } from "react-native";
-import { WebView } from "react-native-webview";
+import YoutubePlayer from "react-native-youtube-iframe";
 
 const { width: SW } = Dimensions.get("window");
 const VIDEO_HEIGHT = (SW * 9) / 16;
@@ -11,56 +11,45 @@ type Props = {
 };
 
 /**
- * YouTube videosunu in-app embed olarak oynatır.
- * react-native-webview kullanır.
- *
- * Mobile YouTube embed URL'i: ?playsinline=1&rel=0&modestbranding=1
+ * Profesyonel YouTube oynatıcı.
+ * react-native-youtube-iframe kullanıyor — IFrame Player API ile direkt
+ * iletişim, embed kısıtlamalarını aşar, kontroller stabil.
  */
-export function CartoonPlayer({ videoId, autoplay = false }: Props) {
-  const [loading, setLoading] = useState(true);
+export function CartoonPlayer({ videoId, autoplay = true }: Props) {
+  const [playing, setPlaying] = useState(autoplay);
+  const [ready, setReady] = useState(false);
 
-  const html = `
-    <!DOCTYPE html>
-    <html>
-      <head>
-        <meta charset="utf-8" />
-        <meta name="viewport" content="width=device-width, initial-scale=1" />
-        <style>
-          body, html { margin: 0; padding: 0; background: #000; height: 100%; }
-          .wrap { position: relative; width: 100%; height: 100%; }
-          iframe {
-            position: absolute; top: 0; left: 0;
-            width: 100%; height: 100%; border: 0;
-          }
-        </style>
-      </head>
-      <body>
-        <div class="wrap">
-          <iframe
-            src="https://www.youtube.com/embed/${videoId}?playsinline=1&rel=0&modestbranding=1${autoplay ? "&autoplay=1" : ""}"
-            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-            allowfullscreen></iframe>
-        </div>
-      </body>
-    </html>
-  `;
+  const onReady = useCallback(() => setReady(true), []);
+  const onStateChange = useCallback((state: string) => {
+    if (state === "ended") setPlaying(false);
+  }, []);
+  const onError = useCallback(() => setReady(true), []);
 
   return (
     <View style={[styles.container, { height: VIDEO_HEIGHT }]}>
-      <WebView
-        originWhitelist={["*"]}
-        source={{ html }}
-        allowsFullscreenVideo
-        javaScriptEnabled
-        domStorageEnabled
-        mediaPlaybackRequiresUserAction={!autoplay}
-        onLoad={() => setLoading(false)}
-        style={{ flex: 1, backgroundColor: "#000" }}
+      <YoutubePlayer
+        height={VIDEO_HEIGHT}
+        width={SW}
+        play={playing}
+        videoId={videoId}
+        onReady={onReady}
+        onChangeState={onStateChange}
+        onError={onError}
+        webViewProps={{
+          allowsInlineMediaPlayback: true,
+          mediaPlaybackRequiresUserAction: false,
+        }}
+        initialPlayerParams={{
+          controls: true,
+          modestbranding: true,
+          rel: false,
+          preventFullScreen: false,
+        }}
       />
-      {loading && (
+      {!ready && (
         <View style={styles.loadingOverlay} pointerEvents="none">
           <ActivityIndicator color="#fff" size="large" />
-          <Text style={styles.loadingText}>Yükleniyor...</Text>
+          <Text style={styles.loadingText}>Yükleniyor…</Text>
         </View>
       )}
     </View>
@@ -78,6 +67,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     gap: 8,
+    backgroundColor: "rgba(0,0,0,0.6)",
   },
   loadingText: {
     color: "#fff",

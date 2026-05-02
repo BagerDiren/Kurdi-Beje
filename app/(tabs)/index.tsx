@@ -1,4 +1,4 @@
-import { View, Text, Pressable, StyleSheet, ScrollView } from "react-native";
+import { View, Text, Pressable, StyleSheet, ScrollView, Image } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
 import { router } from "expo-router";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -410,16 +410,27 @@ function ChildHome() {
                   colors={cat.bgGradient as unknown as readonly [string, string, ...string[]]}
                   style={kidStyles.tileGrad}
                 >
-                  <Text style={kidStyles.tileEmoji}>{cat.emoji}</Text>
-                  <Text style={kidStyles.tileTitle}>{cat.title}</Text>
-                  <Text style={kidStyles.tileTitleKu}>{cat.titleKu}</Text>
-                  <View style={kidStyles.tileFoot}>
-                    <Text style={kidStyles.tileMeta}>
-                      {cat.words.length} kelime
-                    </Text>
-                    {doneCount > 0 && (
-                      <Text style={kidStyles.tileBadge}>{doneCount}/{total} ✓</Text>
-                    )}
+                  {/* Foto önizlemesi varsa kategori için ilk kelimenin fotoğrafını göster */}
+                  {cat.words[0]?.photo && (
+                    <Image
+                      source={{ uri: cat.words[0].photo }}
+                      style={kidStyles.tilePhotoBg}
+                      resizeMode="cover"
+                    />
+                  )}
+                  <View style={kidStyles.tileShade} />
+                  <View style={kidStyles.tileContent}>
+                    <Text style={kidStyles.tileEmoji}>{cat.emoji}</Text>
+                    <Text style={kidStyles.tileTitle}>{cat.title}</Text>
+                    <Text style={kidStyles.tileTitleKu}>{cat.titleKu}</Text>
+                    <View style={kidStyles.tileFoot}>
+                      <Text style={kidStyles.tileMeta}>
+                        {cat.words.length} kelime
+                      </Text>
+                      {doneCount > 0 && (
+                        <Text style={kidStyles.tileBadge}>{doneCount}/{total} ✓</Text>
+                      )}
+                    </View>
                   </View>
                 </LG>
               </Pressable>
@@ -573,8 +584,24 @@ const kidStyles = StyleSheet.create({
     padding: 16,
     alignItems: "center",
     justifyContent: "space-between",
+    position: "relative",
+    overflow: "hidden",
   },
-  tileEmoji: { fontSize: 64 },
+  tilePhotoBg: {
+    ...StyleSheet.absoluteFillObject,
+    opacity: 0.55,
+  },
+  tileShade: {
+    ...StyleSheet.absoluteFillObject,
+    backgroundColor: "rgba(0,0,0,0.18)",
+  },
+  tileContent: {
+    flex: 1,
+    width: "100%",
+    alignItems: "center",
+    justifyContent: "space-between",
+  },
+  tileEmoji: { fontSize: 56 },
   tileTitle: { fontSize: 18, fontWeight: "900", color: "#fff", marginTop: 4 },
   tileTitleKu: { fontSize: 12, color: "rgba(255,255,255,0.85)", fontWeight: "700", fontStyle: "italic" },
   tileFoot: { flexDirection: "row", justifyContent: "space-between", width: "100%", alignItems: "center" },

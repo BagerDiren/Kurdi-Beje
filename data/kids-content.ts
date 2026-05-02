@@ -13,6 +13,7 @@ export type KidsWord = {
   tr: string;        // Türkçe
   emoji: string;     // büyük görsel
   sound?: string;    // varsa farklı TTS metni (Kürtçe okunamayan harfler için)
+  photo?: string;    // telifsiz gerçek fotoğraf URL (Pexels CDN, opsiyonel)
 };
 
 export type KidsStep =
@@ -51,16 +52,17 @@ export const KIDS_CATEGORIES: KidsCategory[] = [
     color: "#F39C12",
     bgGradient: ["#FFB740", "#F39C12"] as const,
     words: [
-      { ku: "Kûçik",   tr: "Köpek",     emoji: "🐶" },
-      { ku: "Pisîk",   tr: "Kedi",      emoji: "🐱" },
-      { ku: "Ga",      tr: "İnek",      emoji: "🐮" },
-      { ku: "Hesp",    tr: "At",        emoji: "🐴" },
-      { ku: "Mirîşk",  tr: "Tavuk",     emoji: "🐔" },
-      { ku: "Pez",     tr: "Koyun",     emoji: "🐑" },
-      { ku: "Şêr",     tr: "Aslan",     emoji: "🦁" },
-      { ku: "Fîl",     tr: "Fil",       emoji: "🐘" },
-      { ku: "Teyr",    tr: "Kuş",       emoji: "🐦" },
-      { ku: "Masî",    tr: "Balık",     emoji: "🐟" },
+      // Telifsiz Pexels CDN gerçek fotoğraflar (auto-compress 600px)
+      { ku: "Kûçik",   tr: "Köpek",  emoji: "🐶", photo: "https://images.pexels.com/photos/1108099/pexels-photo-1108099.jpeg?auto=compress&cs=tinysrgb&w=600" },
+      { ku: "Pisîk",   tr: "Kedi",   emoji: "🐱", photo: "https://images.pexels.com/photos/45201/kitty-cat-kitten-pet-45201.jpeg?auto=compress&cs=tinysrgb&w=600" },
+      { ku: "Ga",      tr: "İnek",   emoji: "🐮", photo: "https://images.pexels.com/photos/735968/pexels-photo-735968.jpeg?auto=compress&cs=tinysrgb&w=600" },
+      { ku: "Hesp",    tr: "At",     emoji: "🐴", photo: "https://images.pexels.com/photos/52500/horse-herd-fog-nebel-52500.jpeg?auto=compress&cs=tinysrgb&w=600" },
+      { ku: "Mirîşk",  tr: "Tavuk",  emoji: "🐔", photo: "https://images.pexels.com/photos/1300357/pexels-photo-1300357.jpeg?auto=compress&cs=tinysrgb&w=600" },
+      { ku: "Pez",     tr: "Koyun",  emoji: "🐑", photo: "https://images.pexels.com/photos/288621/pexels-photo-288621.jpeg?auto=compress&cs=tinysrgb&w=600" },
+      { ku: "Şêr",     tr: "Aslan",  emoji: "🦁", photo: "https://images.pexels.com/photos/247502/pexels-photo-247502.jpeg?auto=compress&cs=tinysrgb&w=600" },
+      { ku: "Fîl",     tr: "Fil",    emoji: "🐘", photo: "https://images.pexels.com/photos/66898/elephant-cub-tsavo-kenya-66898.jpeg?auto=compress&cs=tinysrgb&w=600" },
+      { ku: "Teyr",    tr: "Kuş",    emoji: "🐦", photo: "https://images.pexels.com/photos/45853/grey-crowned-crane-bird-crane-animal-45853.jpeg?auto=compress&cs=tinysrgb&w=600" },
+      { ku: "Masî",    tr: "Balık",  emoji: "🐟", photo: "https://images.pexels.com/photos/128756/pexels-photo-128756.jpeg?auto=compress&cs=tinysrgb&w=600" },
     ],
   },
   {
@@ -109,16 +111,16 @@ export const KIDS_CATEGORIES: KidsCategory[] = [
     color: "#27AE60",
     bgGradient: ["#52C77E", "#27AE60"] as const,
     words: [
-      { ku: "Sêv",    tr: "Elma",       emoji: "🍎" },
-      { ku: "Tirî",   tr: "Üzüm",       emoji: "🍇" },
-      { ku: "Hinar",  tr: "Nar",        emoji: "🍑" },
-      { ku: "Nan",    tr: "Ekmek",      emoji: "🍞" },
-      { ku: "Av",     tr: "Su",         emoji: "💧" },
-      { ku: "Şîr",    tr: "Süt",        emoji: "🥛" },
-      { ku: "Hêk",    tr: "Yumurta",    emoji: "🥚" },
-      { ku: "Penîr",  tr: "Peynir",     emoji: "🧀" },
-      { ku: "Çay",    tr: "Çay",        emoji: "🍵" },
-      { ku: "Şorbe",  tr: "Çorba",      emoji: "🍲" },
+      { ku: "Sêv",    tr: "Elma",    emoji: "🍎", photo: "https://images.pexels.com/photos/102104/pexels-photo-102104.jpeg?auto=compress&cs=tinysrgb&w=600" },
+      { ku: "Tirî",   tr: "Üzüm",    emoji: "🍇", photo: "https://images.pexels.com/photos/708777/pexels-photo-708777.jpeg?auto=compress&cs=tinysrgb&w=600" },
+      { ku: "Hinar",  tr: "Nar",     emoji: "🍑", photo: "https://images.pexels.com/photos/8336965/pexels-photo-8336965.jpeg?auto=compress&cs=tinysrgb&w=600" },
+      { ku: "Nan",    tr: "Ekmek",   emoji: "🍞", photo: "https://images.pexels.com/photos/209403/pexels-photo-209403.jpeg?auto=compress&cs=tinysrgb&w=600" },
+      { ku: "Av",     tr: "Su",      emoji: "💧", photo: "https://images.pexels.com/photos/2995299/pexels-photo-2995299.jpeg?auto=compress&cs=tinysrgb&w=600" },
+      { ku: "Şîr",    tr: "Süt",     emoji: "🥛", photo: "https://images.pexels.com/photos/248412/pexels-photo-248412.jpeg?auto=compress&cs=tinysrgb&w=600" },
+      { ku: "Hêk",    tr: "Yumurta", emoji: "🥚", photo: "https://images.pexels.com/photos/162712/egg-white-food-protein-162712.jpeg?auto=compress&cs=tinysrgb&w=600" },
+      { ku: "Penîr",  tr: "Peynir",  emoji: "🧀", photo: "https://images.pexels.com/photos/821365/pexels-photo-821365.jpeg?auto=compress&cs=tinysrgb&w=600" },
+      { ku: "Çay",    tr: "Çay",     emoji: "🍵", photo: "https://images.pexels.com/photos/904616/pexels-photo-904616.jpeg?auto=compress&cs=tinysrgb&w=600" },
+      { ku: "Şorbe",  tr: "Çorba",   emoji: "🍲", photo: "https://images.pexels.com/photos/539451/pexels-photo-539451.jpeg?auto=compress&cs=tinysrgb&w=600" },
     ],
   },
   {

@@ -4,45 +4,102 @@ import { LinearGradient } from "expo-linear-gradient";
 import { router } from "expo-router";
 import { SafeAreaView } from "react-native-safe-area-context";
 import Animated, {
-  useSharedValue, useAnimatedStyle, withTiming, withDelay, Easing,
+  useSharedValue, useAnimatedStyle, withTiming, withDelay,
+  withRepeat, withSequence, Easing,
 } from "react-native-reanimated";
 
 import { KevoMascot } from "@/components/kevo-mascot";
+import { FloatingBalloons } from "@/components/kids/floating-balloons";
 import { BRAND, SHADOWS } from "@/data/brand";
 import { useApp } from "@/data/app-context";
 
-const { width } = Dimensions.get("window");
+const { width: SW } = Dimensions.get("window");
 
 /**
- * Karşılama ekranı — KurdîBêje özgün hikâyesi.
- * Tamamen Türkçe. Hedef: Türkçe konuşanlara Kürtçe öğretmek.
- *
- * Görsel: gece sona ermiş, gün ışığında dağlar, Kevo karşılıyor,
- * altında 3 küçük "değer önerisi" kartı, en altta CTA'lar.
+ * Karşılama ekranı — çocuk dostu eğlenceli versiyon.
+ * Yüzen balonlar, animasyonlu Kevo, parıldayan yıldızlar, dans eden
+ * hayvanlar… Türkçe konuşan çocuklara Kürtçe öğretiyoruz, keyifle!
  */
 export default function WelcomeScreen() {
   const { setAge, setLvl } = useApp();
 
-  // Animasyonlar
-  const heroOpacity = useSharedValue(0);
-  const heroY = useSharedValue(30);
-  const cardOpacity = useSharedValue(0);
-  const cardY = useSharedValue(40);
+  // Hero animasyonları
+  const kevoY = useSharedValue(50);
+  const kevoOp = useSharedValue(0);
+  const kevoBounce = useSharedValue(0);
+  const brandScale = useSharedValue(0.6);
+  const brandOp = useSharedValue(0);
+  const sub1Op = useSharedValue(0);
+  const featureY = useSharedValue(60);
+  const featureOp = useSharedValue(0);
+  const ctaOp = useSharedValue(0);
+  const ctaScale = useSharedValue(0.7);
+  const star1 = useSharedValue(0);
+  const star2 = useSharedValue(0);
+  const star3 = useSharedValue(0);
 
   useEffect(() => {
-    heroOpacity.value = withTiming(1, { duration: 600 });
-    heroY.value = withTiming(0, { duration: 700, easing: Easing.out(Easing.cubic) });
-    cardOpacity.value = withDelay(300, withTiming(1, { duration: 500 }));
-    cardY.value = withDelay(300, withTiming(0, { duration: 600, easing: Easing.out(Easing.cubic) }));
+    // Faz 1: Kevo gelir
+    kevoOp.value = withTiming(1, { duration: 600 });
+    kevoY.value = withTiming(0, { duration: 700, easing: Easing.out(Easing.back(1.2)) });
+    // Sürekli zıplama
+    kevoBounce.value = withRepeat(
+      withSequence(
+        withTiming(-12, { duration: 600, easing: Easing.inOut(Easing.sin) }),
+        withTiming(0, { duration: 600, easing: Easing.inOut(Easing.sin) }),
+      ),
+      -1, false,
+    );
+
+    // Faz 2: Brand pop
+    brandScale.value = withDelay(400, withTiming(1, { duration: 500, easing: Easing.out(Easing.back(1.4)) }));
+    brandOp.value = withDelay(400, withTiming(1, { duration: 400 }));
+    sub1Op.value = withDelay(700, withTiming(1, { duration: 400 }));
+
+    // Faz 3: Yıldızlar parıldar
+    star1.value = withDelay(900, withRepeat(
+      withSequence(withTiming(1, { duration: 800 }), withTiming(0.3, { duration: 800 })),
+      -1, true,
+    ));
+    star2.value = withDelay(1100, withRepeat(
+      withSequence(withTiming(1, { duration: 700 }), withTiming(0.3, { duration: 700 })),
+      -1, true,
+    ));
+    star3.value = withDelay(1300, withRepeat(
+      withSequence(withTiming(1, { duration: 900 }), withTiming(0.3, { duration: 900 })),
+      -1, true,
+    ));
+
+    // Faz 4: Özellikler
+    featureY.value = withDelay(900, withTiming(0, { duration: 500, easing: Easing.out(Easing.cubic) }));
+    featureOp.value = withDelay(900, withTiming(1, { duration: 500 }));
+
+    // Faz 5: CTA
+    ctaOp.value = withDelay(1200, withTiming(1, { duration: 400 }));
+    ctaScale.value = withDelay(1200, withTiming(1, { duration: 500, easing: Easing.out(Easing.back(1.3)) }));
   }, []);
 
-  const heroStyle = useAnimatedStyle(() => ({
-    opacity: heroOpacity.value,
-    transform: [{ translateY: heroY.value }],
+  const kevoStyle = useAnimatedStyle(() => ({
+    opacity: kevoOp.value,
+    transform: [
+      { translateY: kevoY.value + kevoBounce.value },
+    ],
   }));
-  const cardStyle = useAnimatedStyle(() => ({
-    opacity: cardOpacity.value,
-    transform: [{ translateY: cardY.value }],
+  const brandStyle = useAnimatedStyle(() => ({
+    opacity: brandOp.value,
+    transform: [{ scale: brandScale.value }],
+  }));
+  const sub1Style = useAnimatedStyle(() => ({ opacity: sub1Op.value }));
+  const star1Style = useAnimatedStyle(() => ({ opacity: star1.value }));
+  const star2Style = useAnimatedStyle(() => ({ opacity: star2.value }));
+  const star3Style = useAnimatedStyle(() => ({ opacity: star3.value }));
+  const featureStyle = useAnimatedStyle(() => ({
+    opacity: featureOp.value,
+    transform: [{ translateY: featureY.value }],
+  }));
+  const ctaStyle = useAnimatedStyle(() => ({
+    opacity: ctaOp.value,
+    transform: [{ scale: ctaScale.value }],
   }));
 
   const skipToTabs = () => {
@@ -52,268 +109,235 @@ export default function WelcomeScreen() {
   };
 
   const features = [
-    { icon: "🏔️", title: "Dağdan gelen kelimeler", sub: "Otantik Kurmancî" },
-    { icon: "☀️",  title: "Her gün 5 dakika",        sub: "Düzenli pratik" },
-    { icon: "🎯", title: "23 konu, 1000+ ders",     sub: "Yeni başlayandan ileri seviyeye" },
+    { icon: "🎮", title: "Eğlenceli Oyunlar", color: "#FF6B9D" },
+    { icon: "📺", title: "Çizgi Filmler",     color: "#1CB0F6" },
+    { icon: "🎵", title: "Şarkı & Sesler",    color: "#F39C12" },
+    { icon: "⭐", title: "Yıldız Topla",       color: "#9B59B6" },
   ];
 
   return (
-    <SafeAreaView style={styles.safe}>
-      {/* Background gradient (krem → gün ışığı) */}
+    <View style={{ flex: 1, backgroundColor: BRAND.cream }}>
+      {/* Renkli yumuşak gradient bg */}
       <LinearGradient
-        colors={[BRAND.cream, BRAND.dawn, "#FFE0A8"]}
+        colors={["#FFE4F3", "#FFF4DC", "#E0F7FA"] as unknown as readonly [string, string, ...string[]]}
         style={StyleSheet.absoluteFillObject}
       />
 
-      {/* Top decorative sun */}
-      <View style={styles.sunDeco} />
+      {/* Yüzen balonlar */}
+      <FloatingBalloons count={6} />
 
-      {/* Mountain silhouettes (subtle, top corner) */}
-      <View style={styles.mountainsBg}>
-        <View style={[styles.mountainSm, { left: width * 0.05, height: 60 }]} />
-        <View style={[styles.mountainSm, { left: width * 0.32, height: 80 }]} />
-        <View style={[styles.mountainSm, { left: width * 0.6, height: 50 }]} />
-      </View>
+      {/* Parıldayan yıldızlar (hero arka plan) */}
+      <Animated.Text style={[styles.starDeco, { top: 80, left: 40 }, star1Style]}>✨</Animated.Text>
+      <Animated.Text style={[styles.starDeco, { top: 120, right: 50 }, star2Style]}>⭐</Animated.Text>
+      <Animated.Text style={[styles.starDeco, { top: 200, left: 25 }, star3Style]}>✨</Animated.Text>
+      <Animated.Text style={[styles.starDeco, { top: 60, right: 90, fontSize: 18 }, star2Style]}>🌟</Animated.Text>
 
-      <View style={styles.content}>
-        {/* Hero */}
-        <Animated.View style={[styles.hero, heroStyle]}>
-          <View style={styles.kevoBox}>
-            <KevoMascot size={170} mood="happy" idle />
+      <SafeAreaView style={{ flex: 1 }}>
+        <View style={styles.content}>
+          {/* HERO */}
+          <View style={styles.hero}>
+            <Animated.View style={[styles.kevoWrap, kevoStyle]}>
+              <KevoMascot size={180} mood="happy" speaking idle />
+            </Animated.View>
+
+            <Animated.View style={brandStyle}>
+              <Text style={styles.brand}>KurdîBêje</Text>
+              <View style={styles.brandUnderline} />
+            </Animated.View>
+
+            <Animated.View style={sub1Style}>
+              <Text style={styles.headline}>
+                Kürtçe öğrenmenin{"\n"}<Text style={{ color: "#FF6B9D" }}>en eğlenceli</Text> yolu!
+              </Text>
+              <Text style={styles.sub}>🎉 Çocuklar ve yetişkinler için 🎉</Text>
+            </Animated.View>
           </View>
 
-          <Text style={styles.brandName}>KurdîBêje</Text>
-          <View style={styles.brandUnderline} />
-
-          <Text style={styles.headline}>
-            Türkçe konuşanlar için{"\n"}
-            <Text style={{ color: BRAND.sun }}>Kürtçe</Text> öğrenmenin yolu
-          </Text>
-
-          <Text style={styles.subhead}>
-            Mezopotamya'nın binlerce yıllık dilini Kevo ile keşfet
-          </Text>
-        </Animated.View>
-
-        {/* Features */}
-        <Animated.View style={[styles.features, cardStyle]}>
-          {features.map((f, i) => (
-            <View key={i} style={styles.feature}>
-              <View style={styles.featureIcon}>
-                <Text style={{ fontSize: 22 }}>{f.icon}</Text>
+          {/* ÖZELLİK BADGES */}
+          <Animated.View style={[styles.features, featureStyle]}>
+            {features.map((f, i) => (
+              <View
+                key={i}
+                style={[
+                  styles.feature,
+                  {
+                    backgroundColor: "#fff",
+                    borderColor: f.color,
+                  },
+                ]}
+              >
+                <View style={[styles.featureIcon, { backgroundColor: f.color }]}>
+                  <Text style={{ fontSize: 22 }}>{f.icon}</Text>
+                </View>
+                <Text style={[styles.featureTitle, { color: f.color }]}>{f.title}</Text>
               </View>
-              <View style={{ flex: 1 }}>
-                <Text style={styles.featureTitle}>{f.title}</Text>
-                <Text style={styles.featureSub}>{f.sub}</Text>
-              </View>
-            </View>
-          ))}
-        </Animated.View>
+            ))}
+          </Animated.View>
 
-        {/* Actions */}
-        <View style={styles.actions}>
-          <Pressable
-            onPress={() => router.push("/onboarding/mode")}
-            style={({ pressed }) => [styles.primaryBtn, pressed && { opacity: 0.9, transform: [{ scale: 0.98 }] }]}
-          >
-            <LinearGradient
-              colors={[BRAND.mountainLight, BRAND.mountain] as unknown as readonly [string, string, ...string[]]}
-              start={{ x: 0, y: 0 }}
-              end={{ x: 1, y: 1 }}
-              style={styles.primaryBtnInner}
+          {/* CTA */}
+          <Animated.View style={[styles.actions, ctaStyle]}>
+            <Pressable
+              onPress={() => router.push("/onboarding/mode")}
+              style={({ pressed }) => [
+                styles.primaryBtn,
+                pressed && { opacity: 0.92, transform: [{ scale: 0.97 }] },
+              ]}
             >
-              <Text style={styles.primaryBtnText}>Hadi Başlayalım</Text>
-              <Text style={styles.primaryBtnArrow}>→</Text>
-            </LinearGradient>
-          </Pressable>
+              <LinearGradient
+                colors={["#FF6B9D", "#FF4778", "#E91E63"] as unknown as readonly [string, string, ...string[]]}
+                start={{ x: 0, y: 0 }}
+                end={{ x: 1, y: 1 }}
+                style={styles.primaryBtnInner}
+              >
+                <Text style={styles.primaryBtnEmoji}>🚀</Text>
+                <Text style={styles.primaryBtnText}>HADİ BAŞLAYALIM</Text>
+                <Text style={styles.primaryBtnArrow}>→</Text>
+              </LinearGradient>
+            </Pressable>
 
-          <Pressable
-            onPress={skipToTabs}
-            style={({ pressed }) => [styles.secondaryBtn, pressed && { opacity: 0.85 }]}
-          >
-            <Text style={styles.secondaryBtnText}>Zaten hesabım var</Text>
-          </Pressable>
-
-          <Text style={styles.legal}>
-            Devam ederek <Text style={{ fontWeight: "700" }}>Şartlar</Text>'ı ve{" "}
-            <Text style={{ fontWeight: "700" }}>Gizlilik</Text>'i kabul ediyorsun
-          </Text>
+            <Pressable
+              onPress={skipToTabs}
+              style={({ pressed }) => [
+                styles.secondaryBtn,
+                pressed && { opacity: 0.85 },
+              ]}
+            >
+              <Text style={styles.secondaryBtnText}>Hesabım var · giriş yap</Text>
+            </Pressable>
+          </Animated.View>
         </View>
-      </View>
-    </SafeAreaView>
+      </SafeAreaView>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
-  safe: { flex: 1, backgroundColor: BRAND.cream },
-
-  // Decorative sun (top right)
-  sunDeco: {
-    position: "absolute",
-    top: -40,
-    right: -40,
-    width: 220,
-    height: 220,
-    borderRadius: 110,
-    backgroundColor: BRAND.sunLight,
-    opacity: 0.55,
-  },
-  mountainsBg: {
-    position: "absolute",
-    top: 80,
-    left: 0,
-    right: 0,
-    height: 100,
-    opacity: 0.18,
-  },
-  mountainSm: {
-    position: "absolute",
-    bottom: 0,
-    width: 0,
-    borderStyle: "solid",
-    borderLeftWidth: 80,
-    borderRightWidth: 80,
-    borderBottomWidth: 0,
-    borderLeftColor: "transparent",
-    borderRightColor: "transparent",
-    backgroundColor: BRAND.mountain,
-  },
-
-  // Content
   content: {
     flex: 1,
-    paddingHorizontal: 24,
-    paddingTop: 16,
+    paddingHorizontal: 22,
+    paddingTop: 8,
     paddingBottom: 16,
+  },
+
+  starDeco: {
+    position: "absolute",
+    fontSize: 24,
     zIndex: 1,
   },
 
   // Hero
   hero: {
     alignItems: "center",
-    marginTop: 24,
+    marginTop: 28,
   },
-  kevoBox: {
+  kevoWrap: {
     alignItems: "center",
-    justifyContent: "center",
-    marginBottom: 4,
+    marginBottom: 6,
   },
-  brandName: {
-    fontSize: 38,
+  brand: {
+    fontSize: 46,
     fontWeight: "900",
     color: BRAND.mountainDark,
-    letterSpacing: -1.2,
-    marginTop: 4,
+    letterSpacing: -1.4,
+    textAlign: "center",
+    textShadowColor: "rgba(255,107,157,0.25)",
+    textShadowOffset: { width: 0, height: 2 },
+    textShadowRadius: 8,
   },
   brandUnderline: {
-    width: 72,
-    height: 4,
-    borderRadius: 2,
-    backgroundColor: BRAND.sun,
-    marginTop: 6,
+    width: 80,
+    height: 5,
+    borderRadius: 3,
+    backgroundColor: "#FF6B9D",
+    alignSelf: "center",
+    marginTop: 4,
   },
   headline: {
-    fontSize: 20,
-    fontWeight: "800",
+    fontSize: 22,
+    fontWeight: "900",
     color: BRAND.ink,
     textAlign: "center",
     marginTop: 18,
-    lineHeight: 28,
-    letterSpacing: -0.3,
+    lineHeight: 30,
+    letterSpacing: -0.4,
   },
-  subhead: {
+  sub: {
     fontSize: 13,
-    fontWeight: "500",
+    fontWeight: "700",
     color: BRAND.charcoal,
     textAlign: "center",
-    marginTop: 10,
-    lineHeight: 19,
-    paddingHorizontal: 8,
+    marginTop: 8,
   },
 
-  // Features
+  // Özellik badges (4'lü grid)
   features: {
-    marginTop: 28,
+    flexDirection: "row",
+    flexWrap: "wrap",
+    justifyContent: "center",
     gap: 10,
+    marginTop: 24,
   },
   feature: {
+    width: "47%",
     flexDirection: "row",
     alignItems: "center",
-    gap: 14,
+    gap: 10,
     padding: 12,
-    paddingHorizontal: 14,
-    backgroundColor: "rgba(255,255,255,0.7)",
-    borderRadius: 14,
-    borderWidth: 1,
-    borderColor: "rgba(0,0,0,0.05)",
+    borderRadius: 16,
+    borderWidth: 2,
     ...SHADOWS.sm,
   },
   featureIcon: {
-    width: 40,
-    height: 40,
-    borderRadius: 12,
-    backgroundColor: BRAND.sunSoft,
-    alignItems: "center",
-    justifyContent: "center",
+    width: 36, height: 36, borderRadius: 12,
+    alignItems: "center", justifyContent: "center",
   },
   featureTitle: {
-    fontSize: 13,
-    fontWeight: "800",
-    color: BRAND.ink,
-  },
-  featureSub: {
-    fontSize: 11,
-    fontWeight: "500",
-    color: BRAND.charcoal,
-    marginTop: 1,
+    fontSize: 12,
+    fontWeight: "900",
+    flex: 1,
   },
 
   // Actions
   actions: {
     marginTop: "auto",
-    gap: 10,
+    gap: 12,
   },
   primaryBtn: {
-    borderRadius: 16,
+    borderRadius: 22,
     overflow: "hidden",
-    ...SHADOWS.md,
+    shadowColor: "#FF6B9D",
+    shadowOpacity: 0.5,
+    shadowRadius: 14,
+    shadowOffset: { width: 0, height: 8 },
+    elevation: 8,
   },
   primaryBtnInner: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
-    paddingVertical: 16,
-    gap: 10,
+    paddingVertical: 18,
+    gap: 12,
   },
+  primaryBtnEmoji: { fontSize: 24 },
   primaryBtnText: {
-    fontSize: 16,
+    fontSize: 17,
     fontWeight: "900",
     color: "#fff",
-    letterSpacing: 0.3,
+    letterSpacing: 0.5,
   },
   primaryBtnArrow: {
-    fontSize: 18,
+    fontSize: 22,
     color: "#fff",
     fontWeight: "900",
   },
   secondaryBtn: {
-    paddingVertical: 14,
+    paddingVertical: 12,
     alignItems: "center",
-    borderRadius: 14,
-    borderWidth: 1.5,
-    borderColor: BRAND.mountain + "55",
   },
   secondaryBtnText: {
-    fontSize: 14,
-    fontWeight: "800",
-    color: BRAND.mountainDark,
-  },
-  legal: {
-    fontSize: 10,
-    color: BRAND.smoke,
-    textAlign: "center",
-    marginTop: 8,
-    paddingHorizontal: 16,
-    lineHeight: 14,
+    fontSize: 13,
+    fontWeight: "700",
+    color: BRAND.charcoal,
+    textDecorationLine: "underline",
   },
 });
