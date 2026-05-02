@@ -9,14 +9,14 @@ import { TYPO } from "@/data/typography";
 import { useApp } from "@/data/app-context";
 
 /**
- * Giriş ekranı — Duolingo Ekran 1 karşılığı, tamamen Kurmancî.
- * Mimari: üst boşluk → Kevo + logo + slogan → alt boşluk → aksiyon butonları.
+ * Karşılama ekranı — Türkçe odaklı.
+ * Amaç: Türklere Kurmancî öğretmek. UI dili Türkçe, hedef dil Kurmancî.
  */
 export default function WelcomeScreen() {
   const { setAge, setLvl } = useApp();
 
   const skipToTabs = () => {
-    // "Hesabê min heye" — onboarding atlanıyor, default yetişkin/A1 olarak gir
+    // "Hesabım var" → varsayılan yetişkin moduna düş
     setAge("adult");
     setLvl("a1");
     router.replace("/(tabs)");
@@ -30,17 +30,18 @@ export default function WelcomeScreen() {
         <View style={styles.hero}>
           <KevoMascot size={200} mood="happy" idle />
           <Text style={styles.brand}>KurdîBêje</Text>
-          <Text style={styles.tagline}>Belaş fêr bibe. Herdem.</Text>
+          <Text style={styles.tagline}>Kurmancî öğrenmenin en eğlenceli yolu</Text>
+          <Text style={styles.taglineSub}>Belaş fêr bibe · Ücretsiz öğren</Text>
         </View>
 
         <View style={styles.spacer} />
 
         <View style={styles.actions}>
-          <DuoButton onPress={() => router.push("/intro/hello")}>
-            Dest pê bike
+          <DuoButton onPress={() => router.push("/onboarding/mode")}>
+            BAŞLA
           </DuoButton>
           <DuoButton variant="secondary" onPress={skipToTabs}>
-            Hesabê min heye
+            Zaten hesabım var
           </DuoButton>
         </View>
       </View>
@@ -61,7 +62,7 @@ const styles = StyleSheet.create({
   spacer: { flex: 1 },
   hero: {
     alignItems: "center",
-    gap: 12,
+    gap: 8,
   },
   brand: {
     ...TYPO.h1,
@@ -70,8 +71,16 @@ const styles = StyleSheet.create({
   },
   tagline: {
     ...TYPO.bodyLg,
+    color: DUO.textStrong,
+    textAlign: "center",
+    fontWeight: "700",
+    marginTop: 6,
+  },
+  taglineSub: {
+    fontSize: 13,
     color: DUO.textMuted,
     textAlign: "center",
+    fontWeight: "500",
   },
   actions: {
     gap: 12,

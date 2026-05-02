@@ -1,4 +1,5 @@
 import { createContext, useContext, useState, useCallback, useEffect, type ReactNode } from "react";
+import { router } from "expo-router";
 import { CHILD_THEME, ADULT_THEME, type AppTheme } from "./themes";
 import { T, type Translations } from "./translations";
 import { LESSONS, type Lesson, type LevelKey } from "./lessons";
@@ -71,7 +72,7 @@ const AppContext = createContext<(AppState & AppActions) | null>(null);
 
 export function AppProvider({ children }: { children: ReactNode }) {
   const [scr, setScr] = useState<ScreenName>("splash");
-  const [lang, setLangState] = useState<LangCode | null>(null);
+  const [lang, setLangState] = useState<LangCode | null>("tr");
   const [age, setAgeState] = useState<AgeMode>(null);
   const [lvl, setLvlState] = useState<LevelKey | null>(null);
   const [hearts, setHeartsState] = useState(5);
@@ -94,7 +95,8 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const [unlockedAchievements, setUnlockedAchievements] = useState<string[]>([]);
 
   const th: AppTheme = (age === "adult" ? ADULT_THEME : CHILD_THEME) as AppTheme;
-  const t = T[lang ?? "ku"];
+  // Varsayılan dil Türkçe — uygulamanın amacı Türklere Kürtçe öğretmek
+  const t = T[lang ?? "tr"];
   const levelLessons = LESSONS[lvl ?? "a1"] ?? [];
 
   const go = useCallback((s: ScreenName) => setScr(s), []);
@@ -113,6 +115,8 @@ export function AppProvider({ children }: { children: ReactNode }) {
     setCc(0);
     setLDone(false);
     setScr("lesson");
+    // KRİTİK: route'a yönlendir — yoksa ders ekranı açılmaz
+    router.push("/lesson");
   }, []);
 
   const nextStep = useCallback(() => {

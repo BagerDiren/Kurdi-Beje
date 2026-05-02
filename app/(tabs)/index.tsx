@@ -226,54 +226,65 @@ function AdultHome() {
           })}
         </ScrollView>
 
-        {/* Category grid */}
+        {/* Category list — büyük temiz kartlar (Türkçe öncelikli) */}
         <Text style={[styles.sectionTitle, { color: th.text, marginTop: 14 }]}>
-          🗂️ Mijaran ({filteredCats.length} bab)
+          🗂️ Konular  ·  {filteredCats.length} kategori
         </Text>
 
-        <View style={styles.grid}>
+        <View style={styles.catList}>
           {filteredCats.map((cat) => {
             const lessonIds = cat.lessons.map((l) => l.id);
             const doneCount = lessonIds.filter((id) => completed.includes(id)).length;
             const totalLessons = cat.lessons.length;
             const pct = totalLessons > 0 ? Math.round((doneCount / totalLessons) * 100) : 0;
+            const isStarted = doneCount > 0;
+            const isComplete = doneCount === totalLessons;
             return (
               <Pressable
                 key={cat.key}
                 onPress={() => openCategory(cat)}
-                style={[
-                  styles.catCard,
+                style={({ pressed }) => [
+                  styles.catRow,
                   {
                     backgroundColor: th.card,
-                    borderColor: doneCount > 0 ? cat.color : th.cardBorder,
+                    borderColor: isComplete ? "#FFC200" : isStarted ? cat.color : th.cardBorder,
+                    borderWidth: isComplete ? 2.5 : isStarted ? 2 : 1.5,
+                    opacity: pressed ? 0.85 : 1,
                   },
                 ]}
               >
-                <View style={[styles.catIcon, { backgroundColor: cat.color + "22" }]}>
-                  <Text style={{ fontSize: 28 }}>{cat.icon}</Text>
+                <View style={[styles.catRowIcon, { backgroundColor: cat.color }]}>
+                  <Text style={{ fontSize: 30 }}>{isComplete ? "👑" : cat.icon}</Text>
                 </View>
-                <Text style={[styles.catTitle, { color: th.text }]} numberOfLines={1}>
-                  {cat.title}
-                </Text>
-                <Text style={[styles.catSub, { color: th.textLight }]} numberOfLines={1}>
-                  {cat.titleTr}
-                </Text>
-                <View style={styles.catMeta}>
-                  <Text style={[styles.catMetaText, { color: th.textMid }]}>
-                    {cat.words.length} peyv
+                <View style={{ flex: 1 }}>
+                  <View style={styles.catRowTitle}>
+                    <Text style={{ fontSize: 16, fontWeight: "900", color: th.text }} numberOfLines={1}>
+                      {cat.titleTr}
+                    </Text>
+                    <View style={[styles.levelDot, { backgroundColor: cat.color + "22" }]}>
+                      <Text style={{ fontSize: 9, fontWeight: "800", color: cat.color }}>
+                        {cat.level.toUpperCase()}
+                      </Text>
+                    </View>
+                  </View>
+                  <Text style={{ fontSize: 11, color: th.textLight, marginTop: 2, fontWeight: "600" }} numberOfLines={1}>
+                    {cat.title} · {cat.words.length} kelime · {totalLessons} ders
                   </Text>
-                  <Text style={[styles.catMetaText, { color: cat.color }]}>
-                    {pct}%
-                  </Text>
+                  <View style={styles.catRowProgress}>
+                    <View style={[styles.catRowBar, { backgroundColor: th.bgDark }]}>
+                      <View
+                        style={[
+                          styles.catRowBarFill,
+                          { width: `${pct}%`, backgroundColor: cat.color },
+                        ]}
+                      />
+                    </View>
+                    <Text style={{ fontSize: 11, fontWeight: "800", color: cat.color, minWidth: 38, textAlign: "right" }}>
+                      {doneCount}/{totalLessons}
+                    </Text>
+                  </View>
                 </View>
-                <View style={[styles.catBar, { backgroundColor: th.bgDark }]}>
-                  <View
-                    style={[
-                      styles.catBarFill,
-                      { width: `${pct}%`, backgroundColor: cat.color },
-                    ]}
-                  />
-                </View>
+                <Text style={{ fontSize: 22, color: cat.color, fontWeight: "900" }}>›</Text>
               </Pressable>
             );
           })}
@@ -283,8 +294,8 @@ function AdultHome() {
         <View style={[styles.kevoRow, { backgroundColor: th.primary + "12", borderColor: th.primary + "30" }]}>
           <KevoMascot size={48} mood="happy" />
           <View style={[styles.kevoBubble, { backgroundColor: th.card, borderColor: th.cardBorder }]}>
-            <Text style={{ fontSize: 12, color: th.text, fontWeight: "600" }}>
-              Ji babekê dest pê bike — peyv bi peyv pêş ve here!
+            <Text style={{ fontSize: 12, color: th.text, fontWeight: "700" }}>
+              Bir konudan başla — kelime kelime ilerle! 💪
             </Text>
           </View>
         </View>
@@ -459,14 +470,24 @@ const styles = StyleSheet.create({
   },
   practiceIcon: { width: 44, height: 44, borderRadius: 12, alignItems: "center", justifyContent: "center" },
   levelTabs: { paddingHorizontal: 18, gap: 8, paddingVertical: 4 },
-  levelTab: { paddingHorizontal: 14, paddingVertical: 10, borderRadius: 14, borderWidth: 1.5, alignItems: "center", minWidth: 86 },
-  grid: { flexDirection: "row", flexWrap: "wrap", paddingHorizontal: 12, gap: 10 },
-  catCard: { width: "47%", padding: 14, borderRadius: 18, borderWidth: 1.5, marginHorizontal: "1.5%", marginBottom: 4 },
-  catIcon: { width: 56, height: 56, borderRadius: 16, alignItems: "center", justifyContent: "center", marginBottom: 8 },
-  catTitle: { fontSize: 14, fontWeight: "800" },
-  catSub: { fontSize: 11, fontWeight: "500", marginTop: 2 },
-  catMeta: { flexDirection: "row", justifyContent: "space-between", alignItems: "center", marginTop: 8 },
-  catMetaText: { fontSize: 10, fontWeight: "700" },
-  catBar: { height: 4, borderRadius: 2, overflow: "hidden", marginTop: 4 },
-  catBarFill: { height: "100%", borderRadius: 2 },
+  levelTab: { paddingHorizontal: 16, paddingVertical: 10, borderRadius: 14, borderWidth: 1.5, alignItems: "center", minWidth: 96 },
+
+  // Yeni liste tipi kategori kartları
+  catList: { paddingHorizontal: 18, gap: 10 },
+  catRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 14,
+    padding: 14,
+    borderRadius: 18,
+  },
+  catRowIcon: {
+    width: 60, height: 60, borderRadius: 16,
+    alignItems: "center", justifyContent: "center",
+  },
+  catRowTitle: { flexDirection: "row", alignItems: "center", gap: 8, flexWrap: "wrap" },
+  levelDot: { paddingHorizontal: 7, paddingVertical: 2, borderRadius: 6 },
+  catRowProgress: { flexDirection: "row", alignItems: "center", gap: 8, marginTop: 8 },
+  catRowBar: { flex: 1, height: 6, borderRadius: 3, overflow: "hidden" },
+  catRowBarFill: { height: "100%", borderRadius: 3 },
 });
