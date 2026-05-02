@@ -10,6 +10,7 @@ import { CATEGORIES, LEVELS, type Category } from "@/data/categories";
 import { getCurrentLeague } from "@/data/achievements";
 import { KIDS_CATEGORIES, getKidsLessons, type KidsCategory } from "@/data/kids-content";
 import { FloatingBalloons } from "@/components/kids/floating-balloons";
+import { AnimatedScene } from "@/components/kids/animated-scene";
 import type { LevelKey } from "@/data/lessons";
 import { LinearGradient as LG } from "expo-linear-gradient";
 
@@ -354,40 +355,39 @@ function ChildHome() {
   return (
     <View style={{ flex: 1, backgroundColor: "#FFF8E7" }}>
       {/* Eğlenceli yüzen balon arka planı */}
-      <FloatingBalloons count={6} />
+      <FloatingBalloons count={5} />
 
       <SafeAreaView style={{ flex: 1 }} edges={["top"]}>
       <ScrollView contentContainerStyle={kidStyles.scroll}>
-        {/* Renkli üst banner */}
-        <LG
-          colors={["#FFB740", "#F39C12", "#E67E22"] as unknown as readonly [string, string, ...string[]]}
-          style={kidStyles.banner}
-        >
-          <View style={kidStyles.bannerTop}>
-            <View>
-              <Text style={kidStyles.helloKid}>Merhaba küçük dostum! 🌟</Text>
-              <Text style={kidStyles.helloKidSub}>Bugün ne öğrenmek istersin?</Text>
-            </View>
-            <KevoMascot size={70} mood="happy" idle />
-          </View>
-          <View style={kidStyles.kidStats}>
-            <View style={kidStyles.kidStat}>
-              <Text style={{ fontSize: 22 }}>⭐</Text>
-              <Text style={kidStyles.kidStatVal}>{xp}</Text>
-              <Text style={kidStyles.kidStatLbl}>Yıldız</Text>
-            </View>
-            <View style={kidStyles.kidStat}>
-              <Text style={{ fontSize: 22 }}>🔥</Text>
-              <Text style={kidStyles.kidStatVal}>{streak}</Text>
-              <Text style={kidStyles.kidStatLbl}>Gün</Text>
-            </View>
-            <View style={kidStyles.kidStat}>
-              <Text style={{ fontSize: 22 }}>❤️</Text>
-              <Text style={kidStyles.kidStatVal}>{hearts}</Text>
-              <Text style={kidStyles.kidStatLbl}>Can</Text>
+        {/* Animasyonlu hayvan sahnesi (üstte) — Kevo + bulutlar + ağaçlar */}
+        <View style={kidStyles.heroSceneWrap}>
+          <AnimatedScene category="hayvan" height={170} />
+          <View style={kidStyles.heroOverlay}>
+            <View style={kidStyles.heroOverlayInner}>
+              <Text style={kidStyles.helloKid}>Merhaba dostum!</Text>
+              <Text style={kidStyles.helloKidSub}>Bugün ne öğrenelim?</Text>
             </View>
           </View>
-        </LG>
+        </View>
+
+        {/* Stat satırı */}
+        <View style={kidStyles.statsRowKid}>
+          <View style={[kidStyles.statBadge, { backgroundColor: "#FFC72C" }]}>
+            <Text style={{ fontSize: 18 }}>⭐</Text>
+            <Text style={kidStyles.statVal}>{xp}</Text>
+            <Text style={kidStyles.statLbl}>Yıldız</Text>
+          </View>
+          <View style={[kidStyles.statBadge, { backgroundColor: "#FF6B9D" }]}>
+            <Text style={{ fontSize: 18 }}>🔥</Text>
+            <Text style={kidStyles.statVal}>{streak}</Text>
+            <Text style={kidStyles.statLbl}>Gün</Text>
+          </View>
+          <View style={[kidStyles.statBadge, { backgroundColor: "#E74C3C" }]}>
+            <Text style={{ fontSize: 18 }}>❤️</Text>
+            <Text style={kidStyles.statVal}>{hearts}</Text>
+            <Text style={kidStyles.statLbl}>Can</Text>
+          </View>
+        </View>
 
         <Text style={kidStyles.sectionTitle}>🎨 Bir konu seç</Text>
 
@@ -427,31 +427,49 @@ function ChildHome() {
           })}
         </View>
 
-        {/* Eğlenceli mini oyun kısayolu */}
-        <Pressable
-          onPress={() => {
-            setActiveCategory(KIDS_CATEGORIES[0].key as never);
-            router.push("/balloon-game" as never);
-          }}
-          style={({ pressed }) => [
-            kidStyles.miniGameCard,
-            { transform: pressed ? [{ scale: 0.97 }] : [] },
-          ]}
-        >
-          <LG
-            colors={["#FF6B9D", "#FF8FA3"] as unknown as readonly [string, string, ...string[]]}
-            style={kidStyles.miniGameGrad}
+        {/* Mini oyun kartları — yan yana 2 oyun */}
+        <Text style={kidStyles.gamesTitle}>🎮 Eğlenceli oyunlar</Text>
+        <View style={kidStyles.miniGameRow}>
+          <Pressable
+            onPress={() => {
+              setActiveCategory(KIDS_CATEGORIES[0].key as never);
+              router.push("/balloon-game" as never);
+            }}
+            style={({ pressed }) => [
+              kidStyles.miniGameTile,
+              { transform: pressed ? [{ scale: 0.96 }] : [] },
+            ]}
           >
-            <Text style={{ fontSize: 44 }}>🎈</Text>
-            <View style={{ flex: 1 }}>
-              <Text style={kidStyles.miniGameTitle}>BALON PATLATMA OYUNU</Text>
-              <Text style={kidStyles.miniGameSub}>
-                Doğru kelimeyi taşıyan balonu patlat!
-              </Text>
-            </View>
-            <Text style={kidStyles.miniGameArrow}>→</Text>
-          </LG>
-        </Pressable>
+            <LG
+              colors={["#FF6B9D", "#FF8FA3"] as unknown as readonly [string, string, ...string[]]}
+              style={kidStyles.miniGameTileGrad}
+            >
+              <Text style={kidStyles.miniGameEmoji}>🎈</Text>
+              <Text style={kidStyles.miniGameTileTitle}>Balon Patlatma</Text>
+              <Text style={kidStyles.miniGameTileSub}>5 raund</Text>
+            </LG>
+          </Pressable>
+
+          <Pressable
+            onPress={() => {
+              setActiveCategory(KIDS_CATEGORIES[0].key as never);
+              router.push("/rocket-game" as never);
+            }}
+            style={({ pressed }) => [
+              kidStyles.miniGameTile,
+              { transform: pressed ? [{ scale: 0.96 }] : [] },
+            ]}
+          >
+            <LG
+              colors={["#302B63", "#6366F1"] as unknown as readonly [string, string, ...string[]]}
+              style={kidStyles.miniGameTileGrad}
+            >
+              <Text style={kidStyles.miniGameEmoji}>🚀</Text>
+              <Text style={kidStyles.miniGameTileTitle}>Roket Yolculuğu</Text>
+              <Text style={kidStyles.miniGameTileSub}>Aya çık!</Text>
+            </LG>
+          </Pressable>
+        </View>
 
         {/* Kevo motivasyon */}
         <View style={kidStyles.kevoRow}>
@@ -538,26 +556,105 @@ const kidStyles = StyleSheet.create({
     borderRadius: 8,
   },
 
-  miniGameCard: {
+  // Hero animasyonlu sahne
+  heroSceneWrap: {
     marginHorizontal: 16,
-    marginTop: 18,
-    borderRadius: 22,
+    marginTop: 12,
+    borderRadius: 24,
     overflow: "hidden",
-    shadowColor: "#FF6B9D",
-    shadowOpacity: 0.35,
+    borderWidth: 2,
+    borderColor: "rgba(0,0,0,0.05)",
+    shadowColor: "#000",
+    shadowOpacity: 0.12,
     shadowRadius: 12,
-    shadowOffset: { width: 0, height: 6 },
-    elevation: 6,
+    shadowOffset: { width: 0, height: 4 },
+    elevation: 4,
   },
-  miniGameGrad: {
+  heroOverlay: {
+    position: "absolute",
+    top: 12,
+    left: 12,
+    right: 12,
+  },
+  heroOverlayInner: {
+    backgroundColor: "rgba(255,255,255,0.85)",
+    paddingHorizontal: 14,
+    paddingVertical: 10,
+    borderRadius: 14,
+    alignSelf: "flex-start",
+  },
+
+  // Stat satırı
+  statsRowKid: {
+    flexDirection: "row",
+    gap: 10,
+    marginHorizontal: 16,
+    marginTop: 14,
+  },
+  statBadge: {
+    flex: 1,
     flexDirection: "row",
     alignItems: "center",
-    gap: 14,
-    padding: 16,
+    justifyContent: "center",
+    gap: 6,
+    paddingVertical: 12,
+    borderRadius: 16,
+    shadowColor: "#000",
+    shadowOpacity: 0.12,
+    shadowRadius: 6,
+    shadowOffset: { width: 0, height: 3 },
+    elevation: 3,
   },
-  miniGameTitle: { fontSize: 14, fontWeight: "900", color: "#fff", letterSpacing: 0.4 },
-  miniGameSub: { fontSize: 11, color: "rgba(255,255,255,0.9)", fontWeight: "700", marginTop: 4 },
-  miniGameArrow: { fontSize: 28, color: "#fff", fontWeight: "900" },
+  statVal: { fontSize: 18, fontWeight: "900", color: "#fff", textShadowColor: "rgba(0,0,0,0.3)", textShadowOffset: { width: 0, height: 1 }, textShadowRadius: 2 },
+  statLbl: { fontSize: 11, color: "rgba(255,255,255,0.95)", fontWeight: "800" },
+
+  // Mini oyun başlığı
+  gamesTitle: {
+    fontSize: 16,
+    fontWeight: "900",
+    color: "#5C4033",
+    marginHorizontal: 20,
+    marginTop: 22,
+    marginBottom: 10,
+  },
+
+  // Mini oyun yan yana 2 tile
+  miniGameRow: {
+    flexDirection: "row",
+    gap: 12,
+    paddingHorizontal: 16,
+  },
+  miniGameTile: {
+    flex: 1,
+    borderRadius: 22,
+    overflow: "hidden",
+    shadowColor: "#000",
+    shadowOpacity: 0.18,
+    shadowRadius: 10,
+    shadowOffset: { width: 0, height: 5 },
+    elevation: 5,
+  },
+  miniGameTileGrad: {
+    paddingVertical: 18,
+    paddingHorizontal: 14,
+    alignItems: "center",
+    minHeight: 110,
+    justifyContent: "center",
+  },
+  miniGameEmoji: { fontSize: 44 },
+  miniGameTileTitle: {
+    fontSize: 13,
+    fontWeight: "900",
+    color: "#fff",
+    marginTop: 6,
+    textAlign: "center",
+  },
+  miniGameTileSub: {
+    fontSize: 10,
+    color: "rgba(255,255,255,0.85)",
+    fontWeight: "700",
+    marginTop: 2,
+  },
 
   kevoRow: {
     flexDirection: "row",

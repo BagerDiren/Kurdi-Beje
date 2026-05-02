@@ -6,6 +6,8 @@ import Animated, {
   useSharedValue, useAnimatedStyle, withSequence, withTiming, withRepeat,
 } from "react-native-reanimated";
 
+import { toTurkishPhonetic, speakOptionsForStyle } from "@/data/phonetics";
+
 type Props = {
   text: string;
   size?: "sm" | "md" | "lg";
@@ -41,10 +43,12 @@ export function SoundButton({ text, size = "md", color = "#1F6B41", disabled }: 
       -1, false
     );
 
-    Speech.speak(text, {
-      language: "tr-TR",   // Kürtçe TTS yok — Türkçe motoru fonetik olarak okur
-      rate: 0.85,
-      pitch: 1.05,
+    // Kurmancî harfleri (î, û, ê, x, q, w) Türkçe TTS için fonetik dönüşüme uğrar
+    const phonetic = toTurkishPhonetic(text);
+    const opts = speakOptionsForStyle("slow");
+    Speech.stop();
+    Speech.speak(phonetic, {
+      ...opts,
       onDone: () => {
         setSpeaking(false);
         pulse1.value = 0;

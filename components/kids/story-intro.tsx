@@ -1,12 +1,12 @@
 import { useEffect, useState } from "react";
 import { View, Text, Pressable, StyleSheet, Dimensions } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
-import * as Speech from "expo-speech";
 import Animated, {
   useSharedValue, useAnimatedStyle, withSpring, withTiming, withSequence, withDelay,
 } from "react-native-reanimated";
 
 import { KevoMascot } from "@/components/kevo-mascot";
+import { speakKurmanci } from "@/data/sound-fx";
 import type { KidsCategory } from "@/data/kids-content";
 
 const { width: SW } = Dimensions.get("window");
@@ -95,8 +95,8 @@ export function StoryIntro({ category, onDone }: Props) {
       );
       greetingY.value = withDelay(400, withSpring(0));
       greetingOp.value = withDelay(400, withTiming(1, { duration: 400 }));
-      // Kevo söylesin
-      Speech.speak(category.titleKu, { language: "tr-TR", rate: 0.9, pitch: 1.1 });
+      // Kevo söylesin (fonetik düzeltmeli)
+      speakKurmanci(category.titleKu, "happy");
     }, 1800);
 
     // Faz 3: CTA görünür (3.2sn)

@@ -15,6 +15,7 @@ import { Confetti } from "@/components/kids/confetti";
 import { StoryIntro } from "@/components/kids/story-intro";
 import { FloatingBalloons } from "@/components/kids/floating-balloons";
 import { useApp } from "@/data/app-context";
+import { speakKurmanci, playFx } from "@/data/sound-fx";
 import {
   getKidsCategoryByKey, getKidsLessons,
   type KidsLesson, type KidsStep, type KidsCategory, type KidsWord,
@@ -67,11 +68,11 @@ export default function KidsLessonScreen() {
     setCorrectCount((c) => c + 1);
     setConfettiOn(true);
     setTimeout(() => setConfettiOn(false), 1500);
-    try { Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success); } catch {}
+    playFx("success"); // sesli "Aferin!" + Haptic
   };
 
   const onWrong = () => {
-    try { Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error); } catch {}
+    playFx("fail"); // yumuşak "Tekrar dene" + Haptic
   };
 
   // === Bitiş ekranı ===
@@ -190,11 +191,9 @@ function PickEmojiStep({ step, cat, onNext, onCorrect, onWrong }: {
     else onWrong();
   };
 
-  // Soru anında sesli oku
+  // Soru anında fonetik düzeltmeli sesli oku
   useEffect(() => {
-    const t = setTimeout(() => {
-      Speech.speak(step.target.ku, { language: "tr-TR", rate: 0.85, pitch: 1.05 });
-    }, 200);
+    const t = setTimeout(() => speakKurmanci(step.target.ku, "slow"), 200);
     return () => clearTimeout(t);
   }, []);
 
@@ -343,12 +342,16 @@ function KidsLessonDone({ cat, lesson, stars, onClose }: {
   const star2 = useSharedValue(0);
   const star3 = useSharedValue(0);
   const heroScale = useSharedValue(0.5);
+  const [confettiOn, setConfettiOn] = useState(true);
 
   useEffect(() => {
     heroScale.value = withSpring(1, { damping: 6 });
     star1.value = withDelay(200, withSpring(1, { damping: 5 }));
     star2.value = withDelay(450, withSpring(1, { damping: 5 }));
     star3.value = withDelay(700, withSpring(1, { damping: 5 }));
+    playFx("celebrate");
+    const t = setTimeout(() => setConfettiOn(false), 2500);
+    return () => clearTimeout(t);
   }, []);
 
   const heroStyle = useAnimatedStyle(() => ({ transform: [{ scale: heroScale.value }] }));
@@ -359,35 +362,39 @@ function KidsLessonDone({ cat, lesson, stars, onClose }: {
   ];
 
   return (
-    <SafeAreaView style={[styles.safe, { backgroundColor: "#FFF8E7" }]}>
-      <ScrollView contentContainerStyle={styles.doneBody}>
-        <Animated.View style={[heroStyle]}>
-          <LinearGradient
-            colors={cat.bgGradient as unknown as readonly [string, string, ...string[]]}
-            style={styles.doneHero}
-          >
-            <KevoMascot size={140} mood="happy" speaking />
-            <Text style={styles.doneTitle}>HARİKA İŞ!</Text>
-            <Text style={styles.doneSub}>{lesson.title} bitti</Text>
-          </LinearGradient>
-        </Animated.View>
+    <View style={{ flex: 1, backgroundColor: "#FFF8E7" }}>
+      <FloatingBalloons count={5} />
+      <Confetti visible={confettiOn} count={60} />
+      <SafeAreaView style={[styles.safe, { backgroundColor: "transparent" }]}>
+        <ScrollView contentContainerStyle={styles.doneBody}>
+          <Animated.View style={[heroStyle]}>
+            <LinearGradient
+              colors={cat.bgGradient as unknown as readonly [string, string, ...string[]]}
+              style={styles.doneHero}
+            >
+              <KevoMascot size={140} mood="happy" speaking />
+              <Text style={styles.doneTitle}>HARİKA İŞ!</Text>
+              <Text style={styles.doneSub}>{lesson.title} bitti</Text>
+            </LinearGradient>
+          </Animated.View>
 
-        <View style={styles.starsRow}>
-          {starStyles.map((s, i) => (
-            <Animated.Text key={i} style={[styles.bigStar, s]}>⭐</Animated.Text>
-          ))}
-        </View>
+          <View style={styles.starsRow}>
+            {starStyles.map((s, i) => (
+              <Animated.Text key={i} style={[styles.bigStar, s]}>⭐</Animated.Text>
+            ))}
+          </View>
 
-        <View style={styles.rewardCard}>
-          <Text style={{ fontSize: 32 }}>🎁</Text>
-          <Text style={styles.rewardText}>+{lesson.xp} XP kazandın!</Text>
-        </View>
+          <View style={styles.rewardCard}>
+            <Text style={{ fontSize: 32 }}>🎁</Text>
+            <Text style={styles.rewardText}>+{lesson.xp} XP kazandın!</Text>
+          </View>
 
-        <Pressable onPress={onClose} style={[styles.bigBtn, { backgroundColor: cat.color }]}>
-          <Text style={styles.bigBtnText}>HARİKA! →</Text>
-        </Pressable>
-      </ScrollView>
-    </SafeAreaView>
+          <Pressable onPress={onClose} style={[styles.bigBtn, { backgroundColor: cat.color }]}>
+            <Text style={styles.bigBtnText}>HARİKA! →</Text>
+          </Pressable>
+        </ScrollView>
+      </SafeAreaView>
+    </View>
   );
 }
 
