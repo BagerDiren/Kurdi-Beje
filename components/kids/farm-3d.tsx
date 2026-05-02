@@ -2,10 +2,11 @@
  * 🌾 KEVO'NUN 3D ÇİFTLİĞİ — Profesyonel 3D dünyası (2026 standart)
  *
  * Stack:
- *   • Three.js (geometri/materyal)
+ *   • Three.js (geometri/materyal) — VANİLLA, drei yok
  *   • @react-three/fiber (React reconciler)
- *   • @react-three/drei (Sky, Cloud, Sparkles, Float, RoundedBox)
- *   • PBR materyaller (meshPhysicalMaterial + clearcoat + emissive)
+ *   • Prosedürel SkyDome (vertex color hemisphere)
+ *   • Prosedürel polen (THREE.Points, custom)
+ *   • PBR-lite (meshStandardMaterial + emissive)
  *
  * Hayvanlar artık tipe-özel:
  *   • Ga (inek)      → siyah-beyaz benekli + boynuz + pembe burun + 4 bacak + kuyruk
@@ -20,7 +21,7 @@
  *   • drei <Cloud> — volumetric bulut sprite'ları
  *   • drei <Sparkles> — altın polen parçacıkları (sihirli his)
  *   • drei <Float> — hayvanlar yumuşak süzülür
- *   • drei <RoundedBox> — yumuşak hatlı ev/çit
+ *   • drei <mesh><boxGeometry args={[1,1,1]} /> — yumuşak hatlı ev/çit
  *   • Prosedürel çim dokusu (CanvasTexture, satranç desen + ot)
  *
  * Görev sistemi (4 mission), Kev NPC, baca dumanı, kuş sürüsü
@@ -29,7 +30,6 @@
 import { useRef, useState, useEffect, useMemo, Suspense } from "react";
 import { View, Text, StyleSheet, Pressable, Dimensions } from "react-native";
 import { Canvas, useFrame, type ThreeEvent } from "@react-three/fiber";
-import { Sky, Cloud, Sparkles, Float, RoundedBox, Stars } from "@react-three/drei/native";
 import * as THREE from "three";
 import Animated, {
   useSharedValue, useAnimatedStyle, withTiming, withRepeat, Easing,
@@ -114,6 +114,120 @@ function makeGrassTexture(): THREE.CanvasTexture {
 }
 
 // =====================================================================
+//  GÖKKUBBE — büyük iç-yüzlü küre, vertex renk gradyan (mavi → açık mavi)
+// =====================================================================
+
+function SkyDome() {
+  const geom = useMemo(() => {
+    const g = new THREE.SphereGeometry(60, 32, 16);
+    // Vertex renkleri: tepeden tabana mavi gradyan
+    const colors = new Float32Array(g.attributes.position.count * 3);
+    const top = new THREE.Color("#1E88E5");
+    const mid = new THREE.Color("#64B5F6");
+    const bot = new THREE.Color("#E1F5FE");
+    for (let i = 0; i < g.attributes.position.count; i++) {
+      const y = g.attributes.position.getY(i);
+      const t = Math.max(0, Math.min(1, (y + 60) / 120));
+      let c: THREE.Color;
+      if (t > 0.6) c = top.clone().lerp(mid, (1 - t) * 2.5);
+      else if (t > 0.3) c = mid.clone().lerp(bot, (0.6 - t) * 3.3);
+      else c = bot.clone();
+      colors[i * 3] = c.r;
+      colors[i * 3 + 1] = c.g;
+      colors[i * 3 + 2] = c.b;
+    }
+    g.setAttribute("color", new THREE.BufferAttribute(colors, 3));
+    return g;
+  }, []);
+  return (
+    <mesh geometry={geom}>
+      <meshBasicMaterial vertexColors side={THREE.BackSide} fog={false} />
+    </mesh>
+  );
+}
+
+// =====================================================================
+//  BULUT KÜMESİ — 4-küre yığını, gökyüzünde tur atan
+// =====================================================================
+
+function CloudCluster({ seed, height }: { seed: number; height: number }) {
+  const ref = useRef<THREE.Group>(null);
+  useFrame((state) => {
+    if (!ref.current) return;
+    const t = state.clock.elapsedTime * 0.08 + seed;
+    ref.current.position.x = Math.cos(t) * 9;
+    ref.current.position.z = Math.sin(t) * 9;
+    ref.current.position.y = height + Math.sin(t * 2) * 0.3;
+  });
+  return (
+    <group ref={ref}>
+      <mesh>
+        <sphereGeometry args={[0.9, 12, 12]} />
+        <meshStandardMaterial color="#fff" transparent opacity={0.95} />
+      </mesh>
+      <mesh position={[0.85, 0.1, 0]}>
+        <sphereGeometry args={[0.7, 12, 12]} />
+        <meshStandardMaterial color="#fff" transparent opacity={0.95} />
+      </mesh>
+      <mesh position={[-0.8, 0.1, 0]}>
+        <sphereGeometry args={[0.7, 12, 12]} />
+        <meshStandardMaterial color="#fff" transparent opacity={0.95} />
+      </mesh>
+      <mesh position={[0.1, 0.5, 0]}>
+        <sphereGeometry args={[0.6, 12, 12]} />
+        <meshStandardMaterial color="#fff" transparent opacity={0.95} />
+      </mesh>
+      <mesh position={[-0.3, 0.45, 0]}>
+        <sphereGeometry args={[0.55, 12, 12]} />
+        <meshStandardMaterial color="#fff" transparent opacity={0.95} />
+      </mesh>
+    </group>
+  );
+}
+
+// =====================================================================
+//  POLEN PARÇACIKLARI — THREE.Points, prosedürel uçuşan altın noktalar
+// =====================================================================
+
+function PollenParticles({ count }: { count: number }) {
+  const ref = useRef<THREE.Points>(null);
+  const { geometry, material } = useMemo(() => {
+    const geo = new THREE.BufferGeometry();
+    const positions = new Float32Array(count * 3);
+    for (let i = 0; i < count; i++) {
+      positions[i * 3 + 0] = (Math.random() - 0.5) * 14;
+      positions[i * 3 + 1] = 1 + Math.random() * 4;
+      positions[i * 3 + 2] = (Math.random() - 0.5) * 14;
+    }
+    geo.setAttribute("position", new THREE.BufferAttribute(positions, 3));
+    const mat = new THREE.PointsMaterial({
+      color: 0xFFE082,
+      size: 0.12,
+      transparent: true,
+      opacity: 0.75,
+      sizeAttenuation: true,
+      depthWrite: false,
+    });
+    return { geometry: geo, material: mat };
+  }, [count]);
+
+  useFrame((state) => {
+    if (!ref.current) return;
+    const pos = (ref.current.geometry as THREE.BufferGeometry).attributes.position as THREE.BufferAttribute;
+    const t = state.clock.elapsedTime;
+    for (let i = 0; i < count; i++) {
+      const yBase = 1 + ((i * 0.13) % 4);
+      pos.setY(i, yBase + Math.sin(t * 0.5 + i) * 0.4);
+      const x0 = ((i * 1.7) % 14) - 7;
+      pos.setX(i, x0 + Math.cos(t * 0.3 + i) * 0.5);
+    }
+    pos.needsUpdate = true;
+  });
+
+  return <points ref={ref} geometry={geometry} material={material} />;
+}
+
+// =====================================================================
 //  TİPE-ÖZEL HAYVAN MODELLERİ
 // =====================================================================
 
@@ -134,7 +248,7 @@ function CowModel() {
       {/* Vücut — kapsül gibi */}
       <mesh castShadow position={[0, 0.5, 0]}>
         <capsuleGeometry args={[0.32, 0.55, 8, 16]} />
-        <meshPhysicalMaterial color="#FFFFFF" roughness={0.7} clearcoat={0.3} />
+        <meshStandardMaterial color="#FFFFFF" roughness={0.7} />
       </mesh>
       {/* Siyah benekler */}
       <mesh position={[0.18, 0.55, 0.28]}>
@@ -153,7 +267,7 @@ function CowModel() {
       <group position={[0, 0.7, 0.45]}>
         <mesh castShadow>
           <sphereGeometry args={[0.25, 20, 20]} />
-          <meshPhysicalMaterial color="#FFFFFF" roughness={0.7} />
+          <meshStandardMaterial color="#FFFFFF" roughness={0.7} />
         </mesh>
         {/* Burun (pembe) */}
         <mesh position={[0, -0.05, 0.22]}>
@@ -181,11 +295,11 @@ function CowModel() {
         {/* Boynuzlar */}
         <mesh castShadow position={[-0.15, 0.22, 0]} rotation={[0, 0, -0.4]}>
           <coneGeometry args={[0.05, 0.18, 8]} />
-          <meshPhysicalMaterial color="#E5C8A0" roughness={0.4} clearcoat={0.6} />
+          <meshStandardMaterial color="#E5C8A0" roughness={0.4} />
         </mesh>
         <mesh castShadow position={[0.15, 0.22, 0]} rotation={[0, 0, 0.4]}>
           <coneGeometry args={[0.05, 0.18, 8]} />
-          <meshPhysicalMaterial color="#E5C8A0" roughness={0.4} clearcoat={0.6} />
+          <meshStandardMaterial color="#E5C8A0" roughness={0.4} />
         </mesh>
         {/* Kulaklar */}
         <mesh position={[-0.22, 0.15, -0.05]} rotation={[0, 0, -0.7]}>
@@ -222,7 +336,7 @@ function SheepModel() {
       {/* Yün gövdesi — icosahedron (kabarık görünür) */}
       <mesh castShadow position={[0, 0.55, 0]}>
         <icosahedronGeometry args={[0.5, 1]} />
-        <meshPhysicalMaterial color="#FAFAFA" roughness={0.95} clearcoat={0} />
+        <meshStandardMaterial color="#FAFAFA" roughness={0.95} />
       </mesh>
       {/* Ekstra yün topakları */}
       <mesh position={[0.25, 0.65, 0.25]}>
@@ -241,7 +355,7 @@ function SheepModel() {
       <group position={[0, 0.65, 0.45]}>
         <mesh castShadow>
           <sphereGeometry args={[0.18, 16, 16]} />
-          <meshPhysicalMaterial color="#2C2C2C" roughness={0.6} />
+          <meshStandardMaterial color="#2C2C2C" roughness={0.6} />
         </mesh>
         {/* Gözler */}
         <mesh position={[-0.07, 0.05, 0.13]}>
@@ -283,18 +397,18 @@ function ChickenModel() {
       {/* Vücut yumurta şekli */}
       <mesh castShadow position={[0, 0.45, 0]} scale={[1, 1.1, 1]}>
         <sphereGeometry args={[0.3, 16, 16]} />
-        <meshPhysicalMaterial color="#FAFAFA" roughness={0.7} clearcoat={0.2} />
+        <meshStandardMaterial color="#FAFAFA" roughness={0.7} />
       </mesh>
       {/* Kafa */}
       <group position={[0, 0.75, 0.18]}>
         <mesh castShadow>
           <sphereGeometry args={[0.16, 16, 16]} />
-          <meshPhysicalMaterial color="#FAFAFA" roughness={0.7} />
+          <meshStandardMaterial color="#FAFAFA" roughness={0.7} />
         </mesh>
         {/* İbik (kırmızı) */}
         <mesh castShadow position={[0, 0.16, 0]}>
           <coneGeometry args={[0.06, 0.12, 6]} />
-          <meshPhysicalMaterial color="#E53935" roughness={0.5} clearcoat={0.4} />
+          <meshStandardMaterial color="#E53935" roughness={0.5} />
         </mesh>
         <mesh position={[-0.06, 0.18, 0]}>
           <sphereGeometry args={[0.05, 8, 8]} />
@@ -307,7 +421,7 @@ function ChickenModel() {
         {/* Gaga (sarı) */}
         <mesh castShadow position={[0, -0.02, 0.14]} rotation={[Math.PI / 2, 0, 0]}>
           <coneGeometry args={[0.04, 0.1, 6]} />
-          <meshPhysicalMaterial color="#FFB300" roughness={0.4} clearcoat={0.6} />
+          <meshStandardMaterial color="#FFB300" roughness={0.4} />
         </mesh>
         {/* Gözler */}
         <mesh position={[-0.07, 0.04, 0.1]}>
@@ -358,18 +472,18 @@ function HorseModel() {
       {/* Vücut — daha uzun kapsül */}
       <mesh castShadow position={[0, 0.7, 0]} rotation={[0, 0, Math.PI / 2]}>
         <capsuleGeometry args={[0.3, 0.7, 8, 16]} />
-        <meshPhysicalMaterial color="#6D4C41" roughness={0.6} clearcoat={0.3} />
+        <meshStandardMaterial color="#6D4C41" roughness={0.6} />
       </mesh>
       {/* Boyun */}
       <mesh castShadow position={[0, 1.0, 0.45]} rotation={[Math.PI / 4, 0, 0]}>
         <cylinderGeometry args={[0.15, 0.2, 0.5, 12]} />
-        <meshPhysicalMaterial color="#6D4C41" roughness={0.6} />
+        <meshStandardMaterial color="#6D4C41" roughness={0.6} />
       </mesh>
       {/* Kafa */}
       <group position={[0, 1.25, 0.7]}>
         <mesh castShadow rotation={[0.3, 0, 0]}>
           <capsuleGeometry args={[0.13, 0.25, 8, 12]} />
-          <meshPhysicalMaterial color="#6D4C41" roughness={0.6} />
+          <meshStandardMaterial color="#6D4C41" roughness={0.6} />
         </mesh>
         {/* Beyaz şerit */}
         <mesh position={[0, 0.1, 0.15]}>
@@ -430,7 +544,7 @@ function DogModel() {
       {/* Vücut */}
       <mesh castShadow position={[0, 0.4, 0]} rotation={[0, 0, Math.PI / 2]}>
         <capsuleGeometry args={[0.22, 0.45, 8, 12]} />
-        <meshPhysicalMaterial color="#A0522D" roughness={0.65} clearcoat={0.25} />
+        <meshStandardMaterial color="#A0522D" roughness={0.65} />
       </mesh>
       {/* Beyaz göğüs */}
       <mesh position={[0, 0.4, 0.2]}>
@@ -441,7 +555,7 @@ function DogModel() {
       <group position={[0, 0.55, 0.4]}>
         <mesh castShadow>
           <sphereGeometry args={[0.2, 16, 16]} />
-          <meshPhysicalMaterial color="#A0522D" roughness={0.65} />
+          <meshStandardMaterial color="#A0522D" roughness={0.65} />
         </mesh>
         {/* Burun */}
         <mesh position={[0, -0.05, 0.18]}>
@@ -487,7 +601,7 @@ function CatModel() {
       {/* Vücut */}
       <mesh castShadow position={[0, 0.35, 0]} rotation={[0, 0, Math.PI / 2]}>
         <capsuleGeometry args={[0.18, 0.4, 8, 12]} />
-        <meshPhysicalMaterial color="#9E9E9E" roughness={0.55} clearcoat={0.4} />
+        <meshStandardMaterial color="#9E9E9E" roughness={0.55} />
       </mesh>
       {/* Çizgiler */}
       <mesh position={[0, 0.5, 0]}>
@@ -498,7 +612,7 @@ function CatModel() {
       <group position={[0, 0.5, 0.32]}>
         <mesh castShadow>
           <sphereGeometry args={[0.17, 16, 16]} />
-          <meshPhysicalMaterial color="#9E9E9E" roughness={0.55} />
+          <meshStandardMaterial color="#9E9E9E" roughness={0.55} />
         </mesh>
         {/* Burun (pembe) */}
         <mesh position={[0, -0.02, 0.15]}>
@@ -553,9 +667,9 @@ function Animal3D({
   useFrame((state) => {
     if (!ref.current) return;
     const t = state.clock.elapsedTime;
-    // Yumuşak otlama dönüşü
+    // Yumuşak otlama dönüşü + zıplama
     ref.current.rotation.y = Math.sin(t * 0.4 + idx) * 0.5;
-    // Hafif yer değişimi (random walk illüzyonu)
+    ref.current.position.y = position[1] + Math.abs(Math.sin(t * 1.8 + idx * 1.3)) * 0.12;
     ref.current.position.x = position[0] + Math.cos(t * 0.3 + idx * 2) * 0.12;
     ref.current.position.z = position[2] + Math.sin(t * 0.25 + idx * 1.5) * 0.12;
   });
@@ -569,21 +683,19 @@ function Animal3D({
     CatModel;
 
   return (
-    <Float speed={1.5} rotationIntensity={0} floatIntensity={0.4} floatingRange={[0, 0.15]}>
-      <group
-        ref={ref}
-        position={position}
-        onPointerDown={(e: ThreeEvent<PointerEvent>) => {
-          e.stopPropagation();
-          onTap(word);
-        }}
-        onPointerOver={() => setHovered(true)}
-        onPointerOut={() => setHovered(false)}
-        scale={hovered ? 1.18 : 1}
-      >
-        <Model />
-      </group>
-    </Float>
+    <group
+      ref={ref}
+      position={position}
+      onPointerDown={(e: ThreeEvent<PointerEvent>) => {
+        e.stopPropagation();
+        onTap(word);
+      }}
+      onPointerOver={() => setHovered(true)}
+      onPointerOut={() => setHovered(false)}
+      scale={hovered ? 1.18 : 1}
+    >
+      <Model />
+    </group>
   );
 }
 
@@ -623,23 +735,21 @@ function FruitTree3D({
       {/* Gövde — eğri silindir benzeri, dokulu */}
       <mesh castShadow position={[0, 0.7, 0]}>
         <cylinderGeometry args={[0.18, 0.28, 1.4, 14]} />
-        <meshPhysicalMaterial color="#5D3A1A" roughness={0.95} clearcoat={0.05} />
+        <meshStandardMaterial color="#5D3A1A" roughness={0.95} />
       </mesh>
       {/* Yaprak öbekleri — 3 farklı tonda büyük küre kümesi */}
-      <Float speed={2} rotationIntensity={0.05} floatIntensity={0.1}>
-        <mesh castShadow position={[-0.2, 1.6, 0.1]}>
-          <icosahedronGeometry args={[0.55, 1]} />
-          <meshPhysicalMaterial color="#2E7D32" roughness={0.7} sheen={1} sheenColor="#4CAF50" />
-        </mesh>
-        <mesh castShadow position={[0.3, 1.7, -0.1]}>
-          <icosahedronGeometry args={[0.5, 1]} />
-          <meshPhysicalMaterial color="#43A047" roughness={0.7} sheen={1} sheenColor="#66BB6A" />
-        </mesh>
-        <mesh castShadow position={[0, 2.05, 0.15]}>
-          <icosahedronGeometry args={[0.45, 1]} />
-          <meshPhysicalMaterial color="#66BB6A" roughness={0.7} sheen={1} sheenColor="#81C784" />
-        </mesh>
-      </Float>
+      <mesh castShadow position={[-0.2, 1.6, 0.1]}>
+        <icosahedronGeometry args={[0.55, 1]} />
+        <meshStandardMaterial color="#2E7D32" roughness={0.7} />
+      </mesh>
+      <mesh castShadow position={[0.3, 1.7, -0.1]}>
+        <icosahedronGeometry args={[0.5, 1]} />
+        <meshStandardMaterial color="#43A047" roughness={0.7} />
+      </mesh>
+      <mesh castShadow position={[0, 2.05, 0.15]}>
+        <icosahedronGeometry args={[0.45, 1]} />
+        <meshStandardMaterial color="#66BB6A" roughness={0.7} />
+      </mesh>
       {/* Meyveler — sadece toplanmadıysa */}
       {!harvested && (
         <>
@@ -652,11 +762,9 @@ function FruitTree3D({
           ].map((p, i) => (
             <mesh key={i} castShadow position={p as [number, number, number]}>
               <sphereGeometry args={[0.13, 14, 14]} />
-              <meshPhysicalMaterial
+              <meshStandardMaterial
                 color={fruitColor}
                 roughness={0.3}
-                clearcoat={0.9}
-                clearcoatRoughness={0.1}
                 emissive={fruitColor}
                 emissiveIntensity={0.15}
               />
@@ -706,32 +814,30 @@ function Vegetable3D({
       scale={hovered && !harvested ? 1.12 : 1}
     >
       {/* Toprak yatağı (rounded box → daha doğal) */}
-      <RoundedBox args={[1.3, 0.22, 1.3]} radius={0.06} smoothness={3} position={[0, 0.11, 0]} castShadow receiveShadow>
-        <meshPhysicalMaterial color="#5D4037" roughness={0.95} />
-      </RoundedBox>
+      <mesh position={[0, 0.11, 0]} castShadow receiveShadow><boxGeometry args={[1.3, 0.22, 1.3]} />
+        <meshStandardMaterial color="#5D4037" roughness={0.95} />
+      </mesh>
       {!harvested && (
         <>
           {/* Yapraklar */}
           <mesh castShadow position={[-0.3, 0.4, 0]}>
             <sphereGeometry args={[0.18, 12, 12]} />
-            <meshPhysicalMaterial color="#2E7D32" roughness={0.7} sheen={1} sheenColor="#388E3C" />
+            <meshStandardMaterial color="#2E7D32" roughness={0.7} />
           </mesh>
           <mesh castShadow position={[0.3, 0.4, 0]}>
             <sphereGeometry args={[0.18, 12, 12]} />
-            <meshPhysicalMaterial color="#388E3C" roughness={0.7} sheen={1} sheenColor="#43A047" />
+            <meshStandardMaterial color="#388E3C" roughness={0.7} />
           </mesh>
           <mesh castShadow position={[0, 0.4, -0.3]}>
             <sphereGeometry args={[0.18, 12, 12]} />
-            <meshPhysicalMaterial color="#43A047" roughness={0.7} sheen={1} sheenColor="#4CAF50" />
+            <meshStandardMaterial color="#43A047" roughness={0.7} />
           </mesh>
           {/* Sebze (parlak küre) */}
           <mesh castShadow position={[0, 0.55, 0.2]}>
             <sphereGeometry args={[0.22, 16, 16]} />
-            <meshPhysicalMaterial
+            <meshStandardMaterial
               color={color}
               roughness={0.25}
-              clearcoat={0.9}
-              clearcoatRoughness={0.05}
               emissive={color}
               emissiveIntensity={0.18}
             />
@@ -765,13 +871,13 @@ function Farmhouse3D({
       scale={hovered ? 1.04 : 1}
     >
       {/* Ana gövde (rounded) */}
-      <RoundedBox args={[2.2, 1.6, 1.7]} radius={0.05} smoothness={3} position={[0, 0.8, 0]} castShadow receiveShadow>
-        <meshPhysicalMaterial color="#FFF3E0" roughness={0.85} clearcoat={0.1} />
-      </RoundedBox>
+      <mesh position={[0, 0.8, 0]} castShadow receiveShadow><boxGeometry args={[2.2, 1.6, 1.7]} />
+        <meshStandardMaterial color="#FFF3E0" roughness={0.85} />
+      </mesh>
       {/* Çatı (üçgen prizma) */}
       <mesh castShadow position={[0, 1.95, 0]} rotation={[0, Math.PI / 4, 0]}>
         <coneGeometry args={[1.55, 1.1, 4]} />
-        <meshPhysicalMaterial color="#B71C1C" roughness={0.5} clearcoat={0.4} />
+        <meshStandardMaterial color="#B71C1C" roughness={0.5} />
       </mesh>
       {/* Çatı kiremitleri (alt çizgi) */}
       <mesh position={[0, 1.45, 0]}>
@@ -779,33 +885,29 @@ function Farmhouse3D({
         <meshStandardMaterial color="#7F0000" />
       </mesh>
       {/* Kapı */}
-      <RoundedBox args={[0.5, 0.95, 0.06]} radius={0.06} smoothness={3} position={[0, 0.5, 0.86]}>
-        <meshPhysicalMaterial color="#5D3A1A" roughness={0.7} clearcoat={0.5} />
-      </RoundedBox>
+      <mesh position={[0, 0.5, 0.86]}><boxGeometry args={[0.5, 0.95, 0.06]} />
+        <meshStandardMaterial color="#5D3A1A" roughness={0.7} />
+      </mesh>
       {/* Kapı tokmağı */}
       <mesh position={[0.18, 0.55, 0.92]}>
         <sphereGeometry args={[0.04, 12, 12]} />
-        <meshPhysicalMaterial color="#FFC107" roughness={0.2} metalness={0.9} clearcoat={1} />
+        <meshStandardMaterial color="#FFC107" roughness={0.2} metalness={0.9} />
       </mesh>
       {/* Pencereler (parlayan camlar) */}
-      <RoundedBox args={[0.42, 0.42, 0.05]} radius={0.04} smoothness={3} position={[-0.7, 1.0, 0.86]}>
-        <meshPhysicalMaterial
+      <mesh position={[-0.7, 1.0, 0.86]}><boxGeometry args={[0.42, 0.42, 0.05]} />
+        <meshStandardMaterial
           color="#90CAF9"
           emissive="#FFEB3B"
           emissiveIntensity={0.6}
-          clearcoat={1}
-          clearcoatRoughness={0}
         />
-      </RoundedBox>
-      <RoundedBox args={[0.42, 0.42, 0.05]} radius={0.04} smoothness={3} position={[0.7, 1.0, 0.86]}>
-        <meshPhysicalMaterial
+      </mesh>
+      <mesh position={[0.7, 1.0, 0.86]}><boxGeometry args={[0.42, 0.42, 0.05]} />
+        <meshStandardMaterial
           color="#90CAF9"
           emissive="#FFEB3B"
           emissiveIntensity={0.6}
-          clearcoat={1}
-          clearcoatRoughness={0}
         />
-      </RoundedBox>
+      </mesh>
       {/* Pencere çerçeve (haç) */}
       <mesh position={[-0.7, 1.0, 0.9]}>
         <boxGeometry args={[0.44, 0.04, 0.02]} />
@@ -824,9 +926,9 @@ function Farmhouse3D({
         <meshStandardMaterial color="#5D3A1A" />
       </mesh>
       {/* Baca */}
-      <RoundedBox args={[0.3, 0.7, 0.3]} radius={0.04} smoothness={3} position={[0.55, 2.4, 0]} castShadow>
-        <meshPhysicalMaterial color="#7F0000" roughness={0.7} />
-      </RoundedBox>
+      <mesh position={[0.55, 2.4, 0]} castShadow><boxGeometry args={[0.3, 0.7, 0.3]} />
+        <meshStandardMaterial color="#7F0000" roughness={0.7} />
+      </mesh>
     </group>
   );
 }
@@ -906,16 +1008,16 @@ function FarmerKev({
       {/* Bacaklar */}
       <mesh castShadow position={[-0.12, 0.25, 0]}>
         <cylinderGeometry args={[0.08, 0.08, 0.5, 10]} />
-        <meshPhysicalMaterial color="#1565C0" roughness={0.7} clearcoat={0.2} />
+        <meshStandardMaterial color="#1565C0" roughness={0.7} />
       </mesh>
       <mesh castShadow position={[0.12, 0.25, 0]}>
         <cylinderGeometry args={[0.08, 0.08, 0.5, 10]} />
-        <meshPhysicalMaterial color="#1565C0" roughness={0.7} />
+        <meshStandardMaterial color="#1565C0" roughness={0.7} />
       </mesh>
       {/* Vücut */}
-      <RoundedBox args={[0.42, 0.5, 0.28]} radius={0.05} smoothness={3} position={[0, 0.7, 0]} castShadow>
-        <meshPhysicalMaterial color="#FFC107" roughness={0.6} clearcoat={0.3} />
-      </RoundedBox>
+      <mesh position={[0, 0.7, 0]} castShadow><boxGeometry args={[0.42, 0.5, 0.28]} />
+        <meshStandardMaterial color="#FFC107" roughness={0.6} />
+      </mesh>
       {/* Tulum kayışı */}
       <mesh position={[0, 0.85, 0.15]}>
         <boxGeometry args={[0.08, 0.4, 0.04]} />
@@ -924,16 +1026,16 @@ function FarmerKev({
       {/* Kafa */}
       <mesh castShadow position={[0, 1.08, 0]}>
         <sphereGeometry args={[0.19, 16, 16]} />
-        <meshPhysicalMaterial color="#FFD7B5" roughness={0.5} clearcoat={0.3} />
+        <meshStandardMaterial color="#FFD7B5" roughness={0.5} />
       </mesh>
       {/* Saman şapka — torus + koni */}
       <mesh castShadow position={[0, 1.27, 0]}>
         <coneGeometry args={[0.28, 0.18, 14]} />
-        <meshPhysicalMaterial color="#D7B377" roughness={0.85} />
+        <meshStandardMaterial color="#D7B377" roughness={0.85} />
       </mesh>
       <mesh castShadow position={[0, 1.21, 0]}>
         <torusGeometry args={[0.32, 0.05, 8, 18]} />
-        <meshPhysicalMaterial color="#D7B377" roughness={0.85} />
+        <meshStandardMaterial color="#D7B377" roughness={0.85} />
       </mesh>
       {/* Gözler */}
       <mesh position={[-0.06, 1.1, 0.17]}>
@@ -957,12 +1059,12 @@ function FarmerKev({
       {/* Sol kol — duruyor */}
       <mesh castShadow position={[-0.26, 0.7, 0]}>
         <cylinderGeometry args={[0.07, 0.07, 0.45, 10]} />
-        <meshPhysicalMaterial color="#FFC107" />
+        <meshStandardMaterial color="#FFC107" />
       </mesh>
       {/* Sağ kol — el sallıyor */}
       <mesh ref={armRef} castShadow position={[0.3, 0.92, 0]}>
         <cylinderGeometry args={[0.07, 0.07, 0.45, 10]} />
-        <meshPhysicalMaterial color="#FFC107" />
+        <meshStandardMaterial color="#FFC107" />
       </mesh>
     </group>
   );
@@ -986,28 +1088,25 @@ function Fence3D() {
   return (
     <group>
       {positions.map((p, i) => (
-        <RoundedBox
+        <mesh
           key={i}
-          args={[0.12, 0.85, 0.12]}
-          radius={0.025}
-          smoothness={3}
           position={[p[0], 0.42, p[2]]}
           castShadow
-        >
-          <meshPhysicalMaterial color="#5D3A1A" roughness={0.9} />
-        </RoundedBox>
+        ><boxGeometry args={[0.12, 0.85, 0.12]} />
+          <meshStandardMaterial color="#5D3A1A" roughness={0.9} />
+        </mesh>
       ))}
       {/* Yatay tahta — kuzey/güney */}
       {[-half, half].map((z, i) => (
         <mesh key={`h-ns-${i}`} position={[0, 0.55, z]} castShadow>
           <boxGeometry args={[half * 2, 0.06, 0.05]} />
-          <meshPhysicalMaterial color="#6D4226" roughness={0.85} />
+          <meshStandardMaterial color="#6D4226" roughness={0.85} />
         </mesh>
       ))}
       {[-half, half].map((x, i) => (
         <mesh key={`h-ew-${i}`} position={[x, 0.55, 0]} castShadow>
           <boxGeometry args={[0.05, 0.06, half * 2]} />
-          <meshPhysicalMaterial color="#6D4226" roughness={0.85} />
+          <meshStandardMaterial color="#6D4226" roughness={0.85} />
         </mesh>
       ))}
     </group>
@@ -1286,20 +1385,9 @@ export function Farm3D({ category, onClose, onXp }: Props) {
         shadows
         camera={{ position: [0, 5, 9], fov: 55 }}
         style={StyleSheet.absoluteFillObject}
-        gl={{ antialias: true, powerPreference: "high-performance" }}
       >
+        <SkyDome />
         <Suspense fallback={null}>
-          {/* === ATMOSFERIK GÖKYÜZÜ === */}
-          <Sky
-            distance={450000}
-            sunPosition={[5, 3, -2]}
-            inclination={0.49}
-            azimuth={0.25}
-            mieCoefficient={0.005}
-            mieDirectionalG={0.8}
-            rayleigh={2}
-            turbidity={6}
-          />
           <fog attach="fog" args={["#B8DEFF", 14, 32]} />
 
           {/* === IŞIKLAR === */}
@@ -1391,21 +1479,13 @@ export function Farm3D({ category, onClose, onXp }: Props) {
           <ChimneySmoke origin={[0.55, 2.85, -5]} />
           <FarmerKev position={[1.7, 0, -3.6]} onTap={handleKevTap} />
 
-          {/* === drei BULUTLAR (volumetric) === */}
-          <Cloud position={[-4, 6, -3]} speed={0.15} opacity={0.7} segments={20} bounds={[3, 1, 1]} />
-          <Cloud position={[4, 6.5, -2]} speed={0.2} opacity={0.6} segments={20} bounds={[3, 1, 1]} />
-          <Cloud position={[0, 7, -5]} speed={0.18} opacity={0.65} segments={20} bounds={[3.5, 1, 1]} />
+          {/* === BULUTLAR (sphere cluster, prosedürel hareket) === */}
+          <CloudCluster seed={0} height={6} />
+          <CloudCluster seed={2.1} height={6.5} />
+          <CloudCluster seed={4.2} height={6} />
 
-          {/* === drei PARÇACIK SİSTEMİ — altın polen === */}
-          <Sparkles
-            count={120}
-            scale={[16, 4, 16]}
-            position={[0, 1.5, 0]}
-            size={3}
-            speed={0.4}
-            color="#FFE082"
-            opacity={0.7}
-          />
+          {/* === PARÇACIK SİSTEMİ — altın polen === */}
+          <PollenParticles count={80} />
 
           {/* === KUŞ SÜRÜSÜ === */}
           <BirdFlock />
