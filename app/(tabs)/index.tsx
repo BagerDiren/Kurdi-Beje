@@ -427,6 +427,39 @@ function ChildHome() {
           })}
         </View>
 
+        {/* ÇİZGİ FİLM — büyük vurgulu kart */}
+        <Pressable
+          onPress={() => router.push("/cartoons" as never)}
+          style={({ pressed }) => [
+            kidStyles.cartoonCard,
+            { transform: pressed ? [{ scale: 0.97 }] : [] },
+          ]}
+        >
+          <LG
+            colors={["#FF6B9D", "#FF4778", "#E91E63"] as unknown as readonly [string, string, ...string[]]}
+            start={{ x: 0, y: 0 }}
+            end={{ x: 1, y: 1 }}
+            style={kidStyles.cartoonGrad}
+          >
+            <View style={kidStyles.cartoonIconBox}>
+              <Text style={{ fontSize: 50 }}>📺</Text>
+            </View>
+            <View style={{ flex: 1 }}>
+              <Text style={kidStyles.cartoonBadge}>YENİ</Text>
+              <Text style={kidStyles.cartoonTitle}>Çizgi Film İzle</Text>
+              <Text style={kidStyles.cartoonSub}>
+                Zarok TV — Kurmancî çocuk videoları
+              </Text>
+              <View style={kidStyles.cartoonStats}>
+                <Text style={kidStyles.cartoonStat}>🎵 Şarkılar</Text>
+                <Text style={kidStyles.cartoonStat}>📺 Çizgi Film</Text>
+                <Text style={kidStyles.cartoonStat}>🎓 Eğitici</Text>
+              </View>
+            </View>
+            <Text style={{ fontSize: 26, color: "#fff", fontWeight: "900" }}>›</Text>
+          </LG>
+        </Pressable>
+
         {/* Mini oyun kartları — yan yana 2 oyun */}
         <Text style={kidStyles.gamesTitle}>🎮 Eğlenceli oyunlar</Text>
         <View style={kidStyles.miniGameRow}>
@@ -607,6 +640,65 @@ const kidStyles = StyleSheet.create({
   },
   statVal: { fontSize: 18, fontWeight: "900", color: "#fff", textShadowColor: "rgba(0,0,0,0.3)", textShadowOffset: { width: 0, height: 1 }, textShadowRadius: 2 },
   statLbl: { fontSize: 11, color: "rgba(255,255,255,0.95)", fontWeight: "800" },
+
+  // Çizgi Film kartı (büyük vurgulu)
+  cartoonCard: {
+    marginHorizontal: 16,
+    marginTop: 18,
+    borderRadius: 26,
+    overflow: "hidden",
+    shadowColor: "#FF6B9D",
+    shadowOpacity: 0.45,
+    shadowRadius: 16,
+    shadowOffset: { width: 0, height: 8 },
+    elevation: 8,
+  },
+  cartoonGrad: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 14,
+    padding: 18,
+  },
+  cartoonIconBox: {
+    width: 78,
+    height: 78,
+    borderRadius: 22,
+    backgroundColor: "rgba(255,255,255,0.25)",
+    alignItems: "center",
+    justifyContent: "center",
+    borderWidth: 2,
+    borderColor: "rgba(255,255,255,0.4)",
+  },
+  cartoonBadge: {
+    alignSelf: "flex-start",
+    backgroundColor: "rgba(255,255,255,0.95)",
+    paddingHorizontal: 8,
+    paddingVertical: 3,
+    borderRadius: 8,
+    fontSize: 9,
+    fontWeight: "900",
+    color: "#E91E63",
+    letterSpacing: 1,
+    marginBottom: 4,
+    overflow: "hidden",
+  },
+  cartoonTitle: { fontSize: 18, fontWeight: "900", color: "#fff", textShadowColor: "rgba(0,0,0,0.25)", textShadowOffset: { width: 0, height: 2 }, textShadowRadius: 4 },
+  cartoonSub: { fontSize: 11, color: "rgba(255,255,255,0.95)", fontWeight: "700", marginTop: 3 },
+  cartoonStats: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    gap: 6,
+    marginTop: 8,
+  },
+  cartoonStat: {
+    fontSize: 9,
+    color: "#fff",
+    fontWeight: "800",
+    backgroundColor: "rgba(0,0,0,0.18)",
+    paddingHorizontal: 8,
+    paddingVertical: 3,
+    borderRadius: 8,
+  },
 
   // Mini oyun başlığı
   gamesTitle: {

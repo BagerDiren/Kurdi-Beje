@@ -25,6 +25,7 @@ export default function RootLayout() {
         <Stack.Screen name="kids-lesson" />
         <Stack.Screen name="balloon-game" />
         <Stack.Screen name="rocket-game" />
+        <Stack.Screen name="cartoons" />
       </Stack>
       <StatusBar style="auto" />
     </AppProvider>
