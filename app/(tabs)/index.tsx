@@ -10,7 +10,7 @@ import { CATEGORIES, LEVELS, type Category } from "@/data/categories";
 import { getCurrentLeague } from "@/data/achievements";
 import { KIDS_CATEGORIES, getKidsLessons, type KidsCategory } from "@/data/kids-content";
 import { KidCharacter, characterForCategory } from "@/components/kids/kid-character";
-import { KIDS_THEME, SHADOW, RADIUS, SPACING, TYPO } from "@/components/kids/design";
+import { KIDS_THEME, ADULT_THEME, SHADOW, RADIUS, SPACING, TYPO } from "@/components/kids/design";
 import type { LevelKey } from "@/data/lessons";
 import { LinearGradient as LG } from "expo-linear-gradient";
 
@@ -41,8 +41,11 @@ export default function HomeLearnTab() {
 // =====================================================================
 
 function AdultHome() {
-  const { th, t, lvl, xp, streak, hearts, completed, lessonsToday, correctToday, setActiveCategory, startLesson } = useApp();
+  const { lvl, xp, streak, hearts, completed, lessonsToday, correctToday, setActiveCategory, startLesson } = useApp();
   const [selectedLevel, setSelectedLevel] = useState<LevelKey>(lvl ?? "a1");
+
+  // Yetişkin için kendi premium teması — kid-design ile aynı dil ama daha sofistike
+  const T = ADULT_THEME;
 
   const goalsPct = Math.round((
     Math.min(xp, 50) / 50 * 0.35 +
@@ -79,259 +82,229 @@ function AdultHome() {
   };
 
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: th.bg }} edges={["top"]}>
-      <ScrollView contentContainerStyle={styles.scroll}>
-        {/* Sade kompakt header — selamlama + 3 inline chip */}
-        <LinearGradient colors={th.headerGrad as unknown as readonly [string, string, ...string[]]} style={styles.header}>
-          <View style={styles.headerTop}>
-            <View style={{ flex: 1 }}>
-              <Text style={styles.headerHello}>{timeOfDayGreetingTr()} 👋</Text>
-              <Text style={styles.headerSub}>{timeOfDayGreetingKu()}</Text>
+    <View style={{ flex: 1, backgroundColor: T.bg }}>
+      <SafeAreaView style={{ flex: 1 }} edges={["top"]}>
+        <ScrollView contentContainerStyle={adultStyles.scroll} showsVerticalScrollIndicator={false}>
+          {/* Üst bar — Welcome ile aynı dil */}
+          <View style={[adultStyles.topBar, SHADOW("#000", "sm")]}>
+            <View style={[adultStyles.kevoSlot, { backgroundColor: T.primarySoft }]}>
+              <KidCharacter character="kevo" size={56} bounce />
             </View>
-            <View style={[styles.leagueChip, { backgroundColor: league.current.color + "33" }]}>
-              <Text style={{ fontSize: 14 }}>{league.current.icon}</Text>
-              <Text style={styles.leagueChipText}>{league.current.title}</Text>
+            <View style={{ flex: 1, marginLeft: SPACING.md }}>
+              <Text style={[adultStyles.greet, { color: T.ink }]}>{timeOfDayGreetingTr()} 👋</Text>
+              <Text style={[adultStyles.greetSub, { color: T.smoke }]}>{timeOfDayGreetingKu()}</Text>
+            </View>
+            <View style={[adultStyles.leagueChip, { backgroundColor: league.current.color + "22", borderColor: league.current.color + "55" }]}>
+              <Text style={{ fontSize: 16 }}>{league.current.icon}</Text>
+              <Text style={[adultStyles.leagueChipText, { color: league.current.color }]}>
+                {league.current.title}
+              </Text>
             </View>
           </View>
-          {/* Compact 3'lü stat: streak / XP / hearts */}
-          <View style={styles.statsRow}>
-            <View style={styles.statChip}>
-              <Text style={{ fontSize: 14 }}>🔥</Text>
-              <Text style={styles.statVal}>{streak}</Text>
-            </View>
-            <View style={styles.statChip}>
-              <Text style={{ fontSize: 14 }}>⭐</Text>
-              <Text style={styles.statVal}>{xp}</Text>
-            </View>
-            <View style={styles.statChip}>
-              <Text style={{ fontSize: 14 }}>❤️</Text>
-              <Text style={styles.statVal}>{hearts}/5</Text>
-            </View>
-            <Pressable onPress={() => router.push("/goals")} style={styles.goalChip}>
-              <Text style={{ fontSize: 11, fontWeight: "800", color: "#fff" }}>🎯 {goalsPct}%</Text>
+
+          {/* Stat barı — Welcome stil */}
+          <View style={adultStyles.statBar}>
+            <AdultStat icon="🔥" value={streak} label="Gün" color={T.fire} T={T} />
+            <AdultStat icon="⭐" value={xp} label="XP" color={T.star} T={T} />
+            <AdultStat icon="❤️" value={`${hearts}/5`} label="Can" color={T.heart} T={T} />
+            <Pressable onPress={() => router.push("/goals")} style={[adultStyles.goalCard, { backgroundColor: T.primary + "12", borderColor: T.primary + "44" }]}>
+              <Text style={{ fontSize: 18 }}>🎯</Text>
+              <Text style={[adultStyles.goalVal, { color: T.primaryDark }]}>{goalsPct}%</Text>
             </Pressable>
           </View>
-        </LinearGradient>
 
-        {/* TEK BÜYÜK HERO: Continue */}
-        {continueData && (
-          <Pressable
-            onPress={() => continueData.lesson.steps && startLesson(continueData.lesson)}
-            style={({ pressed }) => [
-              styles.heroContinue,
-              {
-                backgroundColor: th.card,
-                borderColor: continueData.cat.color,
-                opacity: pressed ? 0.9 : 1,
-                transform: pressed ? [{ scale: 0.99 }] : [],
-              },
-            ]}
-          >
-            <LinearGradient
-              colors={[continueData.cat.color, continueData.cat.color + "CC"] as unknown as readonly [string, string, ...string[]]}
-              start={{ x: 0, y: 0 }}
-              end={{ x: 1, y: 1 }}
-              style={styles.heroIcon}
+          {/* HERO: Devam et */}
+          {continueData && (
+            <Pressable
+              onPress={() => continueData.lesson.steps && startLesson(continueData.lesson)}
+              style={({ pressed }) => [
+                adultStyles.heroCard,
+                SHADOW(continueData.cat.color, "lg"),
+                pressed && { transform: [{ scale: 0.98 }] },
+              ]}
             >
-              <Text style={{ fontSize: 38 }}>{continueData.lesson.icon}</Text>
-            </LinearGradient>
-            <View style={{ flex: 1 }}>
-              <Text style={{ fontSize: 10, fontWeight: "800", color: continueData.cat.color, letterSpacing: 0.5 }}>
-                ▶ DEVAM ET
-              </Text>
-              <Text style={{ fontSize: 17, fontWeight: "900", color: th.text, marginTop: 4 }} numberOfLines={1}>
-                {continueData.cat.titleTr}
-              </Text>
-              <Text style={{ fontSize: 12, color: th.textMid, fontWeight: "600", marginTop: 2 }} numberOfLines={1}>
-                {continueData.lesson.title}
-              </Text>
-              <View style={styles.heroMeta}>
-                <Text style={{ fontSize: 11, fontWeight: "700", color: th.accent }}>+{continueData.lesson.xp} XP</Text>
-                <Text style={{ fontSize: 11, color: th.textLight }}>·</Text>
-                <Text style={{ fontSize: 11, fontWeight: "600", color: th.textMid }}>
-                  {continueData.lesson.steps?.length ?? 0} adım
-                </Text>
-                {streak >= 1 && (
-                  <>
-                    <Text style={{ fontSize: 11, color: th.textLight }}>·</Text>
-                    <Text style={{ fontSize: 11, fontWeight: "700", color: "#F49000" }}>🔥 {streak} gün</Text>
-                  </>
-                )}
-              </View>
-            </View>
-          </Pressable>
-        )}
-
-        {/* İki yan yana ince eylem kartı */}
-        <View style={styles.dualRow}>
-          <Pressable
-            onPress={() => router.push("/practice" as never)}
-            style={({ pressed }) => [
-              styles.dualCard,
-              { backgroundColor: th.card, borderColor: th.accent + "55", opacity: pressed ? 0.9 : 1 },
-            ]}
-          >
-            <View style={[styles.dualIcon, { backgroundColor: th.accent + "22" }]}>
-              <Text style={{ fontSize: 20 }}>🎯</Text>
-            </View>
-            <Text style={[styles.dualTitle, { color: th.text }]}>Hızlı Pratik</Text>
-            <Text style={[styles.dualSub, { color: th.textLight }]}>10 soru · +5 XP/doğru</Text>
-          </Pressable>
-
-          {/* Tekrar Zamanı — öğrendiğin kelimeler dolduğunda anlamlı olur */}
-          <Pressable
-            onPress={() => router.push("/practice" as never)}
-            style={({ pressed }) => [
-              styles.dualCard,
-              { backgroundColor: th.card, borderColor: "#A560E8" + "55", opacity: pressed ? 0.9 : 1 },
-            ]}
-          >
-            <View style={[styles.dualIcon, { backgroundColor: "#A560E8" + "22" }]}>
-              <Text style={{ fontSize: 20 }}>🔄</Text>
-            </View>
-            <Text style={[styles.dualTitle, { color: th.text }]}>Tekrar Zamanı</Text>
-            <Text style={[styles.dualSub, { color: th.textLight }]}>
-              {completed.length > 0 ? `${completed.length * 4} kelime hazır` : "Eski dersler"}
-            </Text>
-          </Pressable>
-        </View>
-
-        {/* Level segmented control — sade satır */}
-        <View style={styles.levelBar}>
-          {availableLevels.map((lv) => {
-            const active = lv.key === selectedLevel;
-            return (
-              <Pressable
-                key={lv.key}
-                onPress={() => setSelectedLevel(lv.key)}
-                style={[
-                  styles.levelSeg,
-                  active && { backgroundColor: th.primary },
-                ]}
+              <LG
+                colors={[continueData.cat.color, continueData.cat.color + "CC"] as unknown as readonly [string, string, ...string[]]}
+                start={{ x: 0, y: 0 }}
+                end={{ x: 1, y: 1 }}
+                style={adultStyles.heroGrad}
               >
-                <Text
-                  style={{
-                    fontSize: 12,
-                    fontWeight: "900",
-                    color: active ? "#fff" : th.textMid,
-                    letterSpacing: 0.5,
-                  }}
-                >
-                  {lv.key.toUpperCase()}
-                </Text>
-              </Pressable>
-            );
-          })}
-        </View>
-
-        {/* Section title — basit */}
-        <Text style={[styles.sectionTitle, { color: th.text, marginTop: 12 }]}>
-          {filteredCats.length} konu hazır
-        </Text>
-
-        {/* Skill path — kategoriler birbirine bağlı (önceki %20 → sonraki açılır) */}
-        <View style={styles.catList}>
-          {filteredCats.map((cat, idx) => {
-            const lessonIds = cat.lessons.map((l) => l.id);
-            const doneCount = lessonIds.filter((id) => completed.includes(id)).length;
-            const totalLessons = cat.lessons.length;
-            const pct = totalLessons > 0 ? Math.round((doneCount / totalLessons) * 100) : 0;
-            const isStarted = doneCount > 0;
-            const isComplete = doneCount === totalLessons;
-
-            // Önceki kategorinin %20'si bitmediyse soluk göster (yumuşak unlock)
-            const prev = filteredCats[idx - 1];
-            let isLocked = false;
-            if (prev) {
-              const prevDone = prev.lessons.filter((l) => completed.includes(l.id)).length;
-              const prevPct = prev.lessons.length > 0 ? prevDone / prev.lessons.length : 0;
-              isLocked = idx > 0 && prevPct < 0.2 && doneCount === 0;
-            }
-
-            return (
-              <View key={cat.key}>
-                {/* Bağlantı çizgisi (ilk hariç) */}
-                {idx > 0 && (
-                  <View style={styles.connectorWrap}>
-                    <View
-                      style={[
-                        styles.connectorLine,
-                        { backgroundColor: isStarted || !isLocked ? cat.color + "55" : th.cardBorder },
-                      ]}
-                    />
-                    {isStarted && (
-                      <View style={[styles.connectorDot, { backgroundColor: cat.color }]} />
-                    )}
+                <View style={adultStyles.heroIcon}>
+                  <Text style={{ fontSize: 44 }}>{continueData.lesson.icon}</Text>
+                </View>
+                <View style={{ flex: 1 }}>
+                  <View style={adultStyles.heroBadge}>
+                    <Text style={[adultStyles.heroBadgeText, { color: continueData.cat.color }]}>▶ DEVAM ET</Text>
                   </View>
-                )}
+                  <Text style={adultStyles.heroTitle} numberOfLines={1}>{continueData.cat.titleTr}</Text>
+                  <Text style={adultStyles.heroSub} numberOfLines={1}>{continueData.lesson.title}</Text>
+                  <View style={adultStyles.heroMeta}>
+                    <Text style={adultStyles.heroMetaText}>+{continueData.lesson.xp} XP</Text>
+                    <Text style={adultStyles.heroMetaText}>·</Text>
+                    <Text style={adultStyles.heroMetaText}>{continueData.lesson.steps?.length ?? 0} adım</Text>
+                  </View>
+                </View>
+                <Text style={adultStyles.heroArrow}>›</Text>
+              </LG>
+            </Pressable>
+          )}
 
+          {/* İkili eylem kartı */}
+          <View style={adultStyles.dualRow}>
+            <Pressable
+              onPress={() => router.push("/practice" as never)}
+              style={({ pressed }) => [
+                adultStyles.dualCard,
+                { backgroundColor: T.card, borderColor: T.yellow + "44" },
+                SHADOW(T.yellow, "sm"),
+                pressed && { transform: [{ scale: 0.97 }] },
+              ]}
+            >
+              <View style={[adultStyles.dualIcon, { backgroundColor: T.yellow + "22" }]}>
+                <Text style={{ fontSize: 22 }}>🎯</Text>
+              </View>
+              <Text style={[adultStyles.dualTitle, { color: T.ink }]}>Hızlı Pratik</Text>
+              <Text style={[adultStyles.dualSub, { color: T.smoke }]}>10 soru · +5 XP/doğru</Text>
+            </Pressable>
+
+            <Pressable
+              onPress={() => router.push("/practice" as never)}
+              style={({ pressed }) => [
+                adultStyles.dualCard,
+                { backgroundColor: T.card, borderColor: T.purple + "44" },
+                SHADOW(T.purple, "sm"),
+                pressed && { transform: [{ scale: 0.97 }] },
+              ]}
+            >
+              <View style={[adultStyles.dualIcon, { backgroundColor: T.purple + "22" }]}>
+                <Text style={{ fontSize: 22 }}>🔄</Text>
+              </View>
+              <Text style={[adultStyles.dualTitle, { color: T.ink }]}>Tekrar Zamanı</Text>
+              <Text style={[adultStyles.dualSub, { color: T.smoke }]}>
+                {completed.length > 0 ? `${completed.length * 4} kelime` : "Eski dersler"}
+              </Text>
+            </Pressable>
+          </View>
+
+          {/* Level segmented (yeni temaya uyumlu) */}
+          <View style={[adultStyles.levelBar, { backgroundColor: T.bgSoft }]}>
+            {availableLevels.map((lv) => {
+              const active = lv.key === selectedLevel;
+              return (
                 <Pressable
+                  key={lv.key}
+                  onPress={() => setSelectedLevel(lv.key)}
+                  style={[
+                    adultStyles.levelSeg,
+                    active && { backgroundColor: T.primary },
+                  ]}
+                >
+                  <Text
+                    style={{
+                      ...TYPO.button,
+                      fontSize: 13,
+                      color: active ? "#fff" : T.smoke,
+                    }}
+                  >
+                    {lv.key.toUpperCase()}
+                  </Text>
+                </Pressable>
+              );
+            })}
+          </View>
+
+          <View style={adultStyles.sectionHeader}>
+            <Text style={[adultStyles.sectionTitle, { color: T.ink }]}>
+              {filteredCats.length} konu
+            </Text>
+          </View>
+
+          {/* Kategori listesi */}
+          <View style={adultStyles.catList}>
+            {filteredCats.map((cat, idx) => {
+              const lessonIds = cat.lessons.map((l) => l.id);
+              const doneCount = lessonIds.filter((id) => completed.includes(id)).length;
+              const totalLessons = cat.lessons.length;
+              const pct = totalLessons > 0 ? Math.round((doneCount / totalLessons) * 100) : 0;
+              const isStarted = doneCount > 0;
+              const isComplete = doneCount === totalLessons;
+              const prev = filteredCats[idx - 1];
+              let isLocked = false;
+              if (prev) {
+                const prevDone = prev.lessons.filter((l) => completed.includes(l.id)).length;
+                const prevPct = prev.lessons.length > 0 ? prevDone / prev.lessons.length : 0;
+                isLocked = idx > 0 && prevPct < 0.2 && doneCount === 0;
+              }
+
+              return (
+                <Pressable
+                  key={cat.key}
                   onPress={() => !isLocked && openCategory(cat)}
                   disabled={isLocked}
                   style={({ pressed }) => [
-                    styles.catRow,
+                    adultStyles.catRow,
                     {
-                      backgroundColor: th.card,
-                      borderColor: isComplete ? "#FFC200" : isStarted ? cat.color : isLocked ? th.cardBorder : th.cardBorder,
+                      backgroundColor: T.card,
+                      borderColor: isComplete ? T.star : isStarted ? cat.color : "rgba(0,0,0,0.06)",
                       borderWidth: isComplete ? 2.5 : isStarted ? 2 : 1.5,
-                      opacity: isLocked ? 0.55 : pressed ? 0.85 : 1,
+                      opacity: isLocked ? 0.55 : 1,
+                      transform: pressed && !isLocked ? [{ scale: 0.98 }] : [],
                     },
+                    SHADOW(isStarted ? cat.color : "#000", isStarted ? "md" : "sm"),
                   ]}
                 >
-                  <View
-                    style={[
-                      styles.catRowIcon,
-                      { backgroundColor: isLocked ? th.bgDark : cat.color },
-                    ]}
-                  >
+                  <View style={[adultStyles.catRowIcon, { backgroundColor: isLocked ? T.silver : cat.color }]}>
                     <Text style={{ fontSize: 30 }}>
                       {isLocked ? "🔒" : isComplete ? "👑" : cat.icon}
                     </Text>
                   </View>
                   <View style={{ flex: 1 }}>
-                    <View style={styles.catRowTitle}>
-                      <Text style={{ fontSize: 16, fontWeight: "900", color: th.text }} numberOfLines={1}>
+                    <View style={adultStyles.catTitleRow}>
+                      <Text style={[adultStyles.catTitle, { color: T.ink }]} numberOfLines={1}>
                         {cat.titleTr}
                       </Text>
-                      <View style={[styles.levelDot, { backgroundColor: cat.color + "22" }]}>
-                        <Text style={{ fontSize: 9, fontWeight: "800", color: cat.color }}>
-                          {cat.level.toUpperCase()}
-                        </Text>
+                      <View style={[adultStyles.levelDot, { backgroundColor: cat.color + "22" }]}>
+                        <Text style={{ ...TYPO.micro, color: cat.color }}>{cat.level.toUpperCase()}</Text>
                       </View>
                       {isComplete && (
-                        <Text style={{ fontSize: 11, fontWeight: "900", color: "#FFC200" }}>
-                          ★ TAMAM
-                        </Text>
+                        <Text style={{ ...TYPO.caption, color: T.star }}>★ TAMAM</Text>
                       )}
                     </View>
-                    <Text style={{ fontSize: 11, color: th.textLight, marginTop: 2, fontWeight: "600" }} numberOfLines={1}>
-                      {isLocked ? `Önce '${prev?.titleTr}' başla` : `${cat.title} · ${cat.words.length} kelime · ${totalLessons} ders`}
+                    <Text style={[adultStyles.catSub, { color: T.smoke }]} numberOfLines={1}>
+                      {isLocked ? `Önce '${prev?.titleTr}' başla` : `${cat.words.length} kelime · ${totalLessons} ders`}
                     </Text>
-                    <View style={styles.catRowProgress}>
-                      <View style={[styles.catRowBar, { backgroundColor: th.bgDark }]}>
-                        <View
-                          style={[
-                            styles.catRowBarFill,
-                            { width: `${pct}%`, backgroundColor: cat.color },
-                          ]}
-                        />
+                    <View style={adultStyles.catProgressRow}>
+                      <View style={[adultStyles.catBar, { backgroundColor: T.silver + "55" }]}>
+                        <View style={[adultStyles.catBarFill, { width: `${pct}%`, backgroundColor: cat.color }]} />
                       </View>
-                      <Text style={{ fontSize: 11, fontWeight: "800", color: cat.color, minWidth: 38, textAlign: "right" }}>
+                      <Text style={{ ...TYPO.caption, color: cat.color, minWidth: 36, textAlign: "right" }}>
                         {doneCount}/{totalLessons}
                       </Text>
                     </View>
                   </View>
-                  <Text style={{ fontSize: 22, color: isLocked ? th.textLight : cat.color, fontWeight: "900" }}>
-                    {isLocked ? "🔒" : "›"}
-                  </Text>
+                  <Text style={{ fontSize: 26, color: isLocked ? T.silver : cat.color, fontFamily: "Fredoka_700Bold" }}>›</Text>
                 </Pressable>
-              </View>
-            );
-          })}
-        </View>
+              );
+            })}
+          </View>
+        </ScrollView>
+      </SafeAreaView>
+    </View>
+  );
+}
 
-      </ScrollView>
-    </SafeAreaView>
+// Yetişkin için stat chip bileşeni
+function AdultStat({ icon, value, label, color, T }: {
+  icon: string; value: number | string; label: string; color: string; T: typeof ADULT_THEME;
+}) {
+  return (
+    <View style={[adultStyles.statChip, { backgroundColor: color + "18", borderColor: color + "44" }]}>
+      <Text style={{ fontSize: 18 }}>{icon}</Text>
+      <View>
+        <Text style={[adultStyles.statVal, { color }]}>{value}</Text>
+        <Text style={[adultStyles.statLbl, { color: T.smoke }]}>{label}</Text>
+      </View>
+    </View>
   );
 }
 
@@ -704,6 +677,114 @@ const kidStyles = StyleSheet.create({
   },
   tipText: { flex: 1, ...TYPO.body, color: KIDS_THEME.graphite },
 
+});
+
+// =====================================================================
+//  YETİŞKİN STİLLERİ — kid-design ile aynı dil, ADULT_THEME renkleriyle
+// =====================================================================
+const adultStyles = StyleSheet.create({
+  scroll: { paddingHorizontal: SPACING.lg, paddingTop: SPACING.md, paddingBottom: 40, gap: SPACING.lg },
+
+  // Üst bar
+  topBar: {
+    flexDirection: "row", alignItems: "center",
+    backgroundColor: ADULT_THEME.card,
+    paddingHorizontal: SPACING.md, paddingVertical: SPACING.md,
+    borderRadius: RADIUS.xl,
+  },
+  kevoSlot: {
+    width: 64, height: 64, borderRadius: 32,
+    alignItems: "center", justifyContent: "center",
+  },
+  greet: { ...TYPO.h3 },
+  greetSub: { ...TYPO.body, marginTop: 2 },
+  leagueChip: {
+    flexDirection: "row", alignItems: "center", gap: 4,
+    paddingHorizontal: SPACING.sm, paddingVertical: 6, borderRadius: 10, borderWidth: 1.5,
+  },
+  leagueChipText: { ...TYPO.caption },
+
+  // Stat
+  statBar: { flexDirection: "row", gap: SPACING.sm },
+  statChip: {
+    flex: 1,
+    flexDirection: "row", alignItems: "center", gap: 6,
+    paddingHorizontal: SPACING.sm, paddingVertical: SPACING.sm,
+    borderRadius: RADIUS.md, borderWidth: 1.5,
+  },
+  statVal: { ...TYPO.h3 },
+  statLbl: { ...TYPO.caption, marginTop: -2 },
+  goalCard: {
+    flexDirection: "row", alignItems: "center", gap: 6,
+    paddingHorizontal: SPACING.md, paddingVertical: SPACING.sm,
+    borderRadius: RADIUS.md, borderWidth: 1.5,
+  },
+  goalVal: { ...TYPO.h3 },
+
+  // Hero
+  heroCard: { borderRadius: RADIUS.xl, overflow: "hidden" },
+  heroGrad: {
+    flexDirection: "row", alignItems: "center", gap: SPACING.md,
+    padding: SPACING.lg,
+  },
+  heroIcon: {
+    width: 72, height: 72, borderRadius: RADIUS.lg,
+    backgroundColor: "rgba(255,255,255,0.22)",
+    borderWidth: 2, borderColor: "rgba(255,255,255,0.35)",
+    alignItems: "center", justifyContent: "center",
+  },
+  heroBadge: {
+    alignSelf: "flex-start",
+    backgroundColor: "rgba(255,255,255,0.95)",
+    paddingHorizontal: 8, paddingVertical: 2,
+    borderRadius: 6, marginBottom: 4,
+  },
+  heroBadgeText: { ...TYPO.caption, letterSpacing: 0.5 },
+  heroTitle: { ...TYPO.h2, color: "#fff" },
+  heroSub: { ...TYPO.body, color: "rgba(255,255,255,0.95)", marginTop: 2 },
+  heroMeta: { flexDirection: "row", alignItems: "center", gap: 6, marginTop: 8, flexWrap: "wrap" },
+  heroMetaText: { ...TYPO.caption, color: "rgba(255,255,255,0.95)" },
+  heroArrow: { fontSize: 32, color: "#fff", fontFamily: "Fredoka_700Bold" },
+
+  // İkili eylem
+  dualRow: { flexDirection: "row", gap: SPACING.sm },
+  dualCard: {
+    flex: 1, padding: SPACING.md,
+    borderRadius: RADIUS.lg, borderWidth: 1.5, gap: 6,
+  },
+  dualIcon: { width: 40, height: 40, borderRadius: 12, alignItems: "center", justifyContent: "center" },
+  dualTitle: { ...TYPO.h3, marginTop: 4 },
+  dualSub: { ...TYPO.caption, marginTop: 1 },
+
+  // Level segmented
+  levelBar: {
+    flexDirection: "row",
+    borderRadius: RADIUS.md,
+    padding: 4, gap: 4,
+  },
+  levelSeg: { flex: 1, paddingVertical: 10, alignItems: "center", borderRadius: 9 },
+
+  // Section
+  sectionHeader: { paddingHorizontal: SPACING.xs },
+  sectionTitle: { ...TYPO.h2 },
+
+  // Kategori liste
+  catList: { gap: SPACING.md },
+  catRow: {
+    flexDirection: "row", alignItems: "center", gap: SPACING.md,
+    padding: SPACING.md, borderRadius: RADIUS.lg,
+  },
+  catRowIcon: {
+    width: 60, height: 60, borderRadius: RADIUS.md,
+    alignItems: "center", justifyContent: "center",
+  },
+  catTitleRow: { flexDirection: "row", alignItems: "center", gap: 6, flexWrap: "wrap" },
+  catTitle: { ...TYPO.h3 },
+  catSub: { ...TYPO.caption, marginTop: 2 },
+  catProgressRow: { flexDirection: "row", alignItems: "center", gap: 8, marginTop: 8 },
+  catBar: { flex: 1, height: 6, borderRadius: 3, overflow: "hidden" },
+  catBarFill: { height: "100%", borderRadius: 3 },
+  levelDot: { paddingHorizontal: 7, paddingVertical: 2, borderRadius: 6 },
 });
 
 const styles = StyleSheet.create({
