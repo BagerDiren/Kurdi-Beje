@@ -66,6 +66,7 @@ type AppActions = {
   setProficiency: (p: ProficiencyLevel) => void;
   setDailyGoal: (g: DailyGoalMinutes) => void;
   unlockAchievement: (id: string, xpReward?: number) => void;
+  markLessonDone: (lessonId: string, xp: number) => void;
 };
 
 const AppContext = createContext<(AppState & AppActions) | null>(null);
@@ -193,6 +194,32 @@ export function AppProvider({ children }: { children: ReactNode }) {
     });
   }, []);
 
+  /** Hafif marka — startLesson/finishLesson akışı dışında ders tamamlama
+   *  (çocuk modu, pratik vb. için). XP ekler, completed listesine atar,
+   *  streak/lessonsToday günceller; yetişkin lesson runner kullanmaz. */
+  const markLessonDone = useCallback((lessonId: string, xp: number) => {
+    setXpState((p) => p + xp);
+    setCompleted((p) => (p.includes(lessonId) ? p : [...p, lessonId]));
+
+    const today = new Date().toISOString().slice(0, 10);
+    const isFirstStudyEver = lastStudyDate === null;
+    const isNewDay = !isFirstStudyEver && lastStudyDate !== today;
+    const yesterday = new Date(Date.now() - 86400000).toISOString().slice(0, 10);
+
+    setLessonsToday((p) => (isNewDay ? 1 : p + 1));
+    if (isNewDay) setCorrectToday(0);
+    setStudyDates((p) => (p.includes(today) ? p : [...p, today].slice(-60)));
+
+    if (lastStudyDate !== today) {
+      setStreakState((prev) => {
+        if (isFirstStudyEver) return 1;
+        if (lastStudyDate === yesterday) return prev + 1;
+        return 1;
+      });
+      setLastStudyDate(today);
+    }
+  }, [lastStudyDate]);
+
   // === OTOMATİK MADALYA AÇMA ===
   // xp / streak / completed değiştiğinde uygun madalyaları aç
   useEffect(() => {
@@ -233,7 +260,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
     go, setLang, setAge, setLvl, setTab, setActiveGame, setActiveCategory,
     startLesson, nextStep, finishLesson, onCorrect, onWrong,
     addXp, setHearts, resetProgress,
-    setProficiency, setDailyGoal, unlockAchievement,
+    setProficiency, setDailyGoal, unlockAchievement, markLessonDone,
   };
 
   return <AppContext.Provider value={value}>{children}</AppContext.Provider>;

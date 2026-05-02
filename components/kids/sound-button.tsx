@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Pressable, Text, StyleSheet, View } from "react-native";
+import { Pressable, Text, StyleSheet, View, Linking } from "react-native";
 import * as Speech from "expo-speech";
 import * as Haptics from "expo-haptics";
 import Animated, {
@@ -16,9 +16,10 @@ type Props = {
 };
 
 /**
- * Sesli okuma butonu — Kürtçe metni Türkçe TTS ile söyletir.
- * Kürtçe için TTS yok, ama Türkçe motoru fonetik olarak yakın okur.
- * Tıklayınca: haptic + ses + dalga animasyonu.
+ * Sesli okuma butonu.
+ * Kısa basış: TTS (fonetik dönüşümlü Türkçe motor)
+ * Uzun basış: Forvo'da gerçek Kürt konuşurun sesini aç
+ *   (telefondan tarayıcı/Forvo uygulamasında çalar)
  */
 export function SoundButton({ text, size = "md", color = "#1F6B41", disabled }: Props) {
   const [speaking, setSpeaking] = useState(false);
@@ -31,24 +32,20 @@ export function SoundButton({ text, size = "md", color = "#1F6B41", disabled }: 
 
   const speak = async () => {
     if (disabled || speaking) return;
-    try {
-      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
-    } catch {}
+    try { Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium); } catch {}
 
-    // Pulse animasyonları başlat
     setSpeaking(true);
     pulse1.value = withRepeat(withTiming(1, { duration: 800 }), -1, false);
     pulse2.value = withRepeat(
       withSequence(withTiming(0, { duration: 200 }), withTiming(1, { duration: 800 })),
-      -1, false
+      -1, false,
     );
 
-    // Çocuk dostu: yüksek pitch, yavaş tane tane okur
     const phonetic = toTurkishPhonetic(text);
-    const opts = speakOptionsForStyle("kidSlow");
+    // Çocuk dostu: yüksek pitch + yavaş tane tane okur
     Speech.stop();
     Speech.speak(phonetic, {
-      ...opts,
+      ...speakOptionsForStyle("kidSlow"),
       volume: 1.0,
       onDone: () => {
         setSpeaking(false);
@@ -60,6 +57,17 @@ export function SoundButton({ text, size = "md", color = "#1F6B41", disabled }: 
         pulse1.value = 0;
         pulse2.value = 0;
       },
+    });
+  };
+
+  // Uzun basış: Forvo'da native speaker telaffuzunu aç
+  const openForvo = () => {
+    try { Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Heavy); } catch {}
+    const word = text.trim().toLowerCase().replace(/\s+/g, "_");
+    const url = `https://forvo.com/word/${encodeURIComponent(word)}/#kmr`;
+    Linking.openURL(url).catch(() => {
+      // fallback: Google ile arat
+      Linking.openURL(`https://www.google.com/search?q=${encodeURIComponent(text + " kurmancî pronunciation")}`);
     });
   };
 
@@ -82,6 +90,8 @@ export function SoundButton({ text, size = "md", color = "#1F6B41", disabled }: 
       )}
       <Pressable
         onPress={speak}
+        onLongPress={openForvo}
+        delayLongPress={500}
         disabled={disabled}
         style={({ pressed }) => [
           styles.btn,

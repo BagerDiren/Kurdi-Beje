@@ -126,14 +126,8 @@ export default function WelcomeScreen() {
         style={StyleSheet.absoluteFillObject}
       />
 
-      {/* Yüzen balonlar */}
-      <FloatingBalloons count={6} />
-
-      {/* Parıldayan yıldızlar (hero arka plan) */}
-      <Animated.Text style={[styles.starDeco, { top: 80, left: 40 }, star1Style]}>✨</Animated.Text>
-      <Animated.Text style={[styles.starDeco, { top: 120, right: 50 }, star2Style]}>⭐</Animated.Text>
-      <Animated.Text style={[styles.starDeco, { top: 200, left: 25 }, star3Style]}>✨</Animated.Text>
-      <Animated.Text style={[styles.starDeco, { top: 60, right: 90, fontSize: 18 }, star2Style]}>🌟</Animated.Text>
+      {/* Yüzen balonlar — sade arka plan */}
+      <FloatingBalloons count={4} />
 
       <SafeAreaView style={{ flex: 1 }}>
         <View style={styles.content}>

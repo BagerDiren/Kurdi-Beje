@@ -52,7 +52,7 @@ export function FloatingBalloons({ count = 7 }: { count?: number }) {
   );
 
   return (
-    <View pointerEvents="none" style={StyleSheet.absoluteFill}>
+    <View pointerEvents="none" style={[StyleSheet.absoluteFill, { zIndex: 0 }]}>
       {balloons.map((b) => (
         <Balloon key={b.id} {...b} />
       ))}

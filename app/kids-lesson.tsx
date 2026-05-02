@@ -30,7 +30,7 @@ import {
  */
 
 export default function KidsLessonScreen() {
-  const { activeCategory, completed, addXp, finishLesson, curLesson, startLesson } = useApp();
+  const { activeCategory, completed, markLessonDone } = useApp();
   const [showIntro, setShowIntro] = useState(true);
   const [stepIdx, setStepIdx] = useState(0);
   const [correctCount, setCorrectCount] = useState(0);
@@ -39,7 +39,9 @@ export default function KidsLessonScreen() {
 
   const cat = activeCategory ? getKidsCategoryByKey(activeCategory) : null;
   const lessons = cat ? getKidsLessons(cat, 5) : [];
-  const lesson: KidsLesson | undefined = lessons.find((l) => l.id === curLesson?.id) ?? lessons[0];
+  // Sıradaki yapılmamış dersi otomatik aç. Hepsi tamamsa ilk dersi (tekrar)
+  const lesson: KidsLesson | undefined =
+    lessons.find((l) => !completed.includes(l.id)) ?? lessons[0];
 
   if (!cat || !lesson) {
     router.replace("/(tabs)");
@@ -58,7 +60,8 @@ export default function KidsLessonScreen() {
   const next = () => {
     if (stepIdx + 1 >= totalSteps) {
       setDone(true);
-      addXp(lesson.xp);
+      // XP + completed + streak hepsini context yönetir
+      markLessonDone(lesson.id, lesson.xp);
     } else {
       setStepIdx((i) => i + 1);
     }
@@ -123,14 +126,17 @@ function LearnStep({ step, cat, onNext }: {
   step: Extract<KidsStep, { type: "learn" }>; cat: KidsCategory; onNext: () => void;
 }) {
   const w = step.word;
-  const scale = useSharedValue(0.6);
+  const [photoLoaded, setPhotoLoaded] = useState(false);
+  const scale = useSharedValue(0.7);
   const opacity = useSharedValue(0);
 
   useEffect(() => {
-    scale.value = withSpring(1, { damping: 8, stiffness: 100 });
-    opacity.value = withTiming(1, { duration: 400 });
-    // Otomatik ses çalmayalım, çocuk butona bassın
-  }, []);
+    scale.value = withSpring(1, { damping: 9, stiffness: 110 });
+    opacity.value = withTiming(1, { duration: 500 });
+    // 800ms sonra otomatik söylesin (Drops gibi)
+    const t = setTimeout(() => speakKurmanciKid(w.ku), 800);
+    return () => clearTimeout(t);
+  }, [w.ku]);
 
   const heroStyle = useAnimatedStyle(() => ({
     opacity: opacity.value,
@@ -138,50 +144,82 @@ function LearnStep({ step, cat, onNext }: {
   }));
 
   return (
-    <ScrollView contentContainerStyle={styles.body}>
-      <Text style={styles.lead}>YENİ KELİME ÖĞREN</Text>
+    <View style={styles.body}>
+      {/* Üst minimal etiket */}
+      <Text style={styles.minimalLead}>{cat.title.toUpperCase()}</Text>
 
-      <Animated.View style={[styles.bigEmojiCard, { backgroundColor: cat.color + "18", borderColor: cat.color }, heroStyle]}>
+      {/* HERO foto/emoji */}
+      <Animated.View style={[styles.heroSlot, heroStyle]}>
         {w.photo ? (
-          <View style={styles.photoWrap}>
-            <Image source={{ uri: w.photo }} style={styles.photoImg} resizeMode="cover" />
+          <View style={[styles.photoWrap, { borderColor: cat.color }]}>
+            {!photoLoaded && (
+              <View style={[styles.photoSkeleton, { backgroundColor: cat.color + "22" }]} />
+            )}
+            <Image
+              source={{ uri: w.photo }}
+              style={styles.photoImg}
+              resizeMode="cover"
+              onLoad={() => setPhotoLoaded(true)}
+            />
             <View style={[styles.photoEmojiTag, { backgroundColor: cat.color }]}>
-              <Text style={{ fontSize: 32 }}>{w.emoji}</Text>
+              <Text style={{ fontSize: 30 }}>{w.emoji}</Text>
             </View>
           </View>
         ) : (
-          <Text style={styles.bigEmoji}>{w.emoji}</Text>
+          <View style={[styles.emojiSlot, { backgroundColor: cat.color + "12", borderColor: cat.color + "30" }]}>
+            <Text style={styles.bigEmoji}>{w.emoji}</Text>
+          </View>
         )}
       </Animated.View>
 
-      <View style={styles.wordWithSound}>
-        <SoundButton text={w.ku} color={cat.color} size="lg" />
-        <View>
-          <Text style={[styles.kuWord, { color: cat.color }]}>{w.ku}</Text>
-          <Text style={styles.trWord}>{w.tr}</Text>
+      {/* Büyük kelime + ses butonu (orta hizalı, Drops tarzı) */}
+      <View style={styles.wordCenter}>
+        <Text style={[styles.bigKuWord, { color: cat.color }]}>{w.ku}</Text>
+        <Text style={styles.bigTrWord}>{w.tr}</Text>
+        <View style={styles.soundRow}>
+          <SoundButton text={w.ku} color={cat.color} size="md" />
+          <Text style={styles.tip}>Tıkla · uzun bas: Forvo</Text>
         </View>
       </View>
 
-      <Text style={styles.tip}>👆 Sesi duymak için butona dokun</Text>
-
       <View style={{ flex: 1 }} />
 
+      {/* CTA */}
       <Pressable
         onPress={onNext}
         style={({ pressed }) => [
           styles.bigBtn,
-          { backgroundColor: cat.color, opacity: pressed ? 0.9 : 1 },
+          { backgroundColor: cat.color, opacity: pressed ? 0.92 : 1, transform: pressed ? [{ scale: 0.98 }] : [] },
         ]}
       >
-        <Text style={styles.bigBtnText}>ANLADIM ✓</Text>
+        <Text style={styles.bigBtnText}>DEVAM ET</Text>
       </Pressable>
-    </ScrollView>
+    </View>
   );
 }
 
 // =====================================================================
 //  STEP 2: PICK EMOJI — kelime → 4 emoji
 // =====================================================================
+
+// Foto + emoji rozeti, skeleton placeholder ile (loading sırasında boş kalmasın)
+function PhotoTileWithEmoji({ uri, emoji }: { uri: string; emoji: string }) {
+  const [loaded, setLoaded] = useState(false);
+  return (
+    <View style={styles.tilePhotoWrap}>
+      {!loaded && <View style={styles.tilePhotoSkeleton} />}
+      <Image
+        source={{ uri }}
+        style={styles.tilePhoto}
+        resizeMode="cover"
+        onLoad={() => setLoaded(true)}
+      />
+      <View style={styles.tilePhotoEmoji}>
+        <Text style={{ fontSize: 22 }}>{emoji}</Text>
+      </View>
+    </View>
+  );
+}
 
 function PickEmojiStep({ step, cat, onNext, onCorrect, onWrong }: {
   step: Extract<KidsStep, { type: "pickEmoji" }>;
@@ -240,12 +278,7 @@ function PickEmojiStep({ step, cat, onNext, onCorrect, onWrong }: {
               ]}
             >
               {opt.photo ? (
-                <View style={styles.tilePhotoWrap}>
-                  <Image source={{ uri: opt.photo }} style={styles.tilePhoto} resizeMode="cover" />
-                  <View style={styles.tilePhotoEmoji}>
-                    <Text style={{ fontSize: 22 }}>{opt.emoji}</Text>
-                  </View>
-                </View>
+                <PhotoTileWithEmoji uri={opt.photo} emoji={opt.emoji} />
               ) : (
                 <Text style={styles.tileEmoji}>{opt.emoji}</Text>
               )}
@@ -436,8 +469,17 @@ const styles = StyleSheet.create({
   },
   progressFill: { height: "100%", borderRadius: 6 },
 
-  body: { padding: 20, paddingBottom: 28, gap: 16, flexGrow: 1 },
+  body: { padding: 24, paddingBottom: 24, gap: 22, flex: 1 },
 
+  // Drops/Babbel tarzı minimal lead
+  minimalLead: {
+    fontSize: 11,
+    fontWeight: "900",
+    color: "#8B7355",
+    letterSpacing: 2.5,
+    textAlign: "center",
+    marginTop: 4,
+  },
   lead: {
     fontSize: 11,
     fontWeight: "900",
@@ -446,30 +488,34 @@ const styles = StyleSheet.create({
     textAlign: "center",
   },
 
-  // Big emoji card
-  bigEmojiCard: {
+  // Hero foto/emoji slot (Drops tarzı geniş ortalı)
+  heroSlot: {
     alignItems: "center",
-    justifyContent: "center",
-    padding: 30,
-    borderRadius: 28,
-    borderWidth: 3,
-    minHeight: 200,
+    marginTop: 8,
   },
-  bigEmoji: { fontSize: 110 },
   photoWrap: {
     width: "100%",
-    aspectRatio: 1.4,
-    borderRadius: 22,
+    aspectRatio: 1.3,
+    borderRadius: 28,
     overflow: "hidden",
     position: "relative",
+    borderWidth: 4,
+    shadowColor: "#000",
+    shadowOpacity: 0.2,
+    shadowRadius: 14,
+    shadowOffset: { width: 0, height: 6 },
+    elevation: 6,
   },
   photoImg: { width: "100%", height: "100%" },
+  photoSkeleton: {
+    ...StyleSheet.absoluteFillObject,
+  },
   photoEmojiTag: {
     position: "absolute",
-    bottom: 12,
-    right: 12,
-    width: 60,
-    height: 60,
+    bottom: 14,
+    right: 14,
+    width: 56,
+    height: 56,
     borderRadius: 18,
     alignItems: "center",
     justifyContent: "center",
@@ -480,8 +526,51 @@ const styles = StyleSheet.create({
     shadowRadius: 6,
     elevation: 4,
   },
+  emojiSlot: {
+    width: "100%",
+    aspectRatio: 1.3,
+    borderRadius: 28,
+    borderWidth: 4,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  bigEmoji: { fontSize: 130 },
+  // Eski kompozit (legacy)
+  bigEmojiCard: {
+    alignItems: "center",
+    justifyContent: "center",
+    padding: 30,
+    borderRadius: 28,
+    borderWidth: 3,
+    minHeight: 200,
+  },
 
-  // Word + sound combo
+  // Drops tarzı kelime ortalı düzen
+  wordCenter: {
+    alignItems: "center",
+    gap: 8,
+  },
+  bigKuWord: {
+    fontSize: 42,
+    fontWeight: "900",
+    letterSpacing: -0.5,
+    textAlign: "center",
+  },
+  bigTrWord: {
+    fontSize: 18,
+    fontWeight: "700",
+    color: "#5C4033",
+    textAlign: "center",
+    marginTop: 2,
+  },
+  soundRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 10,
+    marginTop: 6,
+  },
+
+  // Eski kelime+ses combo (legacy)
   wordWithSound: {
     flexDirection: "row",
     alignItems: "center",
@@ -494,7 +583,7 @@ const styles = StyleSheet.create({
   kuWord: { fontSize: 32, fontWeight: "900" },
   trWord: { fontSize: 18, fontWeight: "700", color: "#5C4033", marginTop: 8, textAlign: "center" },
   trHint: { fontSize: 11, color: "#8B7355", fontWeight: "600", marginTop: 4 },
-  tip: { fontSize: 12, color: "#8B7355", textAlign: "center", fontWeight: "600" },
+  tip: { fontSize: 11, color: "#8B7355", fontWeight: "600" },
 
   // Question card
   questionCard: {
@@ -526,6 +615,7 @@ const styles = StyleSheet.create({
   tileEmoji: { fontSize: 70 },
   tilePhotoWrap: { width: "100%", height: "100%", borderRadius: 18, overflow: "hidden", position: "relative" },
   tilePhoto: { width: "100%", height: "100%" },
+  tilePhotoSkeleton: { ...StyleSheet.absoluteFillObject, backgroundColor: "#E0E0E0" },
   tilePhotoEmoji: {
     position: "absolute",
     bottom: 4,
