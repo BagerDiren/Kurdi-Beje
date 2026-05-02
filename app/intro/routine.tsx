@@ -24,7 +24,7 @@ export default function IntroRoutine() {
           <View style={styles.bubbleWrap}>
             <SpeechBubble tailOffset={50}>
               <Text style={styles.bubbleText}>
-                Niha em <Text style={styles.bubbleBold}>rutîna fêrbûnê</Text> bi cih bikin!
+                Şimdi bir <Text style={styles.bubbleBold}>günlük rutin</Text> oluşturalım!
               </Text>
             </SpeechBubble>
           </View>
@@ -35,7 +35,7 @@ export default function IntroRoutine() {
         </View>
 
         <DuoButton onPress={() => router.push("/intro/goal")}>
-          Berdewam
+          Devam et
         </DuoButton>
       </View>
     </SafeAreaView>

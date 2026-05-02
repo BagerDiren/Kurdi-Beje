@@ -12,6 +12,7 @@ import {
   HiddenImageGame,
   WordCaveGame,
   FarmGame,
+  MemoryGame,
 } from "@/components/game";
 
 export default function GameScreen() {
@@ -35,6 +36,7 @@ export default function GameScreen() {
       {activeGame === "wene" && <HiddenImageGame th={th} t={t} onXp={handleXp} onBack={goBack} />}
       {activeGame === "shkeft" && <WordCaveGame th={th} t={t} onXp={handleXp} onBack={goBack} />}
       {activeGame === "zevi" && <FarmGame th={th} t={t} onXp={handleXp} onBack={goBack} />}
+      {activeGame === "memory" && <MemoryGame th={th} pool={pool} onXp={handleXp} onBack={goBack} />}
     </SafeAreaView>
   );
 }

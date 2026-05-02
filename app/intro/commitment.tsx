@@ -41,8 +41,8 @@ export default function IntroCommitment() {
           <View style={styles.bubbleWrap}>
             <SpeechBubble tailOffset={50}>
               <Text style={styles.bubbleText}>
-                Ev, di hefteya te ya yekem de{" "}
-                <Text style={styles.bubbleBold}>{words} peyv</Text> tê wateya!
+                Bu yolla ilk hafta{"\n"}
+                <Text style={styles.bubbleBold}>{words} kelime</Text> öğreneceksin! 🎯
               </Text>
             </SpeechBubble>
           </View>
@@ -59,7 +59,7 @@ export default function IntroCommitment() {
             router.replace("/(tabs)");
           }}
         >
-          Em dest pê bikin!
+Hadi başlayalım!
         </DuoButton>
       </View>
     </SafeAreaView>

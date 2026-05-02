@@ -33,7 +33,10 @@ export default function IntroHello() {
           <View style={styles.bubbleWrap}>
             <SpeechBubble tailOffset={50}>
               <Text style={styles.bubbleText}>
-                Silav! Navê min <Text style={styles.bubbleBold}>Kevo</Text> ye!
+                Merhaba! Ben <Text style={styles.bubbleBold}>Kevo</Text>!{"\n"}
+                <Text style={{ fontSize: 14, fontWeight: "600" }}>
+                  Sana Kürtçe öğreteceğim 🎉
+                </Text>
               </Text>
             </SpeechBubble>
           </View>
@@ -52,7 +55,7 @@ export default function IntroHello() {
 
         <View style={styles.actions}>
           <DuoButton onPress={() => router.push("/intro/questions")}>
-            Berdewam
+            Devam et
           </DuoButton>
         </View>
       </View>

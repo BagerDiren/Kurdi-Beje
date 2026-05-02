@@ -17,11 +17,11 @@ import { useApp, type ProficiencyLevel } from "@/data/app-context";
  * Kevo öğretmen pozunda (kağıt + kalem tutuyor).
  */
 const OPTIONS: { id: ProficiencyLevel; label: string; bars: number }[] = [
-  { id: "new", label: "Ez nû dest bi Kurmancî dikim", bars: 1 },
-  { id: "basic", label: "Çend peyvên gelemperî dizanim", bars: 2 },
-  { id: "simple", label: "Ez dikarim axaftinên sade bikim", bars: 3 },
-  { id: "varied", label: "Li ser mijarên cuda diaxivim", bars: 4 },
-  { id: "advanced", label: "Mijaran bi hûrgulî minaqeşe dikim", bars: 5 },
+  { id: "new", label: "Hiç Kürtçe bilmiyorum, sıfırdan başlamak istiyorum", bars: 1 },
+  { id: "basic", label: "Birkaç kelime biliyorum (selam, teşekkür)", bars: 2 },
+  { id: "simple", label: "Basit cümleler kurabiliyorum", bars: 3 },
+  { id: "varied", label: "Farklı konularda konuşabiliyorum", bars: 4 },
+  { id: "advanced", label: "Akıcı konuşuyorum, kelime hazinemi geliştirmek istiyorum", bars: 5 },
 ];
 
 function BarsIcon({ count }: { count: number }) {
@@ -64,7 +64,7 @@ export default function IntroLevel() {
 
         <View style={styles.bubbleArea}>
           <MascotBubble
-            message="Tu çiqas Kurmancî dizanî?"
+            message="Kürtçe seviyen ne?"
             mascotSize={88}
             action="teach"
             mood="happy"
@@ -89,7 +89,7 @@ export default function IntroLevel() {
           disabled={!localSel}
           onPress={() => router.push("/intro/level-done")}
         >
-          Berdewam
+          Devam et
         </DuoButton>
       </View>
     </SafeAreaView>

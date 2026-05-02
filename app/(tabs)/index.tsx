@@ -10,20 +10,20 @@ import { CATEGORIES, LEVELS, type Category } from "@/data/categories";
 import { getCurrentLeague } from "@/data/achievements";
 import type { LevelKey } from "@/data/lessons";
 
-function timeOfDayGreeting(): string {
-  const h = new Date().getHours();
-  if (h < 6) return "Şevbaş";
-  if (h < 12) return "Rojbaş";
-  if (h < 18) return "Roj baş";
-  return "Êvarbaş";
-}
-
 function timeOfDayGreetingTr(): string {
   const h = new Date().getHours();
   if (h < 6) return "İyi geceler";
   if (h < 12) return "Günaydın";
   if (h < 18) return "İyi günler";
   return "İyi akşamlar";
+}
+
+function timeOfDayGreetingKu(): string {
+  const h = new Date().getHours();
+  if (h < 6) return "Şev baş";
+  if (h < 12) return "Roj baş";
+  if (h < 18) return "Roj baş";
+  return "Êvar baş";
 }
 
 export default function HomeLearnTab() {
@@ -81,8 +81,8 @@ function AdultHome() {
         <LinearGradient colors={th.headerGrad as unknown as readonly [string, string, ...string[]]} style={styles.header}>
           <View style={styles.headerTop}>
             <View>
-              <Text style={styles.headerHello}>{timeOfDayGreeting()}! 👋</Text>
-              <Text style={styles.headerSub}>{timeOfDayGreetingTr()} · Em berdewam bikin</Text>
+              <Text style={styles.headerHello}>{timeOfDayGreetingTr()}! 👋</Text>
+              <Text style={styles.headerSub}>{timeOfDayGreetingKu()} · Hadi devam edelim</Text>
             </View>
             <View style={[styles.leagueChip, { backgroundColor: league.current.color + "33" }]}>
               <Text style={{ fontSize: 16 }}>{league.current.icon}</Text>
@@ -116,7 +116,7 @@ function AdultHome() {
             </View>
             <View style={{ flex: 1 }}>
               <Text style={{ fontSize: 10, fontWeight: "800", color: continueData.cat.color, letterSpacing: 0.4 }}>
-                ▶ BERDEWAM BIKE
+                ▶ KALDIĞIN YERDEN DEVAM ET
               </Text>
               <Text style={{ fontSize: 15, fontWeight: "900", color: th.text, marginTop: 2 }} numberOfLines={1}>
                 {continueData.lesson.title}
@@ -135,10 +135,10 @@ function AdultHome() {
             <Text style={{ fontSize: 22 }}>🔥</Text>
             <View style={{ flex: 1 }}>
               <Text style={{ fontSize: 13, fontWeight: "900", color: "#F49000" }}>
-                {streak} rojên rêzkî!
+                {streak} günlük serindesin!
               </Text>
               <Text style={{ fontSize: 10, color: th.textMid, fontWeight: "600" }}>
-                {streak} günlük seri · Sibê jî dest pê bike, da nepişke!
+                Yarın da gel, serini kaybetme · Bişopîne!
               </Text>
             </View>
           </View>
@@ -153,9 +153,9 @@ function AdultHome() {
             <Text style={{ fontSize: 22 }}>🎯</Text>
           </View>
           <View style={{ flex: 1 }}>
-            <Text style={{ fontSize: 13, fontWeight: "900", color: th.text }}>Pratîka Bilez</Text>
+            <Text style={{ fontSize: 13, fontWeight: "900", color: th.text }}>Hızlı Pratik</Text>
             <Text style={{ fontSize: 10, color: th.textMid, fontWeight: "600", marginTop: 1 }}>
-              10 pirsên bilez · Hızlı pratik
+              10 sorulu mini quiz · +5 XP / doğru
             </Text>
           </View>
           <Text style={{ fontSize: 18, color: th.accent }}>→</Text>
@@ -183,7 +183,7 @@ function AdultHome() {
         </Pressable>
 
         {/* Level tabs */}
-        <Text style={[styles.sectionTitle, { color: th.text }]}>📚 Astên Fêrbûnê (Seviyeler)</Text>
+        <Text style={[styles.sectionTitle, { color: th.text }]}>📚 Seviyeler · Ast</Text>
         <ScrollView
           horizontal
           showsHorizontalScrollIndicator={false}

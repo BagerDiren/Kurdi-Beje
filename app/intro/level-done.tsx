@@ -35,8 +35,8 @@ export default function IntroLevelDone() {
           <View style={styles.bubbleWrap}>
             <SpeechBubble tailOffset={50}>
               <Text style={styles.bubbleText}>
-                Baş e!{"\n"}
-                <Text style={styles.bubbleBold}>Em ji destpêkê</Text> dest pê bikin!
+                Harika!{"\n"}
+                <Text style={styles.bubbleBold}>En baştan</Text> başlayalım!
               </Text>
             </SpeechBubble>
           </View>
@@ -47,7 +47,7 @@ export default function IntroLevelDone() {
         </View>
 
         <DuoButton onPress={() => router.push("/intro/routine")}>
-          Berdewam
+          Devam et
         </DuoButton>
       </View>
     </SafeAreaView>

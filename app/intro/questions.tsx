@@ -24,8 +24,8 @@ export default function IntroQuestions() {
           <View style={styles.bubbleWrap}>
             <SpeechBubble tailOffset={50}>
               <Text style={styles.bubbleText}>
-                Berî dersa yekem,{" "}
-                <Text style={styles.bubbleBold}>çend pirsên kurt</Text> hene!
+                Sana özel bir plan hazırlamam için{" "}
+                <Text style={styles.bubbleBold}>3 kısa soru</Text> soracağım.
               </Text>
             </SpeechBubble>
           </View>
@@ -43,7 +43,7 @@ export default function IntroQuestions() {
 
         <View style={styles.actions}>
           <DuoButton onPress={() => router.push("/intro/level")}>
-            Berdewam
+            Tamam, başlayalım
           </DuoButton>
         </View>
       </View>

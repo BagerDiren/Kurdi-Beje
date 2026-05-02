@@ -17,10 +17,10 @@ import { useApp, type DailyGoalMinutes } from "@/data/app-context";
  * Kevo teach pozunda, seçim yapılınca alttaki Kevo zıplıyor gibi hissettiriyor.
  */
 const OPTIONS: { id: DailyGoalMinutes; label: string; trailing: string }[] = [
-  { id: 5, label: "Rojê 5 deqîqe", trailing: "Sivik" },
-  { id: 10, label: "Rojê 10 deqîqe", trailing: "Navîn" },
-  { id: 15, label: "Rojê 15 deqîqe", trailing: "Cidî" },
-  { id: 20, label: "Rojê 20 deqîqe", trailing: "Giran" },
+  { id: 5,  label: "Günde 5 dakika",  trailing: "Rahat" },
+  { id: 10, label: "Günde 10 dakika", trailing: "Normal" },
+  { id: 15, label: "Günde 15 dakika", trailing: "Ciddi" },
+  { id: 20, label: "Günde 20 dakika", trailing: "Yoğun" },
 ];
 
 export default function IntroGoal() {
@@ -39,7 +39,7 @@ export default function IntroGoal() {
 
         <View style={styles.bubbleArea}>
           <MascotBubble
-            message="Armanca te ya rojane çi ye?"
+            message="Günlük hedefin ne?"
             mascotSize={88}
             action="teach"
             mood="happy"
@@ -64,7 +64,7 @@ export default function IntroGoal() {
           disabled={!localSel}
           onPress={() => router.push("/intro/commitment")}
         >
-          Ez biryardar im
+          Hedefimi belirledim
         </DuoButton>
       </View>
     </SafeAreaView>
