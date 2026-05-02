@@ -46,43 +46,11 @@ export function speakKurmanci(
 }
 
 /**
- * Çocuk için: kelimeyi 2 kez söyle (1. yavaş öğretici, 2. normal hızda).
- * Aralarında 700ms duraklama. Çocuk hem ne dediğini hem doğal sesini duyar.
+ * Çocuk için sade tek seferlik söyleme: net, yavaş, sıcak ton.
+ * (Eski 2-kez söyleme kaldırıldı — robotik/korkutucu hissi veriyordu.)
  */
 export function speakKurmanciKid(text: string, onDone?: () => void) {
-  const phonetic = toTurkishPhonetic(text);
-  try {
-    Speech.stop();
-    // 1. tane tane öğretici
-    Speech.speak(phonetic, {
-      ...speakOptionsForStyle("kidSlow"),
-      volume: 1.0,
-      onDone: () => {
-        // Kısa duraklama, sonra normal hızda tekrar
-        setTimeout(() => {
-          Speech.speak(phonetic, {
-            ...speakOptionsForStyle("kid"),
-            volume: 1.0,
-            onDone: () => {
-              currentlySpeaking = false;
-              onDone?.();
-            },
-            onError: () => {
-              currentlySpeaking = false;
-              onDone?.();
-            },
-          });
-        }, 600);
-      },
-      onError: () => {
-        currentlySpeaking = false;
-        onDone?.();
-      },
-    });
-    currentlySpeaking = true;
-  } catch {
-    currentlySpeaking = false;
-  }
+  speakKurmanci(text, "kidSlow", onDone);
 }
 
 export function playFx(key: FxKey) {

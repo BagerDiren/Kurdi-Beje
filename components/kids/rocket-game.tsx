@@ -1,7 +1,10 @@
 import { useEffect, useRef, useState } from "react";
-import { View, Text, Pressable, StyleSheet, Dimensions } from "react-native";
+import { View, Text, Pressable, StyleSheet, Dimensions, Image } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
 import * as Speech from "expo-speech";
+
+// NASA telifsiz uzay fotoğrafı (Hubble galaxy)
+const SPACE_BG = "https://images.pexels.com/photos/1169754/pexels-photo-1169754.jpeg?auto=compress&cs=tinysrgb&w=900";
 import Animated, {
   useSharedValue, useAnimatedStyle, withSpring, withTiming,
   withSequence, withRepeat, Easing,
@@ -162,11 +165,15 @@ export function RocketGame({ category, onDone }: Props) {
   }
 
   return (
-    <LinearGradient
-      colors={["#0F0C29", "#302B63", "#24243E"] as unknown as readonly [string, string, ...string[]]}
-      style={styles.root}
-    >
-      {/* Yıldız arka plan */}
+    <View style={styles.root}>
+      {/* Sinematik uzay foto bg */}
+      <Image source={{ uri: SPACE_BG }} style={StyleSheet.absoluteFillObject} resizeMode="cover" />
+      <LinearGradient
+        colors={["rgba(15,12,41,0.85)", "rgba(48,43,99,0.75)", "rgba(36,36,62,0.85)"] as unknown as readonly [string, string, ...string[]]}
+        style={StyleSheet.absoluteFillObject}
+      />
+
+      {/* Yıldız parıltı katmanı */}
       <StarryBackground />
 
       {/* Üst bilgi */}
@@ -250,7 +257,7 @@ export function RocketGame({ category, onDone }: Props) {
       </View>
 
       <Confetti visible={confettiOn} count={50} />
-    </LinearGradient>
+    </View>
   );
 }
 

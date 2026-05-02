@@ -58,22 +58,22 @@ export function toTurkishPhonetic(text: string): string {
 export function speakOptionsForStyle(style: SpeakStyle = "normal"): SpeakOptions {
   switch (style) {
     case "slow":
-      return { language: "tr-TR", rate: 0.65, pitch: 1.0 };
+      return { language: "tr-TR", rate: 0.7, pitch: 1.0 };
     case "happy":
-      return { language: "tr-TR", rate: 1.0, pitch: 1.25 };
+      return { language: "tr-TR", rate: 0.95, pitch: 1.18 };
     case "praise":
-      return { language: "tr-TR", rate: 0.95, pitch: 1.3 };
+      return { language: "tr-TR", rate: 0.9, pitch: 1.22 };
     case "sad":
-      return { language: "tr-TR", rate: 0.75, pitch: 0.85 };
+      return { language: "tr-TR", rate: 0.75, pitch: 0.9 };
     case "kid":
-      // Çocuk dostu: yüksek pitch (cıvıl cıvıl), normal hız
-      return { language: "tr-TR", rate: 0.78, pitch: 1.55 };
+      // Çocuk için: hafif yüksek pitch, normal-yavaş hız (DAHA DOĞAL)
+      return { language: "tr-TR", rate: 0.82, pitch: 1.20 };
     case "kidSlow":
-      // Çocuk için öğretici: yüksek pitch, çok yavaş, tane tane
-      return { language: "tr-TR", rate: 0.55, pitch: 1.5 };
+      // Çocuk için öğretici: orta pitch, yavaş, anlaşılır (KORKUTUCU değil)
+      return { language: "tr-TR", rate: 0.65, pitch: 1.10 };
     case "normal":
     default:
-      return { language: "tr-TR", rate: 0.85, pitch: 1.05 };
+      return { language: "tr-TR", rate: 0.88, pitch: 1.0 };
   }
 }
 

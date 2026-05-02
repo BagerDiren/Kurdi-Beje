@@ -6,10 +6,13 @@
  */
 import { useEffect, useState, useRef } from "react";
 import {
-  View, Text, Pressable, StyleSheet, Image, Modal, ScrollView, Dimensions,
+  View, Text, Pressable, StyleSheet, Image, ImageBackground, Modal, ScrollView, Dimensions,
 } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
 import * as Haptics from "expo-haptics";
+
+// Telifsiz Pexels — çiftlik manzarası (sinematik bg)
+const FARM_BG = "https://images.pexels.com/photos/2255801/pexels-photo-2255801.jpeg?auto=compress&cs=tinysrgb&w=900";
 import Animated, {
   useSharedValue, useAnimatedStyle, withRepeat, withSequence,
   withTiming, withSpring, Easing,
@@ -189,8 +192,10 @@ export function FarmGameV2({ onClose }: Props) {
 
   return (
     <View style={styles.root}>
+      {/* Sinematik foto arka plan + gradient overlay */}
+      <Image source={{ uri: FARM_BG }} style={StyleSheet.absoluteFillObject} resizeMode="cover" />
       <LinearGradient
-        colors={["#87CEEB", "#A6D9F2", "#A4D65E"] as unknown as readonly [string, string, ...string[]]}
+        colors={["rgba(135,206,235,0.7)", "rgba(166,217,242,0.5)", "rgba(164,214,94,0.6)"] as unknown as readonly [string, string, ...string[]]}
         style={StyleSheet.absoluteFillObject}
       />
 
