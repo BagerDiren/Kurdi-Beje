@@ -372,12 +372,44 @@ function ChildHome() {
             <StatChip icon="❤️" value={hearts} label="Can"    color={KIDS_THEME.heart} />
           </View>
 
-          {/* === ÇİZGİ FİLM HERO KARTI (en büyük, ana cazibe) === */}
+          {/* === ÇİFTLİK HERO KARTI (App Store kalitesinde oyun) === */}
+          <Pressable
+            onPress={() => {
+              setActiveCategory(KIDS_CATEGORIES[0].key as never);
+              router.push("/farm-game" as never);
+            }}
+            style={({ pressed }) => [
+              kidStyles.heroCard,
+              SHADOW(KIDS_THEME.green, "lg"),
+              pressed && { transform: [{ scale: 0.98 }] },
+            ]}
+          >
+            <LG
+              colors={["#7CB342", "#558B2F", "#33691E"] as unknown as readonly [string, string, ...string[]]}
+              start={{ x: 0, y: 0 }}
+              end={{ x: 1, y: 1 }}
+              style={kidStyles.heroGrad}
+            >
+              <View style={kidStyles.heroIcon}>
+                <Text style={{ fontSize: 56 }}>🐮</Text>
+              </View>
+              <View style={{ flex: 1 }}>
+                <View style={[kidStyles.heroBadge, { backgroundColor: "#FFC72C" }]}>
+                  <Text style={[kidStyles.heroBadgeText, { color: "#5D4037" }]}>YENİ OYUN!</Text>
+                </View>
+                <Text style={kidStyles.heroTitle}>Kevo'nun Çiftliği</Text>
+                <Text style={kidStyles.heroSub}>Soruları cevapla · 12 hayvan kazan 🌾</Text>
+              </View>
+              <Text style={kidStyles.heroArrow}>›</Text>
+            </LG>
+          </Pressable>
+
+          {/* === ÇİZGİ FİLM KARTI === */}
           <Pressable
             onPress={() => router.push("/cartoons" as never)}
             style={({ pressed }) => [
               kidStyles.heroCard,
-              SHADOW(KIDS_THEME.primary, "lg"),
+              SHADOW(KIDS_THEME.primary, "md"),
               pressed && { transform: [{ scale: 0.98 }] },
             ]}
           >
@@ -387,17 +419,12 @@ function ChildHome() {
               end={{ x: 1, y: 1 }}
               style={kidStyles.heroGrad}
             >
-              {/* Sol: büyük TV emojisi yumuşak çerçevede */}
               <View style={kidStyles.heroIcon}>
                 <Text style={{ fontSize: 56 }}>📺</Text>
               </View>
-              {/* Sağ: metin */}
               <View style={{ flex: 1 }}>
-                <View style={kidStyles.heroBadge}>
-                  <Text style={kidStyles.heroBadgeText}>YENİ</Text>
-                </View>
                 <Text style={kidStyles.heroTitle}>Çizgi Film İzle</Text>
-                <Text style={kidStyles.heroSub}>Zarok TV · Kurmancî 🎬</Text>
+                <Text style={kidStyles.heroSub}>Zarok TV · Kurmancî videolar 🎬</Text>
               </View>
               <Text style={kidStyles.heroArrow}>›</Text>
             </LG>

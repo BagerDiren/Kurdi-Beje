@@ -14,6 +14,57 @@
  * Her ekran bu token'lara bağlı kalır.
  */
 
+/**
+ * YETİŞKİN için premium tema — çocuk paletinin daha doygun/sofistike versiyonu.
+ * Aynı tasarım dili (radius, spacing, font) ama daha az pembe/sarı, daha fazla yeşil/mavi/mor.
+ * Hâlâ eğlenceli ve canlı, sadece daha "yetişkin tonunda".
+ */
+export const ADULT_THEME = {
+  primary: "#1F6B41",        // dağ yeşili (ana)
+  primaryDark: "#0F4D2C",
+  primarySoft: "#D4F0DD",
+
+  yellow: "#F39C12",
+  yellowDark: "#D87B0A",
+  yellowSoft: "#FFEDB8",
+
+  blue: "#1976D2",
+  blueDark: "#0D47A1",
+  blueSoft: "#BBDEFB",
+
+  green: "#388E3C",
+  greenDark: "#1B5E20",
+  greenSoft: "#C8E6C9",
+
+  purple: "#7B1FA2",
+  purpleDark: "#4A148C",
+  purpleSoft: "#E1BEE7",
+
+  red: "#C62828",
+  redDark: "#8E0000",
+  redSoft: "#FFCDD2",
+
+  // Arka plan: sıcak krem, çocuk modu kadar parlak değil
+  bg: "#FAF7F2",
+  bgSoft: "#F4EFE8",
+  card: "#FFFFFF",
+  overlay: "rgba(0,0,0,0.5)",
+
+  // Metin
+  ink: "#1A1A1A",
+  graphite: "#3A3A3A",
+  smoke: "#6B6B6B",
+  silver: "#BDBDBD",
+  paper: "#FFFFFF",
+
+  // Special
+  star: "#F39C12",
+  heart: "#E91E63",
+  fire: "#FF5722",
+  success: "#388E3C",
+  danger: "#C62828",
+};
+
 export const KIDS_THEME = {
   // === ANA RENK PALETİ ===
   // 6 doygun ama yumuşak renk, her kategori için bir adet
