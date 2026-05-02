@@ -1,79 +1,47 @@
 import { useState } from "react";
-import { View, StyleSheet } from "react-native";
 import { router } from "expo-router";
-import { SafeAreaView } from "react-native-safe-area-context";
 
-import {
-  DuoButton,
-  OnboardingHeader,
-  SelectionCard,
-  MascotBubble,
-} from "@/components/ui-kit";
-import { DUO } from "@/data/duo-colors";
+import { OnboardingScreen, OptionCard } from "@/components/kids/onboarding-screen";
 import { useApp, type DailyGoalMinutes } from "@/data/app-context";
 
-/**
- * Günlük hedef seçimi — 5/10/15/20 dakika.
- * Kevo teach pozunda, seçim yapılınca alttaki Kevo zıplıyor gibi hissettiriyor.
- */
-const OPTIONS: { id: DailyGoalMinutes; label: string; trailing: string }[] = [
-  { id: 5,  label: "Günde 5 dakika",  trailing: "Rahat" },
-  { id: 10, label: "Günde 10 dakika", trailing: "Normal" },
-  { id: 15, label: "Günde 15 dakika", trailing: "Ciddi" },
-  { id: 20, label: "Günde 20 dakika", trailing: "Yoğun" },
+const OPTIONS: { id: DailyGoalMinutes; emoji: string; label: string; sub: string }[] = [
+  { id: 5,  emoji: "🌱", label: "Günde 5 dakika",  sub: "Rahat — başlangıç için ideal" },
+  { id: 10, emoji: "🌳", label: "Günde 10 dakika", sub: "Normal — hızlı ilerleme" },
+  { id: 15, emoji: "🌟", label: "Günde 15 dakika", sub: "Ciddi — çok kelime öğren" },
+  { id: 20, emoji: "🚀", label: "Günde 20 dakika", sub: "Yoğun — uzman seviye" },
 ];
 
 export default function IntroGoal() {
   const { dailyGoal, setDailyGoal } = useApp();
-  const [localSel, setLocalSel] = useState<DailyGoalMinutes | null>(dailyGoal);
+  const [sel, setSel] = useState<DailyGoalMinutes | null>(dailyGoal);
 
   const pick = (id: DailyGoalMinutes) => {
-    setLocalSel(id);
+    setSel(id);
     setDailyGoal(id);
   };
 
   return (
-    <SafeAreaView style={styles.safe}>
-      <View style={styles.content}>
-        <OnboardingHeader progress={0.75} onBack={() => router.back()} />
-
-        <View style={styles.bubbleArea}>
-          <MascotBubble
-            message="Günlük hedefin ne?"
-            mascotSize={88}
-            action="teach"
-            mood="happy"
-          />
-        </View>
-
-        <View style={styles.options}>
-          {OPTIONS.map((o) => (
-            <SelectionCard
-              key={o.id}
-              label={o.label}
-              trailing={o.trailing}
-              selected={localSel === o.id}
-              onPress={() => pick(o.id)}
-            />
-          ))}
-        </View>
-
-        <View style={{ flex: 1 }} />
-
-        <DuoButton
-          disabled={!localSel}
-          onPress={() => router.push("/intro/commitment")}
-        >
-          Hedefimi belirledim
-        </DuoButton>
-      </View>
-    </SafeAreaView>
+    <OnboardingScreen
+      progress={0.85}
+      onBack={() => router.back()}
+      character="kevo"
+      bubbleText="Günlük hedefin ne?"
+      title="Ne kadar zamanın var?"
+      subtitle="Sana hatırlatma gönderirim. İstediğin zaman değiştirebilirsin."
+      ctaText="HEDEFİMİ BELİRLEDİM"
+      onCta={() => router.push("/intro/commitment")}
+      ctaDisabled={!sel}
+    >
+      {OPTIONS.map((o) => (
+        <OptionCard
+          key={o.id}
+          emoji={o.emoji}
+          label={o.label}
+          sublabel={o.sub}
+          isActive={sel === o.id}
+          onPress={() => pick(o.id)}
+        />
+      ))}
+    </OnboardingScreen>
   );
 }
-
-const styles = StyleSheet.create({
-  safe: { flex: 1, backgroundColor: DUO.bg },
-  content: { flex: 1, paddingHorizontal: 20, paddingBottom: 16 },
-  bubbleArea: { marginTop: 18, marginBottom: 20 },
-  options: { gap: 12 },
-});
