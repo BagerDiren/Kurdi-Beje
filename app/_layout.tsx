@@ -20,6 +20,8 @@ export default function RootLayout() {
         <Stack.Screen name="game" />
         <Stack.Screen name="goals" />
         <Stack.Screen name="category" />
+        <Stack.Screen name="achievements" />
+        <Stack.Screen name="practice" />
       </Stack>
       <StatusBar style="auto" />
     </AppProvider>

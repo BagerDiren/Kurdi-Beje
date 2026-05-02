@@ -31,6 +31,11 @@ type AppState = {
   correctToday: number;
   activeGame: string | null;
   activeCategory: CategoryKey | null;
+  // Streak / time tracking
+  studyDates: string[];          // ISO YYYY-MM-DD strings
+  lastStudyDate: string | null;
+  // Achievements / rewards
+  unlockedAchievements: string[];
   // Onboarding state
   proficiency: ProficiencyLevel | null;
   dailyGoal: DailyGoalMinutes | null;
@@ -58,6 +63,7 @@ type AppActions = {
   resetProgress: () => void;
   setProficiency: (p: ProficiencyLevel) => void;
   setDailyGoal: (g: DailyGoalMinutes) => void;
+  unlockAchievement: (id: string, xpReward?: number) => void;
 };
 
 const AppContext = createContext<(AppState & AppActions) | null>(null);
@@ -82,6 +88,9 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const [activeCategory, setActiveCategoryState] = useState<CategoryKey | null>(null);
   const [proficiency, setProficiencyState] = useState<ProficiencyLevel | null>(null);
   const [dailyGoal, setDailyGoalState] = useState<DailyGoalMinutes | null>(null);
+  const [studyDates, setStudyDates] = useState<string[]>([]);
+  const [lastStudyDate, setLastStudyDate] = useState<string | null>(null);
+  const [unlockedAchievements, setUnlockedAchievements] = useState<string[]>([]);
 
   const th: AppTheme = (age === "adult" ? ADULT_THEME : CHILD_THEME) as AppTheme;
   const t = T[lang ?? "ku"];
@@ -117,12 +126,27 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const finishLesson = useCallback(() => {
     if (!curLesson) return;
     setXpState(p => p + curLesson.xp);
-    setCompleted(p => [...p, curLesson.id]);
+    setCompleted(p => p.includes(curLesson.id) ? p : [...p, curLesson.id]);
     setLessonsToday(p => p + 1);
+
+    // === STREAK MANTIĞI ===
+    const today = new Date().toISOString().slice(0, 10);
+    setStudyDates(p => p.includes(today) ? p : [...p, today].slice(-60));
+
+    if (lastStudyDate !== today) {
+      setStreakState(prev => {
+        if (!lastStudyDate) return 1;
+        const yesterday = new Date(Date.now() - 86400000).toISOString().slice(0, 10);
+        if (lastStudyDate === yesterday) return prev + 1;
+        return 1;
+      });
+      setLastStudyDate(today);
+    }
+
     setCurLesson(null);
     setTabState("learn");
     setScr("home");
-  }, [curLesson]);
+  }, [curLesson, lastStudyDate]);
 
   const onCorrect = useCallback(() => {
     setCc(c => c + 1);
@@ -142,21 +166,33 @@ export function AppProvider({ children }: { children: ReactNode }) {
     setStreakState(0);
     setLessonsToday(0);
     setCorrectToday(0);
+    setStudyDates([]);
+    setLastStudyDate(null);
+    setUnlockedAchievements([]);
   }, []);
 
   const setProficiency = useCallback((p: ProficiencyLevel) => setProficiencyState(p), []);
   const setDailyGoal = useCallback((g: DailyGoalMinutes) => setDailyGoalState(g), []);
 
+  const unlockAchievement = useCallback((id: string, xpReward?: number) => {
+    setUnlockedAchievements(prev => {
+      if (prev.includes(id)) return prev;
+      if (xpReward) setXpState(x => x + xpReward);
+      return [...prev, id];
+    });
+  }, []);
+
   const value: AppState & AppActions = {
     scr, lang, age, lvl, hearts, xp, streak, tab,
     curLesson, stepIdx, cc, lDone, completed, lessonsToday, correctToday,
     activeGame, activeCategory,
+    studyDates, lastStudyDate, unlockedAchievements,
     proficiency, dailyGoal,
     th, t, levelLessons,
     go, setLang, setAge, setLvl, setTab, setActiveGame, setActiveCategory,
     startLesson, nextStep, finishLesson, onCorrect, onWrong,
     addXp, setHearts, resetProgress,
-    setProficiency, setDailyGoal,
+    setProficiency, setDailyGoal, unlockAchievement,
   };
 
   return <AppContext.Provider value={value}>{children}</AppContext.Provider>;

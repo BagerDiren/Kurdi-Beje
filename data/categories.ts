@@ -11,15 +11,16 @@
  *  - KurdishHunspell (sinaahmadi/KurdishHunspell, 43k+ etiket)
  */
 import type { Lesson, LevelKey } from "./lessons";
+import { fillToFifty } from "./lesson-generator";
 
 export type CategoryKey =
   // A1
   | "silav" | "hejmar" | "reng" | "malbat" | "mal" | "demjimer"
   | "xwarin" | "cil" | "las"
   // A2
-  | "mitfax" | "bazar" | "gerr" | "hewa" | "rojane"
+  | "mitfax" | "bazar" | "gerr" | "hewa" | "rojane" | "xweza"
   // B1
-  | "cihan" | "tendurusti" | "karkirin" | "cand";
+  | "cihan" | "tendurusti" | "karkirin" | "cand" | "hobi" | "teknoloji";
 
 export type CategoryWord = {
   ku: string;
@@ -915,17 +916,559 @@ const KARKIRIN: Category = {
 };
 
 // =============================================================
+//  EK A1 — CİL Û BERG (KIYAFETLER)
+// =============================================================
+
+const CIL: Category = {
+  key: "cil",
+  title: "Cil û Berg",
+  titleTr: "Kıyafetler",
+  icon: "👕",
+  color: "#A560E8",
+  level: "a1",
+  description: "Cil, kinc û aksesuar",
+  descriptionTr: "Kıyafetler ve aksesuarlar",
+  words: [
+    { ku: "cil", tr: "kıyafet", emoji: "👕", example: { ku: "Cilên min nû ne.", tr: "Kıyafetlerim yenidir." } },
+    { ku: "kiras", tr: "gömlek", emoji: "👔", example: { ku: "Kirasê wî spî ye.", tr: "Onun gömleği beyazdır." } },
+    { ku: "şal", tr: "şal/eşarp", emoji: "🧣", example: { ku: "Şala dapîrê.", tr: "Ninenin şalı." } },
+    { ku: "qapût", tr: "kaban/palto", emoji: "🧥", example: { ku: "Qapûtê zivistanê.", tr: "Kış kabanı." } },
+    { ku: "şewqe", tr: "şapka", emoji: "🧢", example: { ku: "Şewqeya min winda bû.", tr: "Şapkam kayboldu." } },
+    { ku: "sol", tr: "ayakkabı", emoji: "👟", example: { ku: "Solên min reş in.", tr: "Ayakkabılarım siyahtır." } },
+    { ku: "gore", tr: "çorap", emoji: "🧦", example: { ku: "Gorên dirêj.", tr: "Uzun çoraplar." } },
+    { ku: "destmal", tr: "mendil", emoji: "🧻", example: { ku: "Destmalê paqij.", tr: "Temiz mendil." } },
+    { ku: "pantol", tr: "pantolon", emoji: "👖", example: { ku: "Pantolê şîn.", tr: "Mavi pantolon." } },
+    { ku: "kemer", tr: "kemer", emoji: "🪢", example: { ku: "Kemerê çermî.", tr: "Deri kemer." } },
+    { ku: "elwane", tr: "yüzük", emoji: "💍", example: { ku: "Elwaneya zêrîn.", tr: "Altın yüzük." } },
+    { ku: "destbendik", tr: "bilezik", emoji: "📿", example: { ku: "Destbendika dayikê.", tr: "Annenin bileziği." } },
+    { ku: "saet", tr: "kol saati", emoji: "⌚", example: { ku: "Saeta destê min.", tr: "Kol saatim." } },
+    { ku: "berçavk", tr: "gözlük", emoji: "👓", example: { ku: "Berçavkê min şikest.", tr: "Gözlüğüm kırıldı." } },
+  ],
+  lessons: [
+    {
+      id: "cat-cil-1",
+      title: "Cilên Min",
+      titleTr: "Kıyafetlerim",
+      icon: "👕",
+      xp: 25,
+      steps: [
+        { type: "teach", word: "Cil", meaning: "Kıyafet", emoji: "👕", sentence: "Cilên min nû ne.", sentenceTr: "Kıyafetlerim yenidir.", tip: "'Cil û berg' (kıyafet) bir bütün olarak da kullanılır." },
+        { type: "teach", word: "Kiras", meaning: "Gömlek", emoji: "👔", sentence: "Kirasê wî spî ye.", sentenceTr: "Onun gömleği beyazdır.", tip: "Üst beden için." },
+        { type: "teach", word: "Pantol", meaning: "Pantolon", emoji: "👖", sentence: "Pantolê min şîn e.", sentenceTr: "Pantolonum mavidir.", tip: "Yabancı dilden ödünç." },
+        { type: "teach", word: "Sol", meaning: "Ayakkabı", emoji: "👟", sentence: "Solên min reş in.", sentenceTr: "Ayakkabılarım siyahtır.", tip: "'Solbend' = ayakkabı bağı." },
+        { type: "teach", word: "Gore", meaning: "Çorap", emoji: "🧦", sentence: "Gorê dirêj.", sentenceTr: "Uzun çorap.", tip: "Çoğul: 'gorên'." },
+        { type: "teach", word: "Şewqe", meaning: "Şapka", emoji: "🧢", sentence: "Şewqeya rojê.", sentenceTr: "Yaz şapkası.", tip: "Başlık türü." },
+        { type: "pick", question: "'Pantolon' Kurmancî nedir?", options: ["Kiras", "Pantol", "Sol", "Gore"], correct: 1 },
+        { type: "teach", word: "Qapût", meaning: "Palto/Kaban", emoji: "🧥", sentence: "Qapûtê zivistanê.", sentenceTr: "Kış kabanı.", tip: "Kalın dış giyim." },
+        { type: "teach", word: "Saet", meaning: "Kol saati", emoji: "⌚", sentence: "Saeta destê min.", sentenceTr: "Kol saatim.", tip: "'Demjimêr' = duvar saati; 'saet' = kol saati." },
+        { type: "teach", word: "Berçavk", meaning: "Gözlük", emoji: "👓", sentence: "Berçavkê xwendinê.", sentenceTr: "Okuma gözlüğü.", tip: "'Ber' (ön) + 'çav' (göz)." },
+        { type: "match", instruction: "Eşleştir!", pairs: [
+          { word: "Kiras", meaning: "Gömlek" },
+          { word: "Pantol", meaning: "Pantolon" },
+          { word: "Sol", meaning: "Ayakkabı" },
+          { word: "Şewqe", meaning: "Şapka" },
+        ]},
+        { type: "fill", sentence: "Solên min ___ in.", sentenceTr: "Ayakkabılarım ___.", hint: "⚫", options: ["sor", "reş", "kesk"], correct: 1 },
+        { type: "pick", question: "'Çorap' Kurmancî nedir?", options: ["Şal", "Gore", "Sol", "Kiras"], correct: 1 },
+        { type: "fill", sentence: "Berçavkê ___.", sentenceTr: "___ gözlüğü.", hint: "📖", options: ["xwendinê", "rojê", "şevê"], correct: 0 },
+      ],
+    },
+  ],
+};
+
+// =============================================================
+//  EK A1 — LAŞ (VÜCUT)
+// =============================================================
+
+const LAS: Category = {
+  key: "las",
+  title: "Laş û Endam",
+  titleTr: "Vücut & Organlar",
+  icon: "🧍",
+  color: "#FF6B35",
+  level: "a1",
+  description: "Beşên laşê me",
+  descriptionTr: "Vücut bölümleri",
+  words: [
+    { ku: "ser", tr: "baş", emoji: "🧠", example: { ku: "Serê min mezin e.", tr: "Başım büyüktür." } },
+    { ku: "rû", tr: "yüz", emoji: "😊", example: { ku: "Rûyê wê delal.", tr: "Yüzü güzeldir." } },
+    { ku: "çav", tr: "göz", emoji: "👁️", example: { ku: "Çavên min reş in.", tr: "Gözlerim siyahtır." } },
+    { ku: "guh", tr: "kulak", emoji: "👂", example: { ku: "Guhê min nabihîse.", tr: "Kulağım duymuyor." } },
+    { ku: "poz", tr: "burun", emoji: "👃", example: { ku: "Poza min digirî.", tr: "Burnum akıyor." } },
+    { ku: "dev", tr: "ağız", emoji: "👄", example: { ku: "Devê wî girtî ye.", tr: "Ağzı kapalıdır." } },
+    { ku: "ziman", tr: "dil (organ)", emoji: "👅", example: { ku: "Zimanê min sor e.", tr: "Dilim kırmızıdır." } },
+    { ku: "diran", tr: "diş", emoji: "🦷", example: { ku: "Diranên spî.", tr: "Beyaz dişler." } },
+    { ku: "stû", tr: "boyun", emoji: "🧣", example: { ku: "Stûyê min êşiya.", tr: "Boynum acıdı." } },
+    { ku: "mil", tr: "omuz", emoji: "💪", example: { ku: "Milê min giran e.", tr: "Omzum ağırdır." } },
+    { ku: "dest", tr: "el", emoji: "✋", example: { ku: "Destê min sar e.", tr: "Elim soğuktur." } },
+    { ku: "tilî", tr: "parmak", emoji: "👆", example: { ku: "Pênc tilî.", tr: "Beş parmak." } },
+    { ku: "ling", tr: "ayak/bacak", emoji: "🦶", example: { ku: "Lingê min êşiya.", tr: "Ayağım acıdı." } },
+    { ku: "zik", tr: "karın", emoji: "🫃", example: { ku: "Zikê min têr e.", tr: "Karnım toktur." } },
+    { ku: "dil", tr: "kalp", emoji: "❤️", example: { ku: "Dilê min lê dixe.", tr: "Kalbim atıyor." } },
+    { ku: "por", tr: "saç", emoji: "💇", example: { ku: "Porê min reş e.", tr: "Saçım siyahtır." } },
+  ],
+  lessons: [
+    {
+      id: "cat-las-1",
+      title: "Beşên Laş",
+      titleTr: "Vücut Bölümleri",
+      icon: "🧍",
+      xp: 25,
+      steps: [
+        { type: "scene", scene: "👁️", verb: "dibînim", meaning: "görüyorum", person: "Ez", full: "Ez bi çavên xwe dibînim.", fullTr: "Gözlerimle görüyorum.", tip: "'Dîtin' = görmek." },
+        { type: "teach", word: "Ser", meaning: "Baş", emoji: "🧠", sentence: "Serê min diêşe.", sentenceTr: "Başım ağrıyor.", tip: "Hem 'üst' hem 'baş' anlamında." },
+        { type: "teach", word: "Çav", meaning: "Göz", emoji: "👁️", sentence: "Çavên reş.", sentenceTr: "Siyah gözler.", tip: "'Çavreş' = karagöz (övgü)." },
+        { type: "teach", word: "Guh", meaning: "Kulak", emoji: "👂", sentence: "Guhê min dibihîse.", sentenceTr: "Kulağım duyuyor.", tip: "'Bihîstin' = duymak." },
+        { type: "teach", word: "Poz", meaning: "Burun", emoji: "👃", sentence: "Poza min mezin e.", sentenceTr: "Burnum büyüktür.", tip: "Yüzün ortasında." },
+        { type: "teach", word: "Dev", meaning: "Ağız", emoji: "👄", sentence: "Devê min hişk e.", sentenceTr: "Ağzım kuru.", tip: "'Hişk' = kuru/sert." },
+        { type: "pick", question: "'Kulak' Kurmancî nedir?", options: ["Çav", "Guh", "Poz", "Dev"], correct: 1 },
+        { type: "teach", word: "Dest", meaning: "El", emoji: "✋", sentence: "Destê min sar e.", sentenceTr: "Elim soğuktur.", tip: "'Bidê min' = bana ver (destê)." },
+        { type: "teach", word: "Ling", meaning: "Ayak/Bacak", emoji: "🦶", sentence: "Lingê min êşiya.", sentenceTr: "Ayağım acıdı.", tip: "Hem ayak hem bacak için kullanılır." },
+        { type: "teach", word: "Dil", meaning: "Kalp", emoji: "❤️", sentence: "Dilê min lê dixe.", sentenceTr: "Kalbim atıyor.", tip: "Mecazi olarak da 'gönül' anlamında." },
+        { type: "teach", word: "Por", meaning: "Saç", emoji: "💇", sentence: "Porê wê dirêj e.", sentenceTr: "Saçı uzundur.", tip: "'Porê min' = saçım." },
+        { type: "match", instruction: "Eşleştir!", pairs: [
+          { word: "Çav", meaning: "Göz" },
+          { word: "Guh", meaning: "Kulak" },
+          { word: "Dest", meaning: "El" },
+          { word: "Ling", meaning: "Ayak" },
+        ]},
+        { type: "fill", sentence: "Bi ___ dibînim.", sentenceTr: "___ ile görüyorum.", hint: "👁️", options: ["dest", "çavan", "guh"], correct: 1 },
+        { type: "pick", question: "'Saç' Kurmancî nedir?", options: ["Por", "Ser", "Mil", "Stû"], correct: 0 },
+        { type: "fill", sentence: "Pênc ___ di destê min de.", sentenceTr: "Elimde beş ___.", hint: "👆", options: ["tilî", "diran", "guh"], correct: 0 },
+      ],
+    },
+  ],
+};
+
+// =============================================================
+//  EK A2 — KARÊ ROJANE (GÜNLÜK RUTİN)
+// =============================================================
+
+const ROJANE: Category = {
+  key: "rojane",
+  title: "Karê Rojane",
+  titleTr: "Günlük Rutin",
+  icon: "🌅",
+  color: "#FFC200",
+  level: "a2",
+  description: "Karên rojê: ji sibê heta şevê",
+  descriptionTr: "Sabahtan akşama günlük işler",
+  words: [
+    { ku: "rabûn", tr: "kalkmak", emoji: "⏰", example: { ku: "Ez serê sibê radibim.", tr: "Sabah kalkıyorum." } },
+    { ku: "razan", tr: "uyumak", emoji: "😴", example: { ku: "Şevê ez radizim.", tr: "Geceleri uyuyorum." } },
+    { ku: "şûştin", tr: "yıkamak", emoji: "🚿", example: { ku: "Ez xwe dişom.", tr: "Yıkanıyorum." } },
+    { ku: "taştê", tr: "kahvaltı", emoji: "🍳", example: { ku: "Taştê amade ye.", tr: "Kahvaltı hazır." } },
+    { ku: "firavîn", tr: "öğle yemeği", emoji: "🍝", example: { ku: "Firavîna min sade ye.", tr: "Öğle yemeğim sade." } },
+    { ku: "şîv", tr: "akşam yemeği", emoji: "🍲", example: { ku: "Şîv li mal e.", tr: "Akşam yemeği evde." } },
+    { ku: "xebitîn", tr: "çalışmak", emoji: "💻", example: { ku: "Ez li ofîsê dixebitim.", tr: "Ofiste çalışıyorum." } },
+    { ku: "xwendin", tr: "okumak/öğrenmek", emoji: "📚", example: { ku: "Ez pirtûkê dixwînim.", tr: "Kitap okuyorum." } },
+    { ku: "veqetîn", tr: "ayrılmak", emoji: "🚪", example: { ku: "Ez ji malê veqetîm.", tr: "Evden ayrıldım." } },
+    { ku: "vegerîn", tr: "geri dönmek", emoji: "↩️", example: { ku: "Ez vegerîm malê.", tr: "Eve döndüm." } },
+    { ku: "vehesîn", tr: "dinlenmek", emoji: "🛋️", example: { ku: "Ez kêliyek vedihesim.", tr: "Bir an dinleniyorum." } },
+    { ku: "westiyan", tr: "yorulmak", emoji: "😩", example: { ku: "Ez westiyam.", tr: "Yoruldum." } },
+    { ku: "lîstin", tr: "oynamak", emoji: "⚽", example: { ku: "Em futbolê dilîzin.", tr: "Futbol oynuyoruz." } },
+    { ku: "temaşe kirin", tr: "izlemek", emoji: "📺", example: { ku: "Ez fîlim temaşe dikim.", tr: "Film izliyorum." } },
+  ],
+  lessons: [
+    {
+      id: "cat-rojane-1",
+      title: "Roja Min",
+      titleTr: "Günüm",
+      icon: "🌅",
+      xp: 30,
+      steps: [
+        { type: "dialogue", title: "Roja Bager", setting: "🏠 Li malê", lines: [
+          { speaker: "Diren", emoji: "👤", text: "Tu serê sibê seet çend radibî?", tr: "Sabah saat kaçta kalkarsın?" },
+          { speaker: "Bager", emoji: "🧑", text: "Ez seet 7'an radibim.", tr: "Saat 7'de kalkarım." },
+          { speaker: "Diren", emoji: "👤", text: "Paşê çi dikî?", tr: "Sonra ne yaparsın?" },
+          { speaker: "Bager", emoji: "🧑", text: "Xwe dişom, taştê dixwim û diçim ofîsê.", tr: "Yıkanırım, kahvaltı yaparım ve ofise giderim." },
+          { speaker: "Diren", emoji: "👤", text: "Êvarê çi?", tr: "Akşamleyin ne yaparsın?" },
+          { speaker: "Bager", emoji: "🧑", text: "Şîv dixwim, pirtûk dixwînim û radizim.", tr: "Akşam yemeği yer, kitap okur ve uyurum." },
+        ]},
+        { type: "scene", scene: "⏰", verb: "radibim", meaning: "kalkıyorum", person: "Ez", full: "Ez serê sibê radibim.", fullTr: "Sabah kalkıyorum.", tip: "'Rabûn' = kalkmak." },
+        { type: "scene", scene: "🚿", verb: "xwe dişom", meaning: "yıkanıyorum", person: "Ez", full: "Ez xwe dişom.", fullTr: "Yıkanıyorum.", tip: "'Xwe' = kendisi (dönüşlü)." },
+        { type: "scene", scene: "🍳", verb: "taştê dixwim", meaning: "kahvaltı yapıyorum", person: "Ez", full: "Ez taştê dixwim.", fullTr: "Kahvaltı yapıyorum.", tip: "'Taştê' kahvaltı isminden." },
+        { type: "scene", scene: "💻", verb: "dixebitim", meaning: "çalışıyorum", person: "Ez", full: "Ez li ofîsê dixebitim.", fullTr: "Ofiste çalışıyorum.", tip: "'Xebitîn' = çalışmak." },
+        { type: "scene", scene: "🍲", verb: "şîv dixwim", meaning: "akşam yemeği yiyorum", person: "Ez", full: "Êvarê ez şîv dixwim.", fullTr: "Akşamları akşam yemeği yerim.", tip: "'Şîv' = akşam yemeği." },
+        { type: "scene", scene: "😴", verb: "radizim", meaning: "uyuyorum", person: "Ez", full: "Şevê ez radizim.", fullTr: "Geceleri uyuyorum.", tip: "'Razan' = uyumak." },
+        { type: "pick", question: "'Yıkanıyorum' Kurmancî?", options: ["Radibim", "Xwe dişom", "Dixwim", "Diçim"], correct: 1 },
+        { type: "teach", word: "Firavîn", meaning: "Öğle yemeği", emoji: "🍝", sentence: "Firavîna min sade ye.", sentenceTr: "Öğle yemeğim sade.", tip: "'Firavîn' = gün ortası yemeği." },
+        { type: "teach", word: "Vehesîn", meaning: "Dinlenmek", emoji: "🛋️", sentence: "Piştî karî em vedihesin.", sentenceTr: "İşten sonra dinleniyoruz.", tip: "'Piştî' = sonra." },
+        { type: "match", instruction: "Eşleştir!", pairs: [
+          { word: "Radibim", meaning: "Kalkıyorum" },
+          { word: "Dixwînim", meaning: "Okuyorum" },
+          { word: "Dixebitim", meaning: "Çalışıyorum" },
+          { word: "Radizim", meaning: "Uyuyorum" },
+        ]},
+        { type: "fill", sentence: "Sibê ez ___ taştê.", sentenceTr: "Sabah ___ kahvaltı.", hint: "🍳", options: ["dixwim", "radizim", "diçim"], correct: 0 },
+        { type: "pick", question: "'Akşam yemeği' Kurmancî?", options: ["Taştê", "Firavîn", "Şîv", "Çay"], correct: 2 },
+        { type: "fill", sentence: "Piştî karî em ___.", sentenceTr: "İşten sonra biz ___.", hint: "🛋️", options: ["radibin", "vedihesin", "diçin"], correct: 1 },
+      ],
+    },
+  ],
+};
+
+// =============================================================
+//  EK A2 — XWEZA Û HEYWAN (DOĞA & HAYVANLAR)
+// =============================================================
+
+const XWEZA: Category = {
+  key: "xweza",
+  title: "Xweza û Heywan",
+  titleTr: "Doğa & Hayvanlar",
+  icon: "🌳",
+  color: "#43A57A",
+  level: "a2",
+  description: "Heywan, riwek û jiyana xwezayî",
+  descriptionTr: "Hayvanlar, bitkiler ve doğa",
+  words: [
+    { ku: "dar", tr: "ağaç", emoji: "🌳", example: { ku: "Dara mezin.", tr: "Büyük ağaç." } },
+    { ku: "gul", tr: "gül/çiçek", emoji: "🌹", example: { ku: "Gula sor.", tr: "Kırmızı gül." } },
+    { ku: "pel", tr: "yaprak", emoji: "🍃", example: { ku: "Pelên kesk.", tr: "Yeşil yapraklar." } },
+    { ku: "giya", tr: "ot/çim", emoji: "🌿", example: { ku: "Giya hêşîn dibe.", tr: "Çim yeşeriyor." } },
+    { ku: "berû", tr: "meşe ağacı", emoji: "🌳", example: { ku: "Berûyê kevn.", tr: "Eski meşe." } },
+    { ku: "kûçik", tr: "köpek", emoji: "🐶", example: { ku: "Kûçikê me serbest e.", tr: "Köpeğimiz serbesttir." } },
+    { ku: "pisîk", tr: "kedi", emoji: "🐱", example: { ku: "Pisîka reş.", tr: "Siyah kedi." } },
+    { ku: "ga", tr: "inek/öküz", emoji: "🐮", example: { ku: "Gayê me şîr dide.", tr: "İneğimiz süt verir." } },
+    { ku: "hesp", tr: "at", emoji: "🐴", example: { ku: "Hespê reş.", tr: "Siyah at." } },
+    { ku: "pez", tr: "koyun", emoji: "🐑", example: { ku: "Pezê spî.", tr: "Beyaz koyun." } },
+    { ku: "mirîşk", tr: "tavuk", emoji: "🐔", example: { ku: "Mirîşk hêkan dike.", tr: "Tavuk yumurtlar." } },
+    { ku: "teyr", tr: "kuş", emoji: "🐦", example: { ku: "Teyr li hewa difire.", tr: "Kuş havada uçar." } },
+    { ku: "masî", tr: "balık", emoji: "🐟", example: { ku: "Masî di avê de ne.", tr: "Balıklar suda." } },
+    { ku: "şêr", tr: "aslan", emoji: "🦁", example: { ku: "Şêrê çolan.", tr: "Çöl aslanı." } },
+    { ku: "gur", tr: "kurt", emoji: "🐺", example: { ku: "Gur dilûrîne.", tr: "Kurt uluyor." } },
+    { ku: "rovî", tr: "tilki", emoji: "🦊", example: { ku: "Rovî zîrek e.", tr: "Tilki kurnazdır." } },
+  ],
+  lessons: [
+    {
+      id: "cat-xweza-1",
+      title: "Xweza û Heywanên Wê",
+      titleTr: "Doğa ve Hayvanları",
+      icon: "🌳",
+      xp: 30,
+      steps: [
+        { type: "teach", word: "Dar", meaning: "Ağaç", emoji: "🌳", sentence: "Dara berûyê.", sentenceTr: "Meşe ağacı.", tip: "Doğanın temel öğesi." },
+        { type: "teach", word: "Gul", meaning: "Gül/Çiçek", emoji: "🌹", sentence: "Gula sor xweş e.", sentenceTr: "Kırmızı gül güzeldir.", tip: "'Gulistan' = gül bahçesi." },
+        { type: "teach", word: "Giya", meaning: "Ot/Çim", emoji: "🌿", sentence: "Giya hêşîn bû.", sentenceTr: "Çim yeşerdi.", tip: "'Hêşîn' = yeşermiş/canlı." },
+        { type: "teach", word: "Kûçik", meaning: "Köpek", emoji: "🐶", sentence: "Kûçikê me dilûrîne.", sentenceTr: "Köpeğimiz havlıyor.", tip: "Bazı bölgelerde 'se' de denir." },
+        { type: "teach", word: "Pisîk", meaning: "Kedi", emoji: "🐱", sentence: "Pisîka reş li ber dergeh e.", sentenceTr: "Siyah kedi kapı önünde.", tip: "Bazı bölgelerde 'kitik'." },
+        { type: "teach", word: "Hesp", meaning: "At", emoji: "🐴", sentence: "Hespê reş difire.", sentenceTr: "Siyah at koşar.", tip: "Kürt kültüründe önemli hayvan." },
+        { type: "pick", question: "'Tavuk' Kurmancî nedir?", options: ["Mirîşk", "Pez", "Ga", "Hesp"], correct: 0 },
+        { type: "teach", word: "Pez", meaning: "Koyun", emoji: "🐑", sentence: "Şivan pezan diçêrîne.", sentenceTr: "Çoban koyunları otlatıyor.", tip: "'Şivan' = çoban." },
+        { type: "teach", word: "Teyr", meaning: "Kuş", emoji: "🐦", sentence: "Teyr li ezman difire.", sentenceTr: "Kuş gökte uçar.", tip: "'Firîn' = uçmak." },
+        { type: "teach", word: "Masî", meaning: "Balık", emoji: "🐟", sentence: "Masî di golê de ne.", sentenceTr: "Balıklar gölde.", tip: "'Gol' = göl." },
+        { type: "teach", word: "Şêr", meaning: "Aslan", emoji: "🦁", sentence: "Şêr padîşahê heywanan e.", sentenceTr: "Aslan hayvanların kralıdır.", tip: "Sembolik anlamda cesur." },
+        { type: "teach", word: "Gur", meaning: "Kurt", emoji: "🐺", sentence: "Gur şevê dilûrîne.", sentenceTr: "Kurt geceleri ulur.", tip: "'Lûrandin' = ulumak." },
+        { type: "match", instruction: "Eşleştir!", pairs: [
+          { word: "Kûçik", meaning: "Köpek" },
+          { word: "Pisîk", meaning: "Kedi" },
+          { word: "Hesp", meaning: "At" },
+          { word: "Teyr", meaning: "Kuş" },
+        ]},
+        { type: "fill", sentence: "Şivan ___ diçêrîne.", sentenceTr: "Çoban ___ otlatıyor.", hint: "🐑", options: ["pezan", "kûçikan", "teyran"], correct: 0 },
+        { type: "pick", question: "'Aslan' Kurmancî nedir?", options: ["Gur", "Rovî", "Şêr", "Hesp"], correct: 2 },
+        { type: "fill", sentence: "Gula ___ delal e.", sentenceTr: "___ gül güzeldir.", hint: "🌹", options: ["sor", "reş", "kûçik"], correct: 0 },
+      ],
+    },
+  ],
+};
+
+// =============================================================
+//  EK B1 — ÇAND Û HUNÊR (KÜLTÜR & SANAT)
+// =============================================================
+
+const CAND: Category = {
+  key: "cand",
+  title: "Çand û Hunêr",
+  titleTr: "Kültür & Sanat",
+  icon: "🎭",
+  color: "#A560E8",
+  level: "b1",
+  description: "Muzîk, hunêr û edebiyat",
+  descriptionTr: "Müzik, sanat ve edebiyat",
+  words: [
+    { ku: "muzîk", tr: "müzik", emoji: "🎵", example: { ku: "Muzîka kurdî kevn e.", tr: "Kürt müziği eskidir." } },
+    { ku: "stran", tr: "şarkı", emoji: "🎶", example: { ku: "Strana dengbêjan.", tr: "Dengbêj şarkısı." } },
+    { ku: "stranbêj", tr: "şarkıcı", emoji: "🎤", example: { ku: "Stranbêjê navdar.", tr: "Ünlü şarkıcı." } },
+    { ku: "dengbêj", tr: "dengbêj (kürt halk şairi)", emoji: "🎙️", example: { ku: "Dengbêjên kevn.", tr: "Eski dengbêjler." } },
+    { ku: "saz", tr: "saz/enstrüman", emoji: "🎶", example: { ku: "Saz dileyize.", tr: "Saz çalıyor." } },
+    { ku: "tembûr", tr: "tembur", emoji: "🪕", example: { ku: "Tembûra Şivan.", tr: "Şivan'ın temburü." } },
+    { ku: "kemençe", tr: "kemençe", emoji: "🎻", example: { ku: "Dengê kemençeyê.", tr: "Kemençe sesi." } },
+    { ku: "govend", tr: "halay", emoji: "💃", example: { ku: "Em govend digirin.", tr: "Halay tutuyoruz." } },
+    { ku: "fîlm", tr: "film", emoji: "🎬", example: { ku: "Fîlmê kurdî.", tr: "Kürt filmi." } },
+    { ku: "şano", tr: "tiyatro", emoji: "🎭", example: { ku: "Şanoya nû.", tr: "Yeni tiyatro." } },
+    { ku: "wêne", tr: "resim", emoji: "🖼️", example: { ku: "Wêneyê hunermend.", tr: "Sanatçının resmi." } },
+    { ku: "helbest", tr: "şiir", emoji: "📜", example: { ku: "Helbesta evînê.", tr: "Aşk şiiri." } },
+    { ku: "pirtûk", tr: "kitap", emoji: "📚", example: { ku: "Pirtûkek nû.", tr: "Yeni bir kitap." } },
+    { ku: "nivîskar", tr: "yazar", emoji: "✍️", example: { ku: "Nivîskarê navdar.", tr: "Ünlü yazar." } },
+    { ku: "hunermend", tr: "sanatçı", emoji: "🎨", example: { ku: "Hunermendê resmê.", tr: "Resim sanatçısı." } },
+  ],
+  lessons: [
+    {
+      id: "cat-cand-1",
+      title: "Çanda Kurdî",
+      titleTr: "Kürt Kültürü",
+      icon: "🎭",
+      xp: 35,
+      steps: [
+        { type: "dialogue", title: "Stranên Kurdî", setting: "🎤 Li konserê", lines: [
+          { speaker: "Diren", emoji: "👤", text: "Tu kîjan stranan hez dikî?", tr: "Hangi şarkıları seversin?" },
+          { speaker: "Bager", emoji: "🧑", text: "Ez stranên dengbêjan hez dikim.", tr: "Dengbêj şarkılarını severim." },
+          { speaker: "Diren", emoji: "👤", text: "Kîjan stranbêjê?", tr: "Hangi şarkıcıyı?" },
+          { speaker: "Bager", emoji: "🧑", text: "Şivan Perwer û Aram Tîgran.", tr: "Şivan Perwer ve Aram Tigran." },
+          { speaker: "Diren", emoji: "👤", text: "Dengbêjî çand a kurdî ye, ne wisa?", tr: "Dengbêjlik Kürt kültürüdür, değil mi?" },
+          { speaker: "Bager", emoji: "🧑", text: "Erê, mîratê me yê hêja.", tr: "Evet, değerli mirasımız." },
+        ]},
+        { type: "teach", word: "Muzîk", meaning: "Müzik", emoji: "🎵", sentence: "Muzîka kurdî bêhempa ye.", sentenceTr: "Kürt müziği eşsizdir.", tip: "'Bêhempa' = eşsiz." },
+        { type: "teach", word: "Stran", meaning: "Şarkı", emoji: "🎶", sentence: "Strana evînê.", sentenceTr: "Aşk şarkısı.", tip: "'Stranbêj' = şarkıcı." },
+        { type: "teach", word: "Dengbêj", meaning: "Dengbêj", emoji: "🎙️", sentence: "Dengbêjên kevn serpêhatî dibêjin.", sentenceTr: "Eski dengbêjler hikâye anlatır.", tip: "Kürt halk müzik geleneği." },
+        { type: "teach", word: "Govend", meaning: "Halay", emoji: "💃", sentence: "Em li dawetê govend digirin.", sentenceTr: "Düğünde halay tutuyoruz.", tip: "'Dawet' = düğün." },
+        { type: "teach", word: "Helbest", meaning: "Şiir", emoji: "📜", sentence: "Helbesta Cizîrî.", sentenceTr: "Cizîrî'nin şiiri.", tip: "Klasik Kürt edebiyatı." },
+        { type: "teach", word: "Nivîskar", meaning: "Yazar", emoji: "✍️", sentence: "Nivîskarekî navdar.", sentenceTr: "Ünlü bir yazar.", tip: "'Nivîsîn' = yazmak." },
+        { type: "pick", question: "'Halay' Kurmancî nedir?", options: ["Stran", "Govend", "Saz", "Helbest"], correct: 1 },
+        { type: "teach", word: "Pirtûk", meaning: "Kitap", emoji: "📚", sentence: "Pirtûkxana mezin.", sentenceTr: "Büyük kütüphane.", tip: "'Pirtûkxane' = kütüphane." },
+        { type: "teach", word: "Şano", meaning: "Tiyatro", emoji: "🎭", sentence: "Şanoya kurdî dest pê dike.", sentenceTr: "Kürt tiyatrosu başlıyor.", tip: "Sahne sanatı." },
+        { type: "teach", word: "Hunermend", meaning: "Sanatçı", emoji: "🎨", sentence: "Hunermendê wêneyê.", sentenceTr: "Resim sanatçısı.", tip: "'Hunêr' = sanat." },
+        { type: "match", instruction: "Eşleştir!", pairs: [
+          { word: "Stran", meaning: "Şarkı" },
+          { word: "Helbest", meaning: "Şiir" },
+          { word: "Nivîskar", meaning: "Yazar" },
+          { word: "Govend", meaning: "Halay" },
+        ]},
+        { type: "fill", sentence: "Em li dawetê ___ digirin.", sentenceTr: "Düğünde ___ tutuyoruz.", hint: "💃", options: ["stran", "govend", "saz"], correct: 1 },
+        { type: "pick", question: "Şivan Perwer kimdir?", options: ["Nivîskar", "Stranbêj", "Hunermend", "Şanoger"], correct: 1 },
+        { type: "fill", sentence: "Helbesta ___.", sentenceTr: "___ şiiri.", hint: "❤️", options: ["evînê", "êşê", "savarê"], correct: 0 },
+      ],
+    },
+  ],
+};
+
+// =============================================================
+//  EK B1 — HOBÎ (HOBİLER)
+// =============================================================
+
+const HOBI: Category = {
+  key: "hobi",
+  title: "Hobî û Sport",
+  titleTr: "Hobi & Spor",
+  icon: "🎮",
+  color: "#FF4B4B",
+  level: "b1",
+  description: "Tiştên ku em jê hez dikin",
+  descriptionTr: "Sevdiğimiz aktiviteler",
+  words: [
+    { ku: "hobî", tr: "hobi", emoji: "🎯", example: { ku: "Hobiya min muzîk e.", tr: "Hobim müzik." } },
+    { ku: "sport", tr: "spor", emoji: "⚽", example: { ku: "Ez sportê dikim.", tr: "Spor yapıyorum." } },
+    { ku: "futbol", tr: "futbol", emoji: "⚽", example: { ku: "Em futbolê dilîzin.", tr: "Futbol oynuyoruz." } },
+    { ku: "basketbol", tr: "basketbol", emoji: "🏀", example: { ku: "Lîstika basketbolê.", tr: "Basketbol maçı." } },
+    { ku: "avjenî", tr: "yüzme", emoji: "🏊", example: { ku: "Ez avjenî dikim.", tr: "Yüzüyorum." } },
+    { ku: "bezîn", tr: "koşmak", emoji: "🏃", example: { ku: "Ez li parkê dibezim.", tr: "Parkta koşuyorum." } },
+    { ku: "rêkirin", tr: "yürüyüş", emoji: "🚶", example: { ku: "Rêkirina sibehê.", tr: "Sabah yürüyüşü." } },
+    { ku: "yoga", tr: "yoga", emoji: "🧘", example: { ku: "Yoga rehet dike.", tr: "Yoga rahatlatır." } },
+    { ku: "fotograf", tr: "fotoğraf", emoji: "📷", example: { ku: "Ez fotografan dikişînim.", tr: "Fotoğraf çekiyorum." } },
+    { ku: "wêne kişandin", tr: "resim çizmek", emoji: "🎨", example: { ku: "Wêneyê dikişîne.", tr: "Resim çiziyor." } },
+    { ku: "lîstika vîdyo", tr: "video oyunu", emoji: "🎮", example: { ku: "Lîstikên vîdyoyê.", tr: "Video oyunları." } },
+    { ku: "çêkirin", tr: "yapmak (yemek vs)", emoji: "👨‍🍳", example: { ku: "Min xwarin çêkir.", tr: "Yemek yaptım." } },
+    { ku: "rêwîtî", tr: "seyahat", emoji: "🧳", example: { ku: "Rêwîtiya min dirêj e.", tr: "Seyahatim uzun." } },
+    { ku: "muzîk lîstin", tr: "müzik çalmak", emoji: "🎸", example: { ku: "Ez gîtarê dilîzim.", tr: "Gitar çalıyorum." } },
+  ],
+  lessons: [
+    {
+      id: "cat-hobi-1",
+      title: "Hobiyên Min",
+      titleTr: "Hobilerim",
+      icon: "🎯",
+      xp: 35,
+      steps: [
+        { type: "dialogue", title: "Demên Vala", setting: "☕ Li qehwexaneyê", lines: [
+          { speaker: "Diren", emoji: "👤", text: "Hobiya te çi ye?", tr: "Hobin nedir?" },
+          { speaker: "Bager", emoji: "🧑", text: "Ez muzîkê hez dikim. Gîtarê dilîzim.", tr: "Müzik severim. Gitar çalıyorum." },
+          { speaker: "Diren", emoji: "👤", text: "Wow, çend salan e?", tr: "Vay, kaç yıldır?" },
+          { speaker: "Bager", emoji: "🧑", text: "Pênc sal in. Tu çi dikî?", tr: "Beş yıldır. Sen ne yapıyorsun?" },
+          { speaker: "Diren", emoji: "👤", text: "Ez fotografan dikişînim û dixwînim.", tr: "Fotoğraf çekerim ve okurum." },
+          { speaker: "Bager", emoji: "🧑", text: "Hobiyên xweş!", tr: "Güzel hobiler!" },
+        ]},
+        { type: "teach", word: "Hobî", meaning: "Hobi", emoji: "🎯", sentence: "Hobiya min xwendin e.", sentenceTr: "Hobim okumak.", tip: "Yabancı kökenli ortak kelime." },
+        { type: "teach", word: "Sport", meaning: "Spor", emoji: "⚽", sentence: "Ez her roj sportê dikim.", sentenceTr: "Her gün spor yapıyorum.", tip: "'Werzîş' de denir." },
+        { type: "teach", word: "Avjenî", meaning: "Yüzme", emoji: "🏊", sentence: "Avjenî tendurustî ye.", sentenceTr: "Yüzme sağlıktır.", tip: "'Av' (su) + 'jenî'." },
+        { type: "teach", word: "Bezîn", meaning: "Koşmak", emoji: "🏃", sentence: "Ez sibê dibezim.", sentenceTr: "Sabah koşuyorum.", tip: "'Beza' = koşu." },
+        { type: "teach", word: "Yoga", meaning: "Yoga", emoji: "🧘", sentence: "Yoga aramî dide.", sentenceTr: "Yoga huzur verir.", tip: "'Aramî' = sakinlik." },
+        { type: "teach", word: "Fotograf", meaning: "Fotoğraf", emoji: "📷", sentence: "Fotografên xweş.", sentenceTr: "Güzel fotoğraflar.", tip: "'Kişandin' = çekmek." },
+        { type: "pick", question: "'Yüzme' Kurmancî nedir?", options: ["Bezîn", "Avjenî", "Yoga", "Sport"], correct: 1 },
+        { type: "teach", word: "Rêwîtî", meaning: "Seyahat", emoji: "🧳", sentence: "Rêwîtiya cîhanê.", sentenceTr: "Dünya seyahati.", tip: "'Rê' (yol) + 'wîtî'." },
+        { type: "teach", word: "Wêne kişandin", meaning: "Resim çizmek", emoji: "🎨", sentence: "Ez wêneyan dikişînim.", sentenceTr: "Resim çiziyorum.", tip: "'Wêne' = resim, 'kişandin' = çekmek." },
+        { type: "teach", word: "Çêkirin", meaning: "Yapmak", emoji: "👨‍🍳", sentence: "Min xwarin çêkir.", sentenceTr: "Yemek yaptım.", tip: "Çok yaygın fiil; her şeyi yapmak için kullanılır." },
+        { type: "match", instruction: "Eşleştir!", pairs: [
+          { word: "Sport", meaning: "Spor" },
+          { word: "Avjenî", meaning: "Yüzme" },
+          { word: "Bezîn", meaning: "Koşmak" },
+          { word: "Yoga", meaning: "Yoga" },
+        ]},
+        { type: "fill", sentence: "Ez gîtarê ___.", sentenceTr: "Gitar ___.", hint: "🎸", options: ["dixwim", "dilîzim", "dibezim"], correct: 1 },
+        { type: "pick", question: "'Seyahat' Kurmancî nedir?", options: ["Rêwîtî", "Bezîn", "Hobî", "Sport"], correct: 0 },
+        { type: "fill", sentence: "Hobiya min ___ ye.", sentenceTr: "Hobim ___.", hint: "🎵", options: ["muzîk", "westiyan", "razan"], correct: 0 },
+      ],
+    },
+  ],
+};
+
+// =============================================================
+//  EK B1 — TEKNOLOJÎ
+// =============================================================
+
+const TEKNOLOJI: Category = {
+  key: "teknoloji",
+  title: "Teknolojî",
+  titleTr: "Teknoloji",
+  icon: "💻",
+  color: "#1CB0F6",
+  level: "b1",
+  description: "Komputer, telefon û înternet",
+  descriptionTr: "Bilgisayar, telefon ve internet",
+  words: [
+    { ku: "komputer", tr: "bilgisayar", emoji: "💻", example: { ku: "Komputera nû.", tr: "Yeni bilgisayar." } },
+    { ku: "telefon", tr: "telefon", emoji: "📱", example: { ku: "Telefona min.", tr: "Telefonum." } },
+    { ku: "telefon zîrek", tr: "akıllı telefon", emoji: "📱", example: { ku: "Telefonên zîrek.", tr: "Akıllı telefonlar." } },
+    { ku: "ekran", tr: "ekran", emoji: "🖥️", example: { ku: "Ekrana mezin.", tr: "Büyük ekran." } },
+    { ku: "klavye", tr: "klavye", emoji: "⌨️", example: { ku: "Klavyeya kurdî.", tr: "Kürtçe klavye." } },
+    { ku: "mişk", tr: "mouse", emoji: "🖱️", example: { ku: "Mişkê komputerê.", tr: "Bilgisayar faresi." } },
+    { ku: "înternet", tr: "internet", emoji: "🌐", example: { ku: "Înternet bilez e.", tr: "İnternet hızlıdır." } },
+    { ku: "malper", tr: "web sitesi", emoji: "🔗", example: { ku: "Malpera me.", tr: "Web sitemiz." } },
+    { ku: "name", tr: "e-posta/mektup", emoji: "✉️", example: { ku: "Nameyek nû hat.", tr: "Yeni bir mektup geldi." } },
+    { ku: "nermalav", tr: "yazılım", emoji: "📲", example: { ku: "Nermalavên nû.", tr: "Yeni yazılımlar." } },
+    { ku: "şîfre", tr: "şifre", emoji: "🔐", example: { ku: "Şîfreya min winda bû.", tr: "Şifrem kayboldu." } },
+    { ku: "agahdar kirin", tr: "bildirim", emoji: "🔔", example: { ku: "Agahdarkirinên zêde.", tr: "Çok bildirim." } },
+    { ku: "vîdeo", tr: "video", emoji: "📹", example: { ku: "Vîdyoya nû.", tr: "Yeni video." } },
+    { ku: "wêne", tr: "fotoğraf", emoji: "📷", example: { ku: "Wêneyek bişîne min.", tr: "Bana bir fotoğraf gönder." } },
+  ],
+  lessons: [
+    {
+      id: "cat-teknoloji-1",
+      title: "Teknolojî di Jiyana Me de",
+      titleTr: "Hayatımızda Teknoloji",
+      icon: "💻",
+      xp: 35,
+      steps: [
+        { type: "dialogue", title: "Tu Komputerê Bi Kar Tînî?", setting: "💼 Li ofîsê", lines: [
+          { speaker: "Diren", emoji: "👤", text: "Tu komputerê dizanî?", tr: "Bilgisayar biliyor musun?" },
+          { speaker: "Bager", emoji: "🧑", text: "Erê, ez endazyarê nermalavê me.", tr: "Evet, yazılım mühendisiyim." },
+          { speaker: "Diren", emoji: "👤", text: "Çawa? Internet jî bi kar tînî?", tr: "Nasıl? İnternet de kullanıyor musun?" },
+          { speaker: "Bager", emoji: "🧑", text: "Bê guman, her roj.", tr: "Tabii ki, her gün." },
+          { speaker: "Diren", emoji: "👤", text: "Min name bi kurdî bişandiye, dîtî?", tr: "Sana Kürtçe e-posta gönderdim, gördün mü?" },
+          { speaker: "Bager", emoji: "🧑", text: "Erê, bersiv da te.", tr: "Evet, sana cevap verdim." },
+        ]},
+        { type: "teach", word: "Komputer", meaning: "Bilgisayar", emoji: "💻", sentence: "Komputera xebatê.", sentenceTr: "İş bilgisayarı.", tip: "'Hesêbker' de denir bazı bölgelerde." },
+        { type: "teach", word: "Telefon", meaning: "Telefon", emoji: "📱", sentence: "Telefona min hatibû.", sentenceTr: "Telefonum çaldı.", tip: "'Hatibû' = (ses) gelmişti / çalmıştı." },
+        { type: "teach", word: "Înternet", meaning: "İnternet", emoji: "🌐", sentence: "Internet me li mal heye.", sentenceTr: "Evimizde internet var.", tip: "Uluslararası kelime." },
+        { type: "teach", word: "Malper", meaning: "Web sitesi", emoji: "🔗", sentence: "Malpera bi kurdî.", sentenceTr: "Kürtçe web sitesi.", tip: "'Mal' (ev) + 'per' (sayfa)." },
+        { type: "teach", word: "Name", meaning: "E-posta/Mektup", emoji: "✉️", sentence: "Min nameyek bişandiye.", sentenceTr: "Bir mektup gönderdim.", tip: "Hem dijital hem klasik." },
+        { type: "teach", word: "Nermalav", meaning: "Yazılım", emoji: "📲", sentence: "Nermalava nû dest pê dike.", sentenceTr: "Yeni yazılım başlıyor.", tip: "'Nerm' (yumuşak) + 'alav' (alet)." },
+        { type: "pick", question: "'Şifre' Kurmancî nedir?", options: ["Name", "Şîfre", "Ekran", "Malper"], correct: 1 },
+        { type: "teach", word: "Klavye", meaning: "Klavye", emoji: "⌨️", sentence: "Klavyeya kurdî.", sentenceTr: "Kürtçe klavye.", tip: "Yabancı kökenli." },
+        { type: "teach", word: "Ekran", meaning: "Ekran", emoji: "🖥️", sentence: "Ekrana mezin a komputerê.", sentenceTr: "Bilgisayarın büyük ekranı.", tip: "Görüntüleme yüzeyi." },
+        { type: "teach", word: "Vîdeo", meaning: "Video", emoji: "📹", sentence: "Vîdyoyek li ser malperê.", sentenceTr: "Web sitesinde bir video.", tip: "Hareketli görüntü." },
+        { type: "match", instruction: "Eşleştir!", pairs: [
+          { word: "Komputer", meaning: "Bilgisayar" },
+          { word: "Telefon", meaning: "Telefon" },
+          { word: "Înternet", meaning: "İnternet" },
+          { word: "Klavye", meaning: "Klavye" },
+        ]},
+        { type: "fill", sentence: "Min ___ bişandiye.", sentenceTr: "___ gönderdim.", hint: "✉️", options: ["nameyek", "ekran", "telefon"], correct: 0 },
+        { type: "pick", question: "'Yazılım' Kurmancî nedir?", options: ["Malper", "Nermalav", "Klavye", "Ekran"], correct: 1 },
+        { type: "fill", sentence: "Telefon bilez e û ___ heye.", sentenceTr: "Telefon hızlı ve ___ var.", hint: "🌐", options: ["internet", "şîfre", "vîdeo"], correct: 0 },
+      ],
+    },
+  ],
+};
+
+// =============================================================
+//  EK BEŞ 2 — A1 (İLERİ TEKRAR)
+// =============================================================
+
+// Silav — Beş 2: Resmi tanışma
+SILAV.lessons.push({
+  id: "cat-silav-2",
+  title: "Naskirina Nû",
+  titleTr: "Yeni Tanışma",
+  icon: "🤝",
+  xp: 25,
+  steps: [
+    { type: "dialogue", title: "Li Civatê", setting: "🏛️ Civat", lines: [
+      { speaker: "Bager", emoji: "🧑", text: "Roj baş, ez Bager im.", tr: "İyi günler, ben Bager." },
+      { speaker: "Mêvan", emoji: "👤", text: "Roj baş, ez Helîn im.", tr: "İyi günler, ben Helîn." },
+      { speaker: "Bager", emoji: "🧑", text: "Tu li ku derê dijî?", tr: "Nerede yaşıyorsun?" },
+      { speaker: "Mêvan", emoji: "👤", text: "Ez li Amedê dijîm.", tr: "Diyarbakır'da yaşıyorum." },
+      { speaker: "Bager", emoji: "🧑", text: "Pir baş! Em hev nas bikin.", tr: "Çok iyi! Tanışalım." },
+    ]},
+    { type: "teach", word: "Tu li ku derê dijî?", meaning: "Nerede yaşıyorsun?", emoji: "🏠", sentence: "Tu li ku derê dijî?", sentenceTr: "Nerede yaşıyorsun?", tip: "'Li ku derê' = nerede." },
+    { type: "teach", word: "Ez li ... dijîm", meaning: "... yaşıyorum", emoji: "🏠", sentence: "Ez li Stenbolê dijîm.", sentenceTr: "İstanbul'da yaşıyorum.", tip: "'Li' = -de eki." },
+    { type: "teach", word: "Em hev nas bikin", meaning: "Tanışalım", emoji: "🤝", sentence: "Werin em hev nas bikin.", sentenceTr: "Gel tanışalım.", tip: "'Hev' = birbirini." },
+    { type: "teach", word: "Çend salî yî?", meaning: "Kaç yaşındasın?", emoji: "🎂", sentence: "Tu çend salî yî?", sentenceTr: "Kaç yaşındasın?", tip: "Yaş sorgusu." },
+    { type: "teach", word: "Ez ... salî me", meaning: "... yaşındayım", emoji: "🎂", sentence: "Ez bîst salî me.", sentenceTr: "Yirmi yaşındayım.", tip: "'Salî' = yıllık/yaş." },
+    { type: "pick", question: "'Kaç yaşındasın?' Kurmancî?", options: ["Tu çawa yî?", "Tu çend salî yî?", "Tu ji ku yî?", "Navê te çi ye?"], correct: 1 },
+    { type: "teach", word: "Karê te çi ye?", meaning: "Mesleğin ne?", emoji: "💼", sentence: "Karê te çi ye?", sentenceTr: "Mesleğin ne?", tip: "İş sorgusu." },
+    { type: "match", instruction: "Eşleştir!", pairs: [
+      { word: "Tu li ku dijî?", meaning: "Nerede yaşıyorsun?" },
+      { word: "Tu çend salî yî?", meaning: "Kaç yaşındasın?" },
+      { word: "Karê te çi ye?", meaning: "Mesleğin ne?" },
+      { word: "Em hev nas bikin", meaning: "Tanışalım" },
+    ]},
+    { type: "fill", sentence: "Ez li ___ dijîm.", sentenceTr: "___ yaşıyorum.", hint: "🏙️", options: ["Amedê", "salî", "navê"], correct: 0 },
+    { type: "fill", sentence: "Ez ___ salî me.", sentenceTr: "___ yaşındayım.", hint: "🎂", options: ["bîst", "kesk", "spas"], correct: 0 },
+    { type: "pick", question: "'Mesleğin ne?' Kurmancî?", options: ["Tu çawa yî?", "Karê te çi ye?", "Tu ji ku yî?", "Çend salî yî?"], correct: 1 },
+  ],
+});
+
+// Hejmar — Beş 2: 11-100
+HEJMAR.lessons.push({
+  id: "cat-hejmar-2",
+  title: "Ji 11 heta 100",
+  titleTr: "11'den 100'e",
+  icon: "💯",
+  xp: 25,
+  steps: [
+    { type: "teach", word: "Yazdeh", meaning: "11", emoji: "🔢", sentence: "Yazdeh sêv.", sentenceTr: "On bir elma.", tip: "'Yek' (1) + 'deh' (10) = 11." },
+    { type: "teach", word: "Diwazdeh", meaning: "12", emoji: "🔢", sentence: "Diwazdeh meh.", sentenceTr: "On iki ay.", tip: "'Du' (2) + 'deh' (10)." },
+    { type: "teach", word: "Sêzdeh", meaning: "13", emoji: "🔢", sentence: "Sêzdeh roj.", sentenceTr: "On üç gün.", tip: "'Sê' + 'deh'." },
+    { type: "teach", word: "Çardeh", meaning: "14", emoji: "🔢", sentence: "Çardeh sal.", sentenceTr: "On dört yıl.", tip: "'Çar' + 'deh'." },
+    { type: "teach", word: "Panzdeh", meaning: "15", emoji: "🔢", sentence: "Panzdeh deqîqe.", sentenceTr: "On beş dakika.", tip: "'Pênc' + 'deh' = Panzdeh." },
+    { type: "teach", word: "Bîst", meaning: "20", emoji: "💎", sentence: "Bîst sal in.", sentenceTr: "Yirmi yıldır.", tip: "Onların katı (bîst, sî, çil, pêncî...)." },
+    { type: "teach", word: "Sî", meaning: "30", emoji: "🔢", sentence: "Sî kîlometre.", sentenceTr: "Otuz kilometre.", tip: "Bağımsız form." },
+    { type: "teach", word: "Çil", meaning: "40", emoji: "🔢", sentence: "Çil sal e.", sentenceTr: "Kırk yıldır.", tip: "Bağımsız form." },
+    { type: "teach", word: "Pêncî", meaning: "50", emoji: "🔢", sentence: "Pêncî peyv.", sentenceTr: "Elli kelime.", tip: "'Pênc' + '-î'." },
+    { type: "teach", word: "Sed", meaning: "100", emoji: "💯", sentence: "Sed lîre.", sentenceTr: "Yüz lira.", tip: "Yüzlü sayma." },
+    { type: "pick", question: "'15' Kurmancî?", options: ["Çardeh", "Panzdeh", "Şanzdeh", "Bîst"], correct: 1 },
+    { type: "match", instruction: "Eşleştir!", pairs: [
+      { word: "Bîst", meaning: "20" },
+      { word: "Sî", meaning: "30" },
+      { word: "Pêncî", meaning: "50" },
+      { word: "Sed", meaning: "100" },
+    ]},
+    { type: "fill", sentence: "Ez ___ salî me.", sentenceTr: "___ yaşındayım.", hint: "💎", options: ["bîst", "sed", "deh"], correct: 0 },
+    { type: "pick", question: "'40' Kurmancî?", options: ["Çil", "Sî", "Pêncî", "Bîst"], correct: 0 },
+    { type: "fill", sentence: "Otobus piştî ___ deqîqe tê.", sentenceTr: "Otobüs ___ dakika sonra geliyor.", hint: "⏱️", options: ["panzdeh", "sed", "yek"], correct: 0 },
+  ],
+});
+
+// =============================================================
 //  EXPORT
 // =============================================================
 
-export const CATEGORIES: Category[] = [
+const _RAW_CATEGORIES: Category[] = [
   // A1
-  SILAV, HEJMAR, RENG, MALBAT, MAL, DEMJIMER,
+  SILAV, HEJMAR, RENG, MALBAT, MAL, DEMJIMER, CIL, LAS,
   // A2
-  XWARIN, MITFAX, BAZAR, GERR, HEWA,
+  XWARIN, MITFAX, BAZAR, GERR, HEWA, ROJANE, XWEZA,
   // B1
-  CIHAN, TENDURUSTI, KARKIRIN,
+  CIHAN, TENDURUSTI, KARKIRIN, CAND, HOBI, TEKNOLOJI,
 ];
+
+/**
+ * Final dışa aktarım: her kategori 50 derse kadar generator ile doldurulur.
+ * El emeği dersler (Beş 1, Beş 2) korunur, kalanlar dinamik üretilir.
+ * Üreteç deterministik — aynı num her zaman aynı dersi üretir.
+ */
+export const CATEGORIES: Category[] = _RAW_CATEGORIES.map((c) => fillToFifty(c, 50));
 
 export const getCategoriesByLevel = (level: LevelKey): Category[] =>
   CATEGORIES.filter((c) => c.level === level);

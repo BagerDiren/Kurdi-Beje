@@ -7,7 +7,24 @@ import { useState } from "react";
 import { KevoMascot } from "@/components/kevo-mascot";
 import { useApp } from "@/data/app-context";
 import { CATEGORIES, LEVELS, type Category } from "@/data/categories";
+import { getCurrentLeague } from "@/data/achievements";
 import type { LevelKey } from "@/data/lessons";
+
+function timeOfDayGreeting(): string {
+  const h = new Date().getHours();
+  if (h < 6) return "Şevbaş";
+  if (h < 12) return "Rojbaş";
+  if (h < 18) return "Roj baş";
+  return "Êvarbaş";
+}
+
+function timeOfDayGreetingTr(): string {
+  const h = new Date().getHours();
+  if (h < 6) return "İyi geceler";
+  if (h < 12) return "Günaydın";
+  if (h < 18) return "İyi günler";
+  return "İyi akşamlar";
+}
 
 export default function HomeLearnTab() {
   const { age } = useApp();
@@ -20,7 +37,7 @@ export default function HomeLearnTab() {
 // =====================================================================
 
 function AdultHome() {
-  const { th, t, lvl, xp, streak, hearts, completed, lessonsToday, correctToday, setActiveCategory } = useApp();
+  const { th, t, lvl, xp, streak, hearts, completed, lessonsToday, correctToday, setActiveCategory, startLesson } = useApp();
   const [selectedLevel, setSelectedLevel] = useState<LevelKey>(lvl ?? "a1");
 
   const goalsPct = Math.round((
@@ -32,6 +49,22 @@ function AdultHome() {
 
   const filteredCats = CATEGORIES.filter((c) => c.level === selectedLevel);
 
+  // CONTINUE: bul son tamamlanan kategoriyi ve içindeki sıradaki dersi
+  const continueData = (() => {
+    for (const c of CATEGORIES) {
+      const nextLesson = c.lessons.find((l) => !completed.includes(l.id) && l.steps);
+      if (nextLesson && c.lessons.some((l) => completed.includes(l.id))) {
+        return { cat: c, lesson: nextLesson };
+      }
+    }
+    // Tamamlanan kategori yoksa: ilk A1 kategorisinin ilk dersi
+    const a1 = CATEGORIES.find((c) => c.level === "a1");
+    if (a1 && a1.lessons[0]) return { cat: a1, lesson: a1.lessons[0] };
+    return null;
+  })();
+
+  const league = getCurrentLeague(xp);
+
   const openCategory = (cat: Category) => {
     setActiveCategory(cat.key);
     router.push("/category" as never);
@@ -41,14 +74,15 @@ function AdultHome() {
     <SafeAreaView style={{ flex: 1, backgroundColor: th.bg }} edges={["top"]}>
       <ScrollView contentContainerStyle={styles.scroll}>
         {/* Header */}
-        <LinearGradient colors={th.headerGrad as unknown as string[]} style={styles.header}>
+        <LinearGradient colors={th.headerGrad as unknown as readonly [string, string, ...string[]]} style={styles.header}>
           <View style={styles.headerTop}>
             <View>
-              <Text style={styles.headerHello}>{t.hello}, hevalê min! 👋</Text>
-              <Text style={styles.headerSub}>Em fêr bibin, gav bi gav.</Text>
+              <Text style={styles.headerHello}>{timeOfDayGreeting()}! 👋</Text>
+              <Text style={styles.headerSub}>{timeOfDayGreetingTr()} · Em berdewam bikin</Text>
             </View>
-            <View style={styles.levelBadge}>
-              <Text style={styles.levelBadgeText}>{selectedLevel.toUpperCase()}</Text>
+            <View style={[styles.leagueChip, { backgroundColor: league.current.color + "33" }]}>
+              <Text style={{ fontSize: 16 }}>{league.current.icon}</Text>
+              <Text style={styles.leagueChipText}>{league.current.title}</Text>
             </View>
           </View>
           <View style={styles.statsRow}>
@@ -67,9 +101,65 @@ function AdultHome() {
           </View>
         </LinearGradient>
 
+        {/* CONTINUE CARD */}
+        {continueData && (
+          <Pressable
+            onPress={() => continueData.lesson.steps && startLesson(continueData.lesson)}
+            style={[styles.continueCard, { backgroundColor: th.card, borderColor: continueData.cat.color }]}
+          >
+            <View style={[styles.continueIcon, { backgroundColor: continueData.cat.color }]}>
+              <Text style={{ fontSize: 28 }}>{continueData.lesson.icon}</Text>
+            </View>
+            <View style={{ flex: 1 }}>
+              <Text style={{ fontSize: 10, fontWeight: "800", color: continueData.cat.color, letterSpacing: 0.4 }}>
+                ▶ BERDEWAM BIKE
+              </Text>
+              <Text style={{ fontSize: 15, fontWeight: "900", color: th.text, marginTop: 2 }} numberOfLines={1}>
+                {continueData.lesson.title}
+              </Text>
+              <Text style={{ fontSize: 11, color: th.textMid, marginTop: 1 }} numberOfLines={1}>
+                {continueData.cat.titleTr} · +{continueData.lesson.xp} XP
+              </Text>
+            </View>
+            <Text style={{ fontSize: 22, color: continueData.cat.color }}>→</Text>
+          </Pressable>
+        )}
+
+        {/* STREAK BANNER */}
+        {streak >= 1 && (
+          <View style={[styles.streakBanner, { backgroundColor: "#F49000" + "18", borderColor: "#F49000" }]}>
+            <Text style={{ fontSize: 22 }}>🔥</Text>
+            <View style={{ flex: 1 }}>
+              <Text style={{ fontSize: 13, fontWeight: "900", color: "#F49000" }}>
+                {streak} rojên rêzkî!
+              </Text>
+              <Text style={{ fontSize: 10, color: th.textMid, fontWeight: "600" }}>
+                {streak} günlük seri · Sibê jî dest pê bike, da nepişke!
+              </Text>
+            </View>
+          </View>
+        )}
+
+        {/* PRACTICE QUICK ACCESS */}
+        <Pressable
+          onPress={() => router.push("/practice" as never)}
+          style={[styles.practiceCard, { backgroundColor: th.accent + "15", borderColor: th.accent }]}
+        >
+          <View style={[styles.practiceIcon, { backgroundColor: th.accent }]}>
+            <Text style={{ fontSize: 22 }}>🎯</Text>
+          </View>
+          <View style={{ flex: 1 }}>
+            <Text style={{ fontSize: 13, fontWeight: "900", color: th.text }}>Pratîka Bilez</Text>
+            <Text style={{ fontSize: 10, color: th.textMid, fontWeight: "600", marginTop: 1 }}>
+              10 pirsên bilez · Hızlı pratik
+            </Text>
+          </View>
+          <Text style={{ fontSize: 18, color: th.accent }}>→</Text>
+        </Pressable>
+
         {/* Goal card */}
         <Pressable onPress={() => router.push("/goals")} style={[styles.goalCard, { borderColor: th.cardBorder }]}>
-          <LinearGradient colors={th.goalGrad as unknown as string[]} style={styles.goalGrad}>
+          <LinearGradient colors={th.goalGrad as unknown as readonly [string, string, ...string[]]} style={styles.goalGrad}>
             <View style={styles.goalIcon}>
               <Text style={{ fontSize: 22 }}>🎯</Text>
             </View>
@@ -226,7 +316,7 @@ function ChildHome() {
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: th.bg }} edges={["top"]}>
       <ScrollView contentContainerStyle={styles.scroll}>
-        <LinearGradient colors={th.headerGrad as unknown as string[]} style={styles.header}>
+        <LinearGradient colors={th.headerGrad as unknown as readonly [string, string, ...string[]]} style={styles.header}>
           <View style={styles.headerTop}>
             <View>
               <Text style={styles.headerHello}>{t.hello}! 👋</Text>
@@ -260,7 +350,7 @@ function ChildHome() {
         </View>
 
         <Pressable onPress={() => router.push("/goals")} style={[styles.goalCard, { borderColor: th.cardBorder }]}>
-          <LinearGradient colors={th.goalGrad as unknown as string[]} style={styles.goalGrad}>
+          <LinearGradient colors={th.goalGrad as unknown as readonly [string, string, ...string[]]} style={styles.goalGrad}>
             <View style={styles.goalIcon}>
               <Text style={{ fontSize: 22 }}>🎯</Text>
             </View>
@@ -345,6 +435,25 @@ const styles = StyleSheet.create({
   lessonTitle: { fontSize: 13, fontWeight: "700" },
 
   // === Adult-specific ===
+  leagueChip: { flexDirection: "row", alignItems: "center", gap: 4, paddingHorizontal: 10, paddingVertical: 5, borderRadius: 12 },
+  leagueChipText: { color: "#fff", fontSize: 11, fontWeight: "800" },
+  continueCard: {
+    flexDirection: "row", alignItems: "center", gap: 12,
+    marginHorizontal: 18, marginTop: 12, padding: 14,
+    borderRadius: 18, borderWidth: 2,
+  },
+  continueIcon: { width: 56, height: 56, borderRadius: 16, alignItems: "center", justifyContent: "center" },
+  streakBanner: {
+    flexDirection: "row", alignItems: "center", gap: 12,
+    marginHorizontal: 18, marginTop: 8, padding: 12,
+    borderRadius: 14, borderWidth: 1.5,
+  },
+  practiceCard: {
+    flexDirection: "row", alignItems: "center", gap: 12,
+    marginHorizontal: 18, marginTop: 8, padding: 12,
+    borderRadius: 14, borderWidth: 1.5,
+  },
+  practiceIcon: { width: 44, height: 44, borderRadius: 12, alignItems: "center", justifyContent: "center" },
   levelTabs: { paddingHorizontal: 18, gap: 8, paddingVertical: 4 },
   levelTab: { paddingHorizontal: 14, paddingVertical: 10, borderRadius: 14, borderWidth: 1.5, alignItems: "center", minWidth: 86 },
   grid: { flexDirection: "row", flexWrap: "wrap", paddingHorizontal: 12, gap: 10 },

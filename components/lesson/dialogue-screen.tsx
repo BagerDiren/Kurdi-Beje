@@ -22,7 +22,7 @@ export function DialogueScreen({ step, onNext, lp, ts, th, t }: Props) {
     <ScrollView style={{ flex: 1, backgroundColor: th.bg }} contentContainerStyle={styles.container}>
       <Bar value={lp} max={ts} th={th} />
 
-      <LinearGradient colors={th.headerGrad as unknown as string[]} style={styles.header}>
+      <LinearGradient colors={th.headerGrad as unknown as readonly [string, string, ...string[]]} style={styles.header}>
         <Text style={styles.headerSetting}>{step.setting}</Text>
         <Text style={styles.headerTitle}>💬 {step.title}</Text>
       </LinearGradient>
