@@ -19,6 +19,7 @@ export default function RootLayout() {
         <Stack.Screen name="lesson" />
         <Stack.Screen name="game" />
         <Stack.Screen name="goals" />
+        <Stack.Screen name="category" />
       </Stack>
       <StatusBar style="auto" />
     </AppProvider>

@@ -3,6 +3,7 @@ import { CHILD_THEME, ADULT_THEME, type AppTheme } from "./themes";
 import { T, type Translations } from "./translations";
 import { LESSONS, type Lesson, type LevelKey } from "./lessons";
 import type { LangCode } from "./languages";
+import type { CategoryKey } from "./categories";
 
 type AgeMode = "child" | "adult" | null;
 type ScreenName =
@@ -29,6 +30,7 @@ type AppState = {
   lessonsToday: number;
   correctToday: number;
   activeGame: string | null;
+  activeCategory: CategoryKey | null;
   // Onboarding state
   proficiency: ProficiencyLevel | null;
   dailyGoal: DailyGoalMinutes | null;
@@ -45,6 +47,7 @@ type AppActions = {
   setLvl: (lvl: LevelKey) => void;
   setTab: (tab: string) => void;
   setActiveGame: (game: string | null) => void;
+  setActiveCategory: (key: CategoryKey | null) => void;
   startLesson: (lesson: Lesson) => void;
   nextStep: () => void;
   finishLesson: () => void;
@@ -76,10 +79,11 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const [lessonsToday, setLessonsToday] = useState(0);
   const [correctToday, setCorrectToday] = useState(0);
   const [activeGame, setActiveGameState] = useState<string | null>(null);
+  const [activeCategory, setActiveCategoryState] = useState<CategoryKey | null>(null);
   const [proficiency, setProficiencyState] = useState<ProficiencyLevel | null>(null);
   const [dailyGoal, setDailyGoalState] = useState<DailyGoalMinutes | null>(null);
 
-  const th = age === "adult" ? ADULT_THEME : CHILD_THEME;
+  const th: AppTheme = (age === "adult" ? ADULT_THEME : CHILD_THEME) as AppTheme;
   const t = T[lang ?? "ku"];
   const levelLessons = LESSONS[lvl ?? "a1"] ?? [];
 
@@ -89,6 +93,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const setLvl = useCallback((l: LevelKey) => setLvlState(l), []);
   const setTab = useCallback((t: string) => setTabState(t), []);
   const setActiveGame = useCallback((g: string | null) => setActiveGameState(g), []);
+  const setActiveCategory = useCallback((k: CategoryKey | null) => setActiveCategoryState(k), []);
   const setHearts = useCallback((n: number) => setHeartsState(n), []);
 
   const startLesson = useCallback((lesson: Lesson) => {
@@ -144,10 +149,11 @@ export function AppProvider({ children }: { children: ReactNode }) {
 
   const value: AppState & AppActions = {
     scr, lang, age, lvl, hearts, xp, streak, tab,
-    curLesson, stepIdx, cc, lDone, completed, lessonsToday, correctToday, activeGame,
+    curLesson, stepIdx, cc, lDone, completed, lessonsToday, correctToday,
+    activeGame, activeCategory,
     proficiency, dailyGoal,
     th, t, levelLessons,
-    go, setLang, setAge, setLvl, setTab, setActiveGame,
+    go, setLang, setAge, setLvl, setTab, setActiveGame, setActiveCategory,
     startLesson, nextStep, finishLesson, onCorrect, onWrong,
     addXp, setHearts, resetProgress,
     setProficiency, setDailyGoal,

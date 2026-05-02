@@ -19,7 +19,7 @@ import { useApp } from "@/data/app-context";
  * Kelime sayısı dailyGoal'e göre hesaplanır: dk × 2 peyv × 5 gün.
  */
 export default function IntroCommitment() {
-  const { dailyGoal } = useApp();
+  const { dailyGoal, setAge, setLvl } = useApp();
   const kevoRef = useRef<KevoHandle>(null);
   const words = (dailyGoal ?? 10) * 2 * 5;
 
@@ -52,7 +52,13 @@ export default function IntroCommitment() {
           </View>
         </View>
 
-        <DuoButton onPress={() => router.replace("/(tabs)")}>
+        <DuoButton
+          onPress={() => {
+            setAge("adult");
+            setLvl("a1");
+            router.replace("/(tabs)");
+          }}
+        >
           Em dest pê bikin!
         </DuoButton>
       </View>
