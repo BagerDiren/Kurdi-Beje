@@ -18,7 +18,7 @@
  * Ayrıca cümle uzunluğunu yumuşatmak için pitch ve hız ayarları.
  */
 
-export type SpeakStyle = "normal" | "slow" | "happy" | "sad" | "praise";
+export type SpeakStyle = "normal" | "slow" | "happy" | "sad" | "praise" | "kid" | "kidSlow";
 
 export type SpeakOptions = {
   language: string;
@@ -65,6 +65,12 @@ export function speakOptionsForStyle(style: SpeakStyle = "normal"): SpeakOptions
       return { language: "tr-TR", rate: 0.95, pitch: 1.3 };
     case "sad":
       return { language: "tr-TR", rate: 0.75, pitch: 0.85 };
+    case "kid":
+      // Çocuk dostu: yüksek pitch (cıvıl cıvıl), normal hız
+      return { language: "tr-TR", rate: 0.78, pitch: 1.55 };
+    case "kidSlow":
+      // Çocuk için öğretici: yüksek pitch, çok yavaş, tane tane
+      return { language: "tr-TR", rate: 0.55, pitch: 1.5 };
     case "normal":
     default:
       return { language: "tr-TR", rate: 0.85, pitch: 1.05 };

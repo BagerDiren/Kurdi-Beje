@@ -10,7 +10,7 @@ import { CATEGORIES, LEVELS, type Category } from "@/data/categories";
 import { getCurrentLeague } from "@/data/achievements";
 import { KIDS_CATEGORIES, getKidsLessons, type KidsCategory } from "@/data/kids-content";
 import { FloatingBalloons } from "@/components/kids/floating-balloons";
-import { AnimatedScene } from "@/components/kids/animated-scene";
+import { HeroCarousel } from "@/components/kids/hero-carousel";
 import type { LevelKey } from "@/data/lessons";
 import { LinearGradient as LG } from "expo-linear-gradient";
 
@@ -359,15 +359,9 @@ function ChildHome() {
 
       <SafeAreaView style={{ flex: 1 }} edges={["top"]}>
       <ScrollView contentContainerStyle={kidStyles.scroll}>
-        {/* Animasyonlu hayvan sahnesi (üstte) — Kevo + bulutlar + ağaçlar */}
+        {/* Hero foto carousel — Pexels'tan otomatik kayan eğlenceli görseller */}
         <View style={kidStyles.heroSceneWrap}>
-          <AnimatedScene category="hayvan" height={170} />
-          <View style={kidStyles.heroOverlay}>
-            <View style={kidStyles.heroOverlayInner}>
-              <Text style={kidStyles.helloKid}>Merhaba dostum!</Text>
-              <Text style={kidStyles.helloKidSub}>Bugün ne öğrenelim?</Text>
-            </View>
-          </View>
+          <HeroCarousel height={210} />
         </View>
 
         {/* Stat satırı */}

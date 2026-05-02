@@ -1,12 +1,12 @@
 import { useEffect, useState } from "react";
-import { View, Text, Pressable, StyleSheet, Dimensions } from "react-native";
+import { View, Text, Pressable, StyleSheet, Dimensions, Image } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
 import Animated, {
   useSharedValue, useAnimatedStyle, withSpring, withTiming, withSequence, withDelay,
 } from "react-native-reanimated";
 
 import { KevoMascot } from "@/components/kevo-mascot";
-import { speakKurmanci } from "@/data/sound-fx";
+import { speakKurmanciKid } from "@/data/sound-fx";
 import type { KidsCategory } from "@/data/kids-content";
 
 const { width: SW } = Dimensions.get("window");
@@ -17,36 +17,42 @@ const { width: SW } = Dimensions.get("window");
  *
  * `onDone` çağrıldığında ders runner devreye girer.
  */
-const SCENES: Record<string, { emojis: string[]; story: string; greeting: string }> = {
+const SCENES: Record<string, { emojis: string[]; story: string; greeting: string; bg?: string }> = {
   hayvan: {
     emojis: ["🌳", "🐮", "🐔", "🐑", "🐶"],
     story: "Kevo çiftliğe geliyor...",
     greeting: "Hayvanlarla tanışmaya hazır mısın?",
+    bg: "https://images.pexels.com/photos/2255801/pexels-photo-2255801.jpeg?auto=compress&cs=tinysrgb&w=900",
   },
   reng: {
     emojis: ["🌈", "🔴", "🟢", "🟡", "🔵"],
     story: "Gökkuşağı çıktı!",
     greeting: "Hadi renkleri öğrenelim!",
+    bg: "https://images.pexels.com/photos/207666/pexels-photo-207666.jpeg?auto=compress&cs=tinysrgb&w=900",
   },
   hejmar: {
     emojis: ["1️⃣", "2️⃣", "3️⃣", "4️⃣", "5️⃣"],
     story: "Sayılar dans ediyor...",
     greeting: "1, 2, 3 sayalım mı?",
+    bg: "https://images.pexels.com/photos/1591056/pexels-photo-1591056.jpeg?auto=compress&cs=tinysrgb&w=900",
   },
   xwarin: {
     emojis: ["🍎", "🍇", "🍞", "🥛", "🍲"],
     story: "Mutfakta lezzetler var!",
     greeting: "Karnın aç mı? Bakalım!",
+    bg: "https://images.pexels.com/photos/1414651/pexels-photo-1414651.jpeg?auto=compress&cs=tinysrgb&w=900",
   },
   las: {
     emojis: ["👁️", "👂", "👃", "👄", "✋"],
     story: "Vücudumuzu keşfedelim!",
     greeting: "Hangi parçayı biliyor musun?",
+    bg: "https://images.pexels.com/photos/1620760/pexels-photo-1620760.jpeg?auto=compress&cs=tinysrgb&w=900",
   },
   malbat: {
     emojis: ["👨", "👩", "👶", "👴", "👵"],
     story: "Aile bir arada!",
     greeting: "Aileni Kürtçe söyle!",
+    bg: "https://images.pexels.com/photos/4476377/pexels-photo-4476377.jpeg?auto=compress&cs=tinysrgb&w=900",
   },
 };
 
@@ -95,8 +101,8 @@ export function StoryIntro({ category, onDone }: Props) {
       );
       greetingY.value = withDelay(400, withSpring(0));
       greetingOp.value = withDelay(400, withTiming(1, { duration: 400 }));
-      // Kevo söylesin (fonetik düzeltmeli)
-      speakKurmanci(category.titleKu, "happy");
+      // Kevo söylesin (çocuk dostu yüksek pitch, tekrarlı)
+      speakKurmanciKid(category.titleKu);
     }, 1800);
 
     // Faz 3: CTA görünür (3.2sn)
@@ -122,10 +128,24 @@ export function StoryIntro({ category, onDone }: Props) {
   }));
 
   return (
-    <LinearGradient
-      colors={category.bgGradient as unknown as readonly [string, string, ...string[]]}
-      style={styles.root}
-    >
+    <View style={styles.root}>
+      {/* Foto bg (varsa) */}
+      {scene.bg && (
+        <Image
+          source={{ uri: scene.bg }}
+          style={StyleSheet.absoluteFillObject}
+          resizeMode="cover"
+        />
+      )}
+      {/* Renkli gradient overlay */}
+      <LinearGradient
+        colors={[
+          category.bgGradient[0] + "DD",
+          category.bgGradient[1] + "EE",
+        ] as unknown as readonly [string, string, ...string[]]}
+        style={StyleSheet.absoluteFillObject}
+      />
+
       {/* Üst sahne: emoji'ler */}
       <View style={styles.scene}>
         {scene.emojis.map((emoji, i) => {
@@ -176,12 +196,12 @@ export function StoryIntro({ category, onDone }: Props) {
       <Pressable onPress={onDone} style={styles.skip} hitSlop={12}>
         <Text style={styles.skipText}>Atla →</Text>
       </Pressable>
-    </LinearGradient>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
-  root: { flex: 1, alignItems: "center", justifyContent: "center", padding: 24 },
+  root: { flex: 1, alignItems: "center", justifyContent: "center", padding: 24, position: "relative" },
   scene: {
     flexDirection: "row",
     flexWrap: "wrap",

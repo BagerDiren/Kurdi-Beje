@@ -15,7 +15,7 @@ import { Confetti } from "@/components/kids/confetti";
 import { StoryIntro } from "@/components/kids/story-intro";
 import { FloatingBalloons } from "@/components/kids/floating-balloons";
 import { useApp } from "@/data/app-context";
-import { speakKurmanci, playFx } from "@/data/sound-fx";
+import { speakKurmanci, speakKurmanciKid, playFx } from "@/data/sound-fx";
 import {
   getKidsCategoryByKey, getKidsLessons,
   type KidsLesson, type KidsStep, type KidsCategory, type KidsWord,
@@ -200,9 +200,9 @@ function PickEmojiStep({ step, cat, onNext, onCorrect, onWrong }: {
     else onWrong();
   };
 
-  // Soru anında fonetik düzeltmeli sesli oku
+  // Soru anında çocuk dostu (yüksek pitch + yavaş + tekrarlı) sesli oku
   useEffect(() => {
-    const t = setTimeout(() => speakKurmanci(step.target.ku, "slow"), 200);
+    const t = setTimeout(() => speakKurmanciKid(step.target.ku), 200);
     return () => clearTimeout(t);
   }, []);
 

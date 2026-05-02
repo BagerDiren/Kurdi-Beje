@@ -1,5 +1,5 @@
 import { useEffect } from "react";
-import { View, Text, Pressable, StyleSheet, Dimensions } from "react-native";
+import { View, Text, Pressable, StyleSheet, Dimensions, Image } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
 import { router } from "expo-router";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -12,6 +12,9 @@ import { KevoMascot } from "@/components/kevo-mascot";
 import { FloatingBalloons } from "@/components/kids/floating-balloons";
 import { BRAND, SHADOWS } from "@/data/brand";
 import { useApp } from "@/data/app-context";
+
+// Telifsiz Pexels: çocuk öğreniyor / renkli kalemler
+const WELCOME_HERO = "https://images.pexels.com/photos/8617773/pexels-photo-8617773.jpeg?auto=compress&cs=tinysrgb&w=900";
 
 const { width: SW } = Dimensions.get("window");
 
@@ -137,7 +140,14 @@ export default function WelcomeScreen() {
           {/* HERO */}
           <View style={styles.hero}>
             <Animated.View style={[styles.kevoWrap, kevoStyle]}>
-              <KevoMascot size={180} mood="happy" speaking idle />
+              {/* Foto + Kevo overlay */}
+              <View style={styles.heroPhotoFrame}>
+                <Image source={{ uri: WELCOME_HERO }} style={styles.heroPhoto} resizeMode="cover" />
+                <View style={styles.heroPhotoOverlay} />
+                <View style={styles.heroKevoOverlay}>
+                  <KevoMascot size={140} mood="happy" speaking idle />
+                </View>
+              </View>
             </Animated.View>
 
             <Animated.View style={brandStyle}>
@@ -233,6 +243,30 @@ const styles = StyleSheet.create({
   kevoWrap: {
     alignItems: "center",
     marginBottom: 6,
+  },
+  heroPhotoFrame: {
+    width: 200,
+    height: 200,
+    borderRadius: 100,
+    overflow: "hidden",
+    borderWidth: 5,
+    borderColor: "#FF6B9D",
+    shadowColor: "#FF6B9D",
+    shadowOpacity: 0.4,
+    shadowRadius: 16,
+    shadowOffset: { width: 0, height: 8 },
+    elevation: 8,
+    position: "relative",
+  },
+  heroPhoto: { width: "100%", height: "100%" },
+  heroPhotoOverlay: {
+    ...StyleSheet.absoluteFillObject,
+    backgroundColor: "rgba(255, 244, 220, 0.5)",
+  },
+  heroKevoOverlay: {
+    ...StyleSheet.absoluteFillObject,
+    alignItems: "center",
+    justifyContent: "center",
   },
   brand: {
     fontSize: 46,

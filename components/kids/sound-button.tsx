@@ -43,12 +43,13 @@ export function SoundButton({ text, size = "md", color = "#1F6B41", disabled }: 
       -1, false
     );
 
-    // Kurmancî harfleri (î, û, ê, x, q, w) Türkçe TTS için fonetik dönüşüme uğrar
+    // Çocuk dostu: yüksek pitch, yavaş tane tane okur
     const phonetic = toTurkishPhonetic(text);
-    const opts = speakOptionsForStyle("slow");
+    const opts = speakOptionsForStyle("kidSlow");
     Speech.stop();
     Speech.speak(phonetic, {
       ...opts,
+      volume: 1.0,
       onDone: () => {
         setSpeaking(false);
         pulse1.value = 0;
