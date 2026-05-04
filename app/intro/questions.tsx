@@ -11,7 +11,7 @@ export default function IntroQuestions() {
       title="Önce seni tanıyalım"
       subtitle="Cevaplarına göre dersleri kişiselleştirebilirim."
       ctaText="TAMAM, BAŞLAYALIM"
-      onCta={() => router.push("/intro/level")}
+      onCta={() => router.push("/onboarding/placement")}
     />
   );
 }

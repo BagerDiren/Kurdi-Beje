@@ -36,6 +36,7 @@ export default function RootLayout() {
           <Stack.Screen name="onboarding/mode" />
           <Stack.Screen name="onboarding/language" />
           <Stack.Screen name="onboarding/level" />
+          <Stack.Screen name="onboarding/placement" />
           <Stack.Screen name="(tabs)" />
           <Stack.Screen name="duo-path" />
           <Stack.Screen name="duo-lesson" />

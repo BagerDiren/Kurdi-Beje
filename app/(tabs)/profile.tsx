@@ -4,6 +4,7 @@ import { router } from "expo-router";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 import { KevoMascot } from "@/components/kevo-mascot";
+import { ReminderCard } from "@/components/duo/reminder-card";
 import { useApp } from "@/data/app-context";
 import { CATEGORIES } from "@/data/categories";
 import {
@@ -228,6 +229,11 @@ function AdultProfile() {
             </Text>
           </Pressable>
         </View>
+
+        {/* === HATIRLATMA KARTI === */}
+        <View style={{ marginTop: 16 }}>
+          <ReminderCard />
+        </View>
       </ScrollView>
     </SafeAreaView>
   );
@@ -277,6 +283,10 @@ function ChildProfile() {
             <Text>🗑️</Text>
             <Text style={{ fontSize: 13, color: th.wrong }}>Sıfırla</Text>
           </Pressable>
+        </View>
+        {/* === HATIRLATMA KARTI (çocuk için de) === */}
+        <View style={{ marginTop: 16 }}>
+          <ReminderCard />
         </View>
       </ScrollView>
     </SafeAreaView>
