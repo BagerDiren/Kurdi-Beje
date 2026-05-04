@@ -1,37 +1,40 @@
 /**
- * YERLEŞTİRME SINAVI (Placement Test)
+ * YERLEŞTİRME SINAVI (Placement Test) — yeniden tasarım v2
  *
- * Yetişkinler için seviye belirleme — Duolingo'nun "Test out" sistemine benzer.
- * 12 soru, kademeli zorluk:
- *   • Q1-3   → A1 başlangıç (selamlaşma, sayılar, temel zamir)
- *   • Q4-6   → A1 ileri (aile, renk, ben/sen olmak)
- *   • Q7-9   → A2 (yiyecek, ev, possessive, basit cümle)
- *   • Q10-12 → B1 (geçmiş zaman, gramer, karmaşık cümle)
+ * Açık kaynak araştırma:
+ *   • CEFR vocabulary thresholds (Milton & Alexiou, 2009):
+ *       A1: <1500 kelime · A2: 1500-2500 · B1: 2750-3250 · B2: 3250-3750
+ *   • Kurmanji course structures (kurdishlessons.com, languagecanvas.com)
+ *   • A1 typical topics (esl-lounge.com): family, numbers, food, body, time
+ *   • B2 progression: subjunctive, conditional, comparison, idioms
  *
- * Skor → Önerilen başlangıç:
- *   0-3   → A1 sıfırdan (hiçbir ders atlanmaz)
- *   4-6   → A1'in son ünitelerinden başla (ilk 4 ünite "tamam" işaretlenir)
- *   7-9   → A2'den başla (A1'in tamamı işaretlenir, 8 ünite ~34 ders)
- *   10-12 → B1'den başla (A1+A2 tamamı, 15 ünite ~64 ders)
+ * 12 soru, 4 seviyede 3'er soru:
+ *   • Q1-3   → A1 (selamlaşma, sayı, basit zamir)
+ *   • Q4-6   → A2 (possessive, present-tense fiil, basit cümle)
+ *   • Q7-9   → B1 (geçmiş zaman, ergative, daha kompleks cümle)
+ *   • Q10-12 → B2 (gelecek zaman, şart kipi, karşılaştırma, atasözü)
+ *
+ * Skor → CEFR seviyesi:
+ *   0-2   → A1 sıfırdan başla (hiçbir ders işaretlenmez)
+ *   3-5   → A1 ileri (ilk 4 ünite işaretlenir)
+ *   6-8   → A2 (tüm A1 işaretlenir)
+ *   9-10  → B1 (tüm A1+A2 işaretlenir)
+ *   11-12 → B2 (tüm A1+A2+B1 işaretlenir)
  */
 
 export type PtChoice = { kuOrTr: string; correct: boolean };
 
 export type PtQuestion = {
   id: string;
-  /** Hangi seviye sorusu (zorluk takibi) */
-  level: "A1" | "A2" | "B1";
-  /** Soru tipi: tr→ku veya ku→tr */
+  level: "A1" | "A2" | "B1" | "B2";
   prompt: string;
   promptLang: "tr" | "ku";
-  /** 4 seçenek, biri doğru */
   choices: PtChoice[];
-  /** İsteğe bağlı kısa açıklama (yanlış cevap sonrası gösterilir) */
   hint?: string;
 };
 
 export const PLACEMENT_TEST: PtQuestion[] = [
-  // === A1 Başlangıç ===
+  // === A1 Başlangıç (3 soru) ===
   {
     id: "p1", level: "A1",
     promptLang: "tr", prompt: "Merhaba (Kürtçe)?",
@@ -41,86 +44,55 @@ export const PLACEMENT_TEST: PtQuestion[] = [
       { kuOrTr: "Roj baş", correct: false },
       { kuOrTr: "Bav",     correct: false },
     ],
-    hint: "'Silav' = Merhaba",
+    hint: "'Silav' = Merhaba, 'Spas' = Teşekkür, 'Roj baş' = Günaydın",
   },
   {
     id: "p2", level: "A1",
-    promptLang: "ku", prompt: "Spas",
+    promptLang: "ku", prompt: "Pênc",
     choices: [
-      { kuOrTr: "Teşekkür ederim", correct: true },
-      { kuOrTr: "Merhaba",          correct: false },
-      { kuOrTr: "Hoşça kal",        correct: false },
-      { kuOrTr: "Ben",              correct: false },
+      { kuOrTr: "Beş",   correct: true },
+      { kuOrTr: "Üç",    correct: false },
+      { kuOrTr: "Yedi",  correct: false },
+      { kuOrTr: "İki",   correct: false },
     ],
   },
   {
     id: "p3", level: "A1",
-    promptLang: "tr", prompt: "Beş (Kürtçe)?",
+    promptLang: "tr", prompt: "Ben (Kürtçe)?",
     choices: [
-      { kuOrTr: "Pênc", correct: true },
-      { kuOrTr: "Sê",   correct: false },
-      { kuOrTr: "Heft", correct: false },
-      { kuOrTr: "Du",   correct: false },
+      { kuOrTr: "Ez",  correct: true },
+      { kuOrTr: "Tu",  correct: false },
+      { kuOrTr: "Ew",  correct: false },
+      { kuOrTr: "Em",  correct: false },
     ],
+    hint: "Ez=Ben, Tu=Sen, Ew=O, Em=Biz",
   },
 
-  // === A1 İleri ===
+  // === A2 Temel (3 soru) — possessive, fiil çekimi ===
   {
-    id: "p4", level: "A1",
-    promptLang: "ku", prompt: "Ez baş im.",
-    choices: [
-      { kuOrTr: "Ben iyiyim.",     correct: true },
-      { kuOrTr: "Sen iyisin.",     correct: false },
-      { kuOrTr: "O iyidir.",       correct: false },
-      { kuOrTr: "Biz iyiyiz.",     correct: false },
-    ],
-    hint: "'im' eki 'ben' anlamına gelir",
-  },
-  {
-    id: "p5", level: "A1",
+    id: "p4", level: "A2",
     promptLang: "tr", prompt: "Annem (Kürtçe)?",
     choices: [
       { kuOrTr: "Dayika min", correct: true },
       { kuOrTr: "Bavê min",   correct: false },
-      { kuOrTr: "Birayê min", correct: false },
-      { kuOrTr: "Xwişka min", correct: false },
+      { kuOrTr: "Dayik",      correct: false },
+      { kuOrTr: "Min dayik",  correct: false },
     ],
+    hint: "Dişil isimde sahiplik için '-a min' eki: dayik+a min = annem",
   },
   {
-    id: "p6", level: "A1",
-    promptLang: "ku", prompt: "Sêv sor e.",
+    id: "p5", level: "A2",
+    promptLang: "ku", prompt: "Ez nan dixwim.",
     choices: [
-      { kuOrTr: "Elma kırmızıdır.",  correct: true },
-      { kuOrTr: "Su mavidir.",       correct: false },
-      { kuOrTr: "Ev büyüktür.",      correct: false },
-      { kuOrTr: "Köpek küçüktür.",   correct: false },
+      { kuOrTr: "Ben ekmek yiyorum.", correct: true },
+      { kuOrTr: "Sen ekmek yiyorsun.", correct: false },
+      { kuOrTr: "Ben su içiyorum.",   correct: false },
+      { kuOrTr: "O ekmek yiyor.",     correct: false },
     ],
-  },
-
-  // === A2 Temel ===
-  {
-    id: "p7", level: "A2",
-    promptLang: "tr", prompt: "Ben su istiyorum (Kürtçe)?",
-    choices: [
-      { kuOrTr: "Ez av dixwazim.",       correct: true },
-      { kuOrTr: "Ez av vexwim.",         correct: false },
-      { kuOrTr: "Ez nan dixwim.",        correct: false },
-      { kuOrTr: "Ew av dixwaze.",        correct: false },
-    ],
-    hint: "'dixwazim' = istiyorum (ez ile birlikte)",
+    hint: "'dixwim' = (ben) yiyorum (Ez ile birlikte)",
   },
   {
-    id: "p8", level: "A2",
-    promptLang: "ku", prompt: "Mala min mezin e.",
-    choices: [
-      { kuOrTr: "Evim büyük.",       correct: true },
-      { kuOrTr: "Evim küçük.",       correct: false },
-      { kuOrTr: "Ailem büyük.",      correct: false },
-      { kuOrTr: "Köpeğim büyük.",    correct: false },
-    ],
-  },
-  {
-    id: "p9", level: "A2",
+    id: "p6", level: "A2",
     promptLang: "tr", prompt: "Bugün hava sıcak (Kürtçe)?",
     choices: [
       { kuOrTr: "Îro hewa germ e.",  correct: true },
@@ -130,9 +102,9 @@ export const PLACEMENT_TEST: PtQuestion[] = [
     ],
   },
 
-  // === B1 Orta ===
+  // === B1 Orta (3 soru) — geçmiş zaman, ergative, kompleks ===
   {
-    id: "p10", level: "B1",
+    id: "p7", level: "B1",
     promptLang: "ku", prompt: "Duh ez çûm bajar.",
     choices: [
       { kuOrTr: "Dün şehre gittim.",         correct: true },
@@ -140,21 +112,21 @@ export const PLACEMENT_TEST: PtQuestion[] = [
       { kuOrTr: "Bugün şehirdeyim.",         correct: false },
       { kuOrTr: "Sen dün geldin.",           correct: false },
     ],
-    hint: "'çûm' = gittim (geçmiş zaman -m eki)",
+    hint: "'çûm' = gittim (geçmiş zaman -m eki), 'duh' = dün",
   },
   {
-    id: "p11", level: "B1",
-    promptLang: "tr", prompt: "Hangisi geçmiş zamanda?",
+    id: "p8", level: "B1",
+    promptLang: "tr", prompt: "Ergative (geçişli) past tense'de hangisi doğru?",
     choices: [
-      { kuOrTr: "Min got",     correct: true },
-      { kuOrTr: "Ez dibêjim",  correct: false },
-      { kuOrTr: "Ew dibêje",   correct: false },
-      { kuOrTr: "Em dibêjin",  correct: false },
+      { kuOrTr: "Min nan xwar = Ben ekmek yedim",     correct: true },
+      { kuOrTr: "Ez nan xwarim = Ben ekmek yedim",    correct: false },
+      { kuOrTr: "Nan ez xwar = Ben ekmek yedim",      correct: false },
+      { kuOrTr: "Ez nan dixwim = Ben ekmek yedim",    correct: false },
     ],
-    hint: "Geçmiş zamanda özne 'min/te/wî' (oblique) olur",
+    hint: "Geçişli fiilde geçmiş zamanda özne 'oblique' (Min) olur, fiil çekimsiz kalır.",
   },
   {
-    id: "p12", level: "B1",
+    id: "p9", level: "B1",
     promptLang: "tr", prompt: "Doktor hastanede çalışıyor (Kürtçe)?",
     choices: [
       { kuOrTr: "Bijîşk li nexweşxaneyê kar dike.", correct: true },
@@ -163,31 +135,78 @@ export const PLACEMENT_TEST: PtQuestion[] = [
       { kuOrTr: "Bijîşk nexweş e.",                  correct: false },
     ],
   },
+
+  // === B2 Üst-Orta (3 soru) — gelecek zaman, şart, karşılaştırma, atasözü ===
+  {
+    id: "p10", level: "B2",
+    promptLang: "tr", prompt: "Yarın geleceğim (Kürtçe)?",
+    choices: [
+      { kuOrTr: "Sibe ez ê bêm.",        correct: true },
+      { kuOrTr: "Sibe ez hatim.",        correct: false },
+      { kuOrTr: "Duh ez ê bêm.",         correct: false },
+      { kuOrTr: "Sibe ez têm.",          correct: false },
+    ],
+    hint: "Gelecek zaman: 'Ez ê' + present-stem. 'bêm' = geleyim (subjunctive)",
+  },
+  {
+    id: "p11", level: "B2",
+    promptLang: "ku", prompt: "Eger baran bibare, ez nayêm.",
+    choices: [
+      { kuOrTr: "Eğer yağmur yağarsa, gelmem.",     correct: true },
+      { kuOrTr: "Yağmur yağdı, gelmedim.",          correct: false },
+      { kuOrTr: "Yağmur yağarsa geleceğim.",        correct: false },
+      { kuOrTr: "Eğer ben yağmurda kalsam.",        correct: false },
+    ],
+    hint: "'Eger' = Eğer, 'bibare' = yağarsa (subjunctive), 'nayêm' = gelmem",
+  },
+  {
+    id: "p12", level: "B2",
+    promptLang: "tr", prompt: "'Wext zêr e' atasözünün anlamı?",
+    choices: [
+      { kuOrTr: "Vakit altındır.",        correct: true },
+      { kuOrTr: "Su hayattır.",           correct: false },
+      { kuOrTr: "Sabır şifadır.",         correct: false },
+      { kuOrTr: "İyi arkadaş kardeşten iyidir.", correct: false },
+    ],
+    hint: "'Wext' = vakit, 'zêr' = altın. Klasik bir Kürt atasözüdür.",
+  },
 ];
 
-/**
- * Skoru CEFR seviyesine ve hangi derslerin "tamam" işaretleneceğine çevirir.
- *
- * Skip stratejisi:
- *   • Hiç soru yanlışsa (12/12) → A1+A2'nin tamamını "tamam" işaretle, B1'den başla
- *   • Çok iyi (10-11) → A1+A2 işaretle, B1
- *   • İyi (7-9)       → A1 işaretle, A2'den başla
- *   • Orta (4-6)      → A1'in ilk 4 ünitesini işaretle (Silav, Zamirler, Tanışma, Hejmar)
- *   • Az (0-3)        → Hiçbiri işaretlenmez, sıfırdan başla
- */
+// =====================================================================
+//  SKORLAMA: 4 seviyeye dağılım
+// =====================================================================
+
 export type PlacementResult = {
   score: number;
   total: number;
-  cefr: "A1" | "A2" | "B1";
+  cefr: "A1" | "A2" | "B1" | "B2";
   startMessage: string;
   startMessageEn: string;
   startMessageKu: string;
-  /** Otomatik tamamlanmış işaretlenecek lesson ID prefix'leri (örn ["u1-", "u2-"]) */
   prefilledLessonPrefixes: string[];
 };
 
 export function computePlacement(score: number, total: number): PlacementResult {
-  if (score >= 10) {
+  // 11-12 → B2
+  if (score >= 11) {
+    return {
+      score, total,
+      cefr: "B2",
+      startMessage: "Etkileyici! B2 (Üst-Orta) seviyeden başlayabilirsin.",
+      startMessageEn: "Impressive! You can start from B2 (Upper-Intermediate).",
+      startMessageKu: "Karekî baş! Tu dikarî ji asta B2 dest pê bikî.",
+      prefilledLessonPrefixes: [
+        // tüm A1 (8 ünite)
+        "u1-", "u2-", "u3-", "u4-", "u5-", "u6-", "u7-", "u8-",
+        // tüm A2 (7 ünite)
+        "u9-", "u10-", "u11-", "u12-", "u13-", "u14-", "u15-",
+        // tüm B1 (4 ünite)
+        "u16-", "u17-", "u18-", "u19-",
+      ],
+    };
+  }
+  // 9-10 → B1
+  if (score >= 9) {
     return {
       score, total,
       cefr: "B1",
@@ -195,12 +214,13 @@ export function computePlacement(score: number, total: number): PlacementResult 
       startMessageEn: "Excellent! You can start from B1 (Intermediate).",
       startMessageKu: "Bêkêmasî! Tu dikarî ji asta B1 dest pê bikî.",
       prefilledLessonPrefixes: [
-        "u1-", "u2-", "u3-", "u4-", "u5-", "u6-", "u7-", "u8-",  // tüm A1
-        "u9-", "u10-", "u11-", "u12-", "u13-", "u14-", "u15-",   // tüm A2
+        "u1-", "u2-", "u3-", "u4-", "u5-", "u6-", "u7-", "u8-",
+        "u9-", "u10-", "u11-", "u12-", "u13-", "u14-", "u15-",
       ],
     };
   }
-  if (score >= 7) {
+  // 6-8 → A2
+  if (score >= 6) {
     return {
       score, total,
       cefr: "A2",
@@ -208,20 +228,22 @@ export function computePlacement(score: number, total: number): PlacementResult 
       startMessageEn: "Nice work. You can continue from A2 (Elementary).",
       startMessageKu: "Baş diçî. Tu dikarî ji asta A2 berdewam bikî.",
       prefilledLessonPrefixes: [
-        "u1-", "u2-", "u3-", "u4-", "u5-", "u6-", "u7-", "u8-",  // tüm A1
+        "u1-", "u2-", "u3-", "u4-", "u5-", "u6-", "u7-", "u8-",
       ],
     };
   }
-  if (score >= 4) {
+  // 3-5 → A1 ileri
+  if (score >= 3) {
     return {
       score, total,
       cefr: "A1",
       startMessage: "Temellerin var. A1'in ortasından başlayalım.",
       startMessageEn: "You have the basics. Let's start from middle of A1.",
       startMessageKu: "Bingehên te hene. Em ji nava A1 dest pê bikin.",
-      prefilledLessonPrefixes: ["u1-", "u2-", "u3-", "u4-"],  // ilk 4 ünite
+      prefilledLessonPrefixes: ["u1-", "u2-", "u3-", "u4-"],
     };
   }
+  // 0-2 → A1 sıfırdan
   return {
     score, total,
     cefr: "A1",
@@ -232,10 +254,6 @@ export function computePlacement(score: number, total: number): PlacementResult 
   };
 }
 
-/**
- * Lesson ID'leri prefix listesine göre uygun olanlara filtre uygular.
- * Prefix'ler "u1-", "u2-" gibi → "u1-l1", "u1-l2" eşleşir.
- */
 export function lessonsToMarkComplete(prefixes: string[], allLessonIds: string[]): string[] {
   if (prefixes.length === 0) return [];
   return allLessonIds.filter((id) => prefixes.some((p) => id.startsWith(p)));

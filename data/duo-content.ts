@@ -80,7 +80,7 @@ export type DuoUnit = {
 
 export type DuoSection = {
   id: string;
-  cefr: "A1" | "A2" | "B1";
+  cefr: "A1" | "A2" | "B1" | "B2";
   title: string;
   subtitle: string;
   units: DuoUnit[];
@@ -1568,10 +1568,303 @@ const SECTION_B1: DuoSection = {
 };
 
 // =====================================================================
+//  SECTION 4 — B2 ÜST-ORTA (SERWERÎ)
+//
+//  CEFR B2: karmaşık metinleri anlayabilir, akıcı konuşur, görüş bildirir.
+//  Bu bölüm A1-B1'de OLMAYAN gramerler ve konular içerir:
+//    • Gelecek zaman (dê + present) — "Ez ê biçim" = Gideceğim
+//    • Şart kipi (eger ... bûya / heke ... bibe) — "Eğer gelirse"
+//    • Karşılaştırma (ji ... mezintir) — "Ondan büyük"
+//    • Subjunctive (bila + present) — "İçeri girsin"
+//    • Edilgen yapı (...hat kirin) — "yapıldı"
+//    • Bağlaç (ku, ji ber ku, eger) — karmaşık cümleler
+//    • Atasözleri (gotinên pêşiyan)
+//    • Kültür (Newroz, edebiyat, müzik)
+// =====================================================================
+
+const SECTION_B2: DuoSection = {
+  id: "s4",
+  cefr: "B2",
+  title: "Üst-Orta",
+  subtitle: "B2 · Serwerî",
+  units: [
+    // ─────────────────────────────────────────────────────
+    // UNIT 20: Demên Bê (Future Tense)
+    // ─────────────────────────────────────────────────────
+    {
+      id: "u20", no: 20, title: "Gelecek Zaman", subtitle: "Demên bê · ne yapacaksın?",
+      emoji: "⏭️", color: "#7B1FA2", track: "adult",
+      objectives: ["dê + fiil yapısı", "yarın/sonra için planlar", "Olumsuz gelecek"],
+      lessons: [
+        L("u20-l1", "Lesson 1", "dê + fiil = gelecek", 16, [
+          tip("⏭️", "Gelecek zaman: dê + ê",
+              "Kürtçede gelecek zaman 'dê' yardımcı kelimesiyle yapılır:\n" +
+              "Ez ê biçim = Gideceğim\n" +
+              "Tu yê biçî = Gideceksin\n" +
+              "Ew dê biçe = Gidecek\n" +
+              "Şahıs ekleri zamir + ê / dê + present-stem + şahıs.",
+              { ku: "Sibe ez ê herim bajar.", tr: "Yarın şehre gideceğim." }),
+          nw("Ez ê biçim", "Gideceğim", "✈️"),
+          nw("Tu yê bixwî", "Yiyeceksin", "🍴"),
+          nw("Ew dê bê", "Gelecek", "🚶"),
+          nw("Em ê bibînin", "Göreceğiz", "👀"),
+          mp(
+            { ku: "Ez ê biçim", tr: "Gideceğim" },
+            { ku: "Tu yê bixwî", tr: "Yiyeceksin" },
+            { ku: "Ew dê bê", tr: "Gelecek" },
+            { ku: "Em ê bibînin", tr: "Göreceğiz" },
+          ),
+          ex(fb(["Sibe ez ", " herim mektebê."], ["ê", "im", "dê", "yê"], "Yarın okula gideceğim."),
+             "'Ez' (ben) ile birlikte 'ê' kullanılır. 'Tu' ile 'yê', 'ew' ile 'dê'."),
+          tt("Yarın geleceğim.", "Sibe ez ê bêm.", ["dê", "yê", "biçim"]),
+          ta("Em ê bixwin", ["Em", "ê", "bixwin"], "Yiyeceğiz"),
+        ]),
+        L("u20-l2", "Lesson 2", "Plan yapmak", 16, [
+          nw("Plan", "Plan", "📋"),
+          nw("Sibe", "Yarın", "📅"),
+          nw("Hefteya tê", "Önümüzdeki hafta", "📆"),
+          nw("Salê tê", "Önümüzdeki yıl", "🗓️"),
+          mp(
+            { ku: "Sibe", tr: "Yarın" },
+            { ku: "Hefteya tê", tr: "Önümüzdeki hafta" },
+            { ku: "Salê tê", tr: "Önümüzdeki yıl" },
+            { ku: "Niha", tr: "Şimdi" },
+          ),
+          tt("Önümüzdeki hafta tatile gideceğim.", "Hefteya tê ez ê herim betlaneyê.",
+             ["niha", "duh", "îro"]),
+          ex(fb(["Salê tê em ", " bigihîjin Stenbolê."], ["ê", "yê", "bûn", "in"],
+                "Önümüzdeki yıl İstanbul'a varacağız."),
+             "Plural 'em' (biz) ile gelecek için 'em ê' kullanılır."),
+          ta("Sibe ez ê bixebitim", ["Sibe", "ez", "ê", "bixebitim"], "Yarın çalışacağım"),
+        ]),
+        L("u20-l3", "Lesson 3", "Olumsuz gelecek", 16, [
+          tip("❌", "Olumsuz gelecek",
+              "Gelecekte olumsuzluk için 'na' kullanılır, 'ne' değil!\n" +
+              "Ez ê neçim = Gitmeyeceğim\n" +
+              "Tu yê nehêjî = Sevmeyeceksin",
+              { ku: "Sibe ez ê neçim mektebê.", tr: "Yarın okula gitmeyeceğim." }),
+          nw("Neçim", "Gitmeyeceğim", "🚫"),
+          nw("Naxwim", "Yemeyeceğim", "🚫"),
+          nw("Nabêjim", "Söylemeyeceğim", "🚫"),
+          mp(
+            { ku: "Ez ê neçim", tr: "Gitmeyeceğim" },
+            { ku: "Tu yê nexwî", tr: "Yemeyeceksin" },
+            { ku: "Ew dê neyê", tr: "Gelmeyecek" },
+            { ku: "Em ê nebînin", tr: "Görmeyeceğiz" },
+          ),
+          ex(tt("Yarın çalışmayacağım.", "Sibe ez ê nexebitim.", ["bixebitim", "ne", "yê"]),
+             "Olumsuz fiilde 'ne-' öneki: ne+xebitim → nexebitim. 'Ez ê' bunun başına gelir."),
+        ]),
+      ],
+    },
+    // ─────────────────────────────────────────────────────
+    // UNIT 21: Şertî (Conditional)
+    // ─────────────────────────────────────────────────────
+    {
+      id: "u21", no: 21, title: "Şart Kipi", subtitle: "Eger ... bibe · Eğer olursa",
+      emoji: "🔀", color: "#C2185B", track: "adult",
+      objectives: ["eger / heke yapısı", "Gerçek şart", "Hayali şart (bûya)"],
+      lessons: [
+        L("u21-l1", "Lesson 1", "eger / heke", 16, [
+          tip("🔀", "Şart kipi (real)",
+              "'Eger' veya 'heke' = Eğer.\n" +
+              "Eger baran bibare, ez nayêm = Eğer yağmur yağarsa, gelmem.\n" +
+              "Şart cümlesinde subjunctive (bibare) + ana cümlede present/future.",
+              { ku: "Eger tu werî, ez kêfxweş im.", tr: "Eğer gelirsen, mutlu olurum." }),
+          nw("Eger", "Eğer", "🔀"),
+          nw("Heke", "Eğer (alt)", "🔀"),
+          nw("Bibare", "yağarsa", "🌧️"),
+          nw("Werî", "gelirsen", "🚶"),
+          mp(
+            { ku: "Eger", tr: "Eğer" },
+            { ku: "Heke", tr: "Eğer (alt)" },
+            { ku: "Bibare", tr: "yağarsa" },
+            { ku: "Werî", tr: "gelirsen" },
+          ),
+          tt("Eğer yağmur yağarsa, evde kalırım.",
+             "Eger baran bibare, ez li mal dimînim.",
+             ["werî", "neyêm", "naxwim"]),
+        ]),
+        L("u21-l2", "Lesson 2", "Hayali şart (bûya)", 18, [
+          tip("💭", "Hayali şart (counterfactual)",
+              "Olmamış/imkansız durum için 'bûya' kullanılır:\n" +
+              "Eger ez paqij bûma, min biçûya. = Olsa idim, giderdim.\n" +
+              "Past stem + suffix + bûya. Edebiyatta yaygın.",
+              { ku: "Eger min wext hebûya, min biçûya.", tr: "Vaktim olsaydı, giderdim." }),
+          nw("Bûya", "olsa idi", "💭"),
+          nw("Min biçûya", "giderdim", "✈️"),
+          nw("Min hebûya", "olsa idi", "🤲"),
+          mp(
+            { ku: "Eger min hebûya", tr: "Sahip olsaydım" },
+            { ku: "Min biçûya", tr: "Giderdim" },
+            { ku: "Min bidîta", tr: "Görseydim" },
+            { ku: "Eger werî", tr: "Eğer gelirsen" },
+          ),
+          ex(tt("Eğer param olsaydı, sana yardım ederdim.",
+                "Eger min pere hebûya, min ji te re alîkarî bikira.",
+                ["werî", "bibe", "naxwim"]),
+             "'bûya' ile 'bikira' birleşik kullanılır — past counterfactual yapısı."),
+        ]),
+      ],
+    },
+    // ─────────────────────────────────────────────────────
+    // UNIT 22: Berhevdan (Karşılaştırma)
+    // ─────────────────────────────────────────────────────
+    {
+      id: "u22", no: 22, title: "Karşılaştırma", subtitle: "Ji ... mezintir · daha büyük",
+      emoji: "📊", color: "#0288D1", track: "all",
+      objectives: ["...tir karşılaştırma eki", "ji prepositionu", "Üstünlük (herî)"],
+      lessons: [
+        L("u22-l1", "Lesson 1", "Daha büyük / küçük", 14, [
+          tip("📊", "Karşılaştırma eki -tir",
+              "Sıfat + tir = daha [sıfat]:\n" +
+              "mezin (büyük) → mezintir (daha büyük)\n" +
+              "biçûk → biçûktir (daha küçük)\n" +
+              "Karşılaştırma için 'ji' edatı kullanılır.",
+              { ku: "Bavê min ji min mezintir e.", tr: "Babam benden büyüktür." }),
+          nw("Mezintir", "Daha büyük", "📈"),
+          nw("Biçûktir", "Daha küçük", "📉"),
+          nw("Bilindtir", "Daha yüksek", "🔺"),
+          nw("Nizmtir", "Daha alçak", "🔻"),
+          mp(
+            { ku: "Mezintir", tr: "Daha büyük" },
+            { ku: "Biçûktir", tr: "Daha küçük" },
+            { ku: "Bilindtir", tr: "Daha yüksek" },
+            { ku: "Nizmtir", tr: "Daha alçak" },
+          ),
+          tt("Çocuk anneden küçüktür.", "Zarok ji dayikê biçûktir e.",
+             ["mezintir", "ne", "ji ber ku"]),
+        ]),
+        L("u22-l2", "Lesson 2", "En üstünlük (herî)", 14, [
+          tip("🏆", "Üstünlük: herî",
+              "'Herî' = en. Sıfattan ÖNCE gelir:\n" +
+              "herî mezin = en büyük\n" +
+              "herî biçûk = en küçük\n" +
+              "herî baş = en iyi",
+              { ku: "Çiyayê herî bilind li Kurdistanê.", tr: "Kürdistan'ın en yüksek dağı." }),
+          nw("Herî", "En", "🏆"),
+          nw("Herî mezin", "En büyük", "🥇"),
+          nw("Herî baş", "En iyi", "⭐"),
+          nw("Herî kevn", "En eski", "📜"),
+          mp(
+            { ku: "Herî mezin", tr: "En büyük" },
+            { ku: "Herî baş", tr: "En iyi" },
+            { ku: "Herî kevn", tr: "En eski" },
+            { ku: "Herî biçûk", tr: "En küçük" },
+          ),
+          ex(tt("Bu evdeki en büyük oda.", "Odeya herî mezin a vê malê.",
+                ["mezintir", "biçûk", "ji"]),
+             "'Herî mezin' ifadesi sıfattan önce, ezafe (-a) ile bağlanır."),
+        ]),
+      ],
+    },
+    // ─────────────────────────────────────────────────────
+    // UNIT 23: Çand û Edebiyat (Kültür ve Edebiyat)
+    // ─────────────────────────────────────────────────────
+    {
+      id: "u23", no: 23, title: "Kültür", subtitle: "Çand · Newroz, müzik, edebiyat",
+      emoji: "🎭", color: "#388E3C", track: "all",
+      objectives: ["Newroz bayramı", "Klasik şair: Ahmedê Xanî", "Müzik: Şivan Perwer"],
+      lessons: [
+        L("u23-l1", "Lesson 1", "Newroz bayramı", 16, [
+          tip("🔥", "Newroz nedir?",
+              "21 Mart Kürtler, İranlılar ve Orta Asya halklarının yeni yıl bayramı.\n" +
+              "Mitoloji: Demirci Kawa, zalim kral Dehak'ı yendi.\n" +
+              "Ateş yakılır, danslar (govend) edilir.",
+              { ku: "Newroz pîroz be!", tr: "Newroz kutlu olsun!" }),
+          nw("Newroz", "Newroz", "🔥"),
+          nw("Pîroz", "Kutlu", "🎉"),
+          nw("Govend", "Halay", "💃"),
+          nw("Kawa", "Kawa (efsane)", "⚒️"),
+          mp(
+            { ku: "Newroz", tr: "Yeni gün/yıl" },
+            { ku: "Pîroz", tr: "Kutlu" },
+            { ku: "Govend", tr: "Halay" },
+            { ku: "Agir", tr: "Ateş" },
+          ),
+          tt("Newroz baharın ilk günüdür.",
+             "Newroz roja yekem a biharê ye.",
+             ["zivistanê", "havînê"]),
+          ta("Newroz pîroz be", ["Newroz", "pîroz", "be"], "Newroz kutlu olsun"),
+        ]),
+        L("u23-l2", "Lesson 2", "Müzik (Mûzîk)", 14, [
+          nw("Mûzîk", "Müzik", "🎵"),
+          nw("Stran", "Şarkı", "🎤"),
+          nw("Stranbêj", "Şarkıcı", "👨‍🎤"),
+          nw("Tembûr", "Tembûr (saz)", "🎸"),
+          mp(
+            { ku: "Mûzîk", tr: "Müzik" },
+            { ku: "Stran", tr: "Şarkı" },
+            { ku: "Stranbêj", tr: "Şarkıcı" },
+            { ku: "Tembûr", tr: "Tembûr" },
+          ),
+          tt("Şivan Perwer ünlü bir Kürt şarkıcıdır.",
+             "Şivan Perwer stranbêjekî navdar ê Kurd e.",
+             ["mamoste", "bijîşk"]),
+        ]),
+        L("u23-l3", "Lesson 3", "Edebiyat (Wêje)", 16, [
+          tip("📚", "Klasik Kürt edebiyatı",
+              "Ahmedê Xanî (1651-1707) — 'Mem û Zîn' destanının yazarı.\n" +
+              "Cizîrî (1567-1640) — sufi şair, 'Dîwan' eseri.\n" +
+              "Bu eserler hâlâ Kürt edebiyatının temel taşlarıdır.",
+              { ku: "Mem û Zîn berhema herî navdar a Xanî ye.", tr: "Mem û Zîn, Xanî'nin en ünlü eseri." }),
+          nw("Wêje", "Edebiyat", "📚"),
+          nw("Helbest", "Şiir", "📜"),
+          nw("Pirtûk", "Kitap", "📖"),
+          nw("Nivîskar", "Yazar", "✍️"),
+          mp(
+            { ku: "Wêje", tr: "Edebiyat" },
+            { ku: "Helbest", tr: "Şiir" },
+            { ku: "Pirtûk", tr: "Kitap" },
+            { ku: "Nivîskar", tr: "Yazar" },
+          ),
+        ]),
+      ],
+    },
+    // ─────────────────────────────────────────────────────
+    // UNIT 24: Gotinên Pêşiyan (Atasözleri)
+    // ─────────────────────────────────────────────────────
+    {
+      id: "u24", no: 24, title: "Atasözleri", subtitle: "Gotinên pêşiyan · halk bilgeliği",
+      emoji: "🦉", color: "#5D4037", track: "adult",
+      objectives: ["10 yaygın atasözü", "Anlam ve kullanım", "Kültürel arka plan"],
+      lessons: [
+        L("u24-l1", "Lesson 1", "Aile ve dostluk", 16, [
+          tip("🦉", "Atasözleri Kürtçe öğretmek için harika!",
+              "Atasözleri (gotinên pêşiyan) kültürel bilgeliğin özüdür.\n" +
+              "Hem dilbilgisi pratiği hem kültürel ipuçları içerir.",
+              { ku: "Gotinên pêşiyan kanîya zanînê ne.", tr: "Atasözleri bilginin pınarıdır." }),
+          nw("Heval", "Arkadaş", "🤝"),
+          nw("Mal", "Aile/ev", "🏠"),
+          nw("Birîn", "Yara", "🩹"),
+          mp(
+            { ku: "Hevalê baş ji birayî zêdetir e", tr: "İyi arkadaş kardeşten daha iyidir" },
+            { ku: "Mal mala mêr e", tr: "Ev erkeğin evidir" },
+            { ku: "Zar zimanî dilî ye", tr: "Çocuk kalbin dilidir" },
+            { ku: "Birîna ziman çênabe", tr: "Dilin yarası kapanmaz" },
+          ),
+        ]),
+        L("u24-l2", "Lesson 2", "Hayat dersleri", 16, [
+          mp(
+            { ku: "Av jiyan e", tr: "Su hayattır" },
+            { ku: "Sebr şîfa ye", tr: "Sabır şifadır" },
+            { ku: "Pir bigotin kêm bibe", tr: "Çok söyleyen az olur" },
+            { ku: "Wext zêr e", tr: "Vakit altındır" },
+          ),
+          tt("Vakit altın değerindedir.", "Wext zêr e.", ["av", "jiyan", "sebir"]),
+          ex(fb(["Sebr ", " ye."], ["şîfa", "wext", "av", "mal"], "Sabır şifadır."),
+             "Bu klasik bir Kürt atasözüdür: 'Sabır şifadır.'"),
+        ]),
+      ],
+    },
+  ],
+};
+
+// =====================================================================
 //  TÜM SECTIONS
 // =====================================================================
 
-export const DUO_SECTIONS: DuoSection[] = [SECTION_A1, SECTION_A2, SECTION_B1];
+export const DUO_SECTIONS: DuoSection[] = [SECTION_A1, SECTION_A2, SECTION_B1, SECTION_B2];
 
 // =====================================================================
 //  YARDIMCI FONKSİYONLAR

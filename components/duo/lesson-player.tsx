@@ -596,57 +596,139 @@ function MatchPairs({ pairs, onResult, lang }: { pairs: { ku: string; tr: string
     }
   };
 
+  // Büyük tile renderer (full-width, 60-80px yükseklik)
+  const renderTile = (
+    label: string,
+    isMatched: boolean,
+    isSelected: boolean,
+    isWrong: boolean,
+    onPress: () => void,
+    side: "l" | "r",
+  ) => {
+    let bg = DUO.snow;
+    let border = DUO.swan;
+    let bottomBorder = DUO.swan;
+    let textColor = DUO.eel;
+    if (isSelected)  { bg = "#DDF4FF"; border = DUO.macaw; bottomBorder = DUO.macaw; textColor = DUO.macawDark; }
+    if (isMatched)   { bg = "#D7FFB8"; border = DUO.green; bottomBorder = DUO.green; textColor = DUO.treeGreen; }
+    if (isWrong)     { bg = "#FFDFE0"; border = DUO.cardinal; bottomBorder = DUO.cardinal; textColor = DUO.cardinalDark; }
+    return (
+      <Pressable
+        onPress={isMatched ? undefined : onPress}
+        disabled={isMatched}
+        style={({ pressed }) => [
+          mpS.tile,
+          {
+            backgroundColor: bg,
+            borderColor: border,
+            borderBottomColor: bottomBorder,
+            borderBottomWidth: pressed ? 2 : 5,
+            opacity: isMatched ? 0.6 : 1,
+            transform: [{ translateY: pressed ? 3 : 0 }],
+          },
+        ]}
+      >
+        <Text style={[mpS.tileLabel, { color: textColor }]} numberOfLines={2}>
+          {label}
+        </Text>
+        {side === "l" && !isMatched && (
+          <Pressable
+            onPress={(e) => { e.stopPropagation(); speakKurmanci(label, "kid"); }}
+            hitSlop={6}
+            style={mpS.tileSpeaker}
+          >
+            <Text style={{ fontSize: 18 }}>🔊</Text>
+          </Pressable>
+        )}
+      </Pressable>
+    );
+  };
+
+  const matchedCount = matched.size;
+  const totalCount = pairs.length;
+
   return (
     <View style={mpS.wrap}>
-      <Text style={mpS.title}>{ui("match", lang)}</Text>
-      <View style={mpS.row}>
-        <View style={mpS.col}>
-          {leftItems.map((it) => {
-            const isMatched = matched.has(it.origIdx);
-            const isSelected = leftSel === it.origIdx;
-            const isWrong = wrongFlash?.l === it.origIdx;
-            return (
-              <DuoChip
-                key={`l-${it.origIdx}`}
-                label={it.ku}
-                onPress={() => tap("l", it.origIdx)}
-                selected={isSelected}
-                correct={isMatched}
-                wrong={isWrong}
-                disabled={isMatched}
-              />
-            );
-          })}
-        </View>
-        <View style={mpS.col}>
-          {rightItems.map((it) => {
-            const isMatched = matched.has(it.origIdx);
-            const isSelected = rightSel === it.origIdx;
-            const isWrong = wrongFlash?.r === it.origIdx;
-            return (
-              <DuoChip
-                key={`r-${it.origIdx}`}
-                label={tx(lang, it.tr)}
-                onPress={() => tap("r", it.origIdx)}
-                selected={isSelected}
-                correct={isMatched}
-                wrong={isWrong}
-                disabled={isMatched}
-              />
-            );
-          })}
+      <View style={mpS.header}>
+        <Text style={mpS.title}>{ui("match", lang)}</Text>
+        <View style={mpS.progressBadge}>
+          <Text style={mpS.progressTxt}>{matchedCount}/{totalCount}</Text>
         </View>
       </View>
-      <View style={{ flex: 1 }} />
+      <View style={mpS.gridWrap}>
+        <View style={mpS.col}>
+          {leftItems.map((it) => (
+            <View key={`l-${it.origIdx}`} style={mpS.tileSlot}>
+              {renderTile(
+                it.ku,
+                matched.has(it.origIdx),
+                leftSel === it.origIdx,
+                wrongFlash?.l === it.origIdx,
+                () => tap("l", it.origIdx),
+                "l",
+              )}
+            </View>
+          ))}
+        </View>
+        <View style={mpS.col}>
+          {rightItems.map((it) => (
+            <View key={`r-${it.origIdx}`} style={mpS.tileSlot}>
+              {renderTile(
+                tx(lang, it.tr),
+                matched.has(it.origIdx),
+                rightSel === it.origIdx,
+                wrongFlash?.r === it.origIdx,
+                () => tap("r", it.origIdx),
+                "r",
+              )}
+            </View>
+          ))}
+        </View>
+      </View>
     </View>
   );
 }
 
 const mpS = StyleSheet.create({
   wrap: { flex: 1 },
-  title: { ...DUO_TYPO.h1, color: DUO.eel, padding: DUO_SPACING.lg },
-  row: { flexDirection: "row", gap: DUO_SPACING.md, paddingHorizontal: DUO_SPACING.lg },
-  col: { flex: 1, gap: DUO_SPACING.sm },
+  header: {
+    flexDirection: "row", alignItems: "center", justifyContent: "space-between",
+    paddingHorizontal: DUO_SPACING.lg, paddingTop: DUO_SPACING.lg, paddingBottom: DUO_SPACING.sm,
+  },
+  title: { ...DUO_TYPO.h1, color: DUO.eel },
+  progressBadge: {
+    backgroundColor: DUO.green,
+    paddingHorizontal: DUO_SPACING.md, paddingVertical: 4,
+    borderRadius: 999,
+  },
+  progressTxt: { ...DUO_TYPO.h3, color: DUO.snow, fontSize: 14 },
+  gridWrap: {
+    flex: 1,
+    flexDirection: "row",
+    gap: DUO_SPACING.md,
+    paddingHorizontal: DUO_SPACING.lg,
+    paddingVertical: DUO_SPACING.sm,
+  },
+  col: { flex: 1, justifyContent: "space-around", gap: DUO_SPACING.sm },
+  tileSlot: { flex: 1 },
+  tile: {
+    flex: 1,
+    minHeight: 64,
+    borderWidth: 2,
+    borderRadius: DUO_RADIUS.lg,
+    paddingHorizontal: DUO_SPACING.md,
+    paddingVertical: DUO_SPACING.sm,
+    alignItems: "center",
+    justifyContent: "center",
+    position: "relative",
+  },
+  tileLabel: { ...DUO_TYPO.h3, textAlign: "center" },
+  tileSpeaker: {
+    position: "absolute", top: 6, right: 8,
+    width: 26, height: 26, borderRadius: 999,
+    alignItems: "center", justifyContent: "center",
+    backgroundColor: "rgba(28,176,246,0.12)",
+  },
 });
 
 // =====================================================================
