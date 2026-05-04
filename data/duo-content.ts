@@ -31,16 +31,29 @@ export type ExerciseType =
   | "tap-audio"
   | "match-pairs"
   | "select-image"
-  | "fill-blank";
+  | "fill-blank"
+  | "tip-card"     // yeni: gramer/kültür açıklaması
+  | "story";       // yeni: çok satırlı diyalog
+
+/**
+ * Bazı egzersizlerde optional `explanation` alanı yer alır.
+ * Yanlış cevap sonrası "Neden?" butonu basıldığında gösterilir
+ * (Duolingo'nun "Explain My Answer" özelliği).
+ */
+type WithExplanation = { explanation?: string };
 
 export type Exercise =
-  | { type: "new-word"; ku: string; tr: string; emoji: string; sample?: { ku: string; tr: string } }
-  | { type: "translate-ku-tr"; sentenceKu: string; sentenceTr: string; words: string[] }
-  | { type: "translate-tr-ku"; sentenceTr: string; sentenceKu: string; words: string[] }
-  | { type: "tap-audio"; audioKu: string; words: string[]; trHint?: string }
-  | { type: "match-pairs"; pairs: { ku: string; tr: string }[] }
-  | { type: "select-image"; ku: string; tr: string; options: { ku: string; tr: string; emoji: string }[]; correctIdx: number }
-  | { type: "fill-blank"; sentenceParts: [string, string]; options: string[]; correctIdx: number; trHint: string };
+  | ({ type: "new-word"; ku: string; tr: string; emoji: string; sample?: { ku: string; tr: string } } & WithExplanation)
+  | ({ type: "translate-ku-tr"; sentenceKu: string; sentenceTr: string; words: string[] } & WithExplanation)
+  | ({ type: "translate-tr-ku"; sentenceTr: string; sentenceKu: string; words: string[] } & WithExplanation)
+  | ({ type: "tap-audio"; audioKu: string; words: string[]; trHint?: string } & WithExplanation)
+  | ({ type: "match-pairs"; pairs: { ku: string; tr: string }[] } & WithExplanation)
+  | ({ type: "select-image"; ku: string; tr: string; options: { ku: string; tr: string; emoji: string }[]; correctIdx: number } & WithExplanation)
+  | ({ type: "fill-blank"; sentenceParts: [string, string]; options: string[]; correctIdx: number; trHint: string } & WithExplanation)
+  // Tip Card: gramer/kültür açıklaması, etkileşim yok, sadece "ANLADIM"
+  | { type: "tip-card"; emoji: string; title: string; bodyTr: string; example?: { ku: string; tr: string } }
+  // Story: çok satırlı bir diyalog, her satır KU + TR
+  | { type: "story"; title: string; lines: { ku: string; tr: string; speaker?: "A" | "B" | "narrator" }[] };
 
 export type DuoLesson = {
   id: string;
@@ -107,6 +120,17 @@ const tt = (sentenceTr: string, sentenceKu: string, distractors: string[] = []):
 // Kısa fabrika: Lesson
 const L = (id: string, title: string, subTitle: string, xp: number, exercises: Exercise[]): DuoLesson =>
   ({ id, title, subTitle, exercises, xp });
+
+// Tip card: gramer/kültür açıklaması — etkileşim yok, sadece okutma
+const tip = (emoji: string, title: string, bodyTr: string, example?: { ku: string; tr: string }): Exercise =>
+  ({ type: "tip-card", emoji, title, bodyTr, ...(example && { example }) });
+
+// Story: küçük diyalog — anlatım amacı
+const story = (title: string, lines: { ku: string; tr: string; speaker?: "A" | "B" | "narrator" }[]): Exercise =>
+  ({ type: "story", title, lines });
+
+// Egzersize açıklama eklemek için yardımcı (değiştirici)
+const ex = <E extends Exercise>(e: E, explanation: string): E => ({ ...e, explanation } as E);
 
 // =====================================================================
 //  SECTION 1 — A1 BAŞLANGIÇ (DESTPÊK)
@@ -205,6 +229,10 @@ const SECTION_A1: DuoSection = {
       objectives: ["6 kişi zamiri", "im / î / e / in çekimleri", "Olumsuz: ne"],
       lessons: [
         L("u2-l1", "Lesson 1", "Ben · sen · o", 12, [
+          tip("💡", "Kürtçe zamirleri",
+              "Türkçedeki gibi 6 zamir vardır. Ben/sen/o için Ez/Tu/Ew kullanılır. " +
+              "Cümlede özne bellidir, çünkü fiile ek gelir (-im, -î, -e).",
+              { ku: "Ez baş im. Tu baş î. Ew baş e.", tr: "Ben iyiyim. Sen iyisin. O iyidir." }),
           nw("Ez", "Ben", "🙋"),
           nw("Tu", "Sen", "👉"),
           nw("Ew", "O", "🧍"),
@@ -236,6 +264,11 @@ const SECTION_A1: DuoSection = {
           ta("Em", ["Em"], "Biz"),
         ]),
         L("u2-l3", "Lesson 3", "im · î · e (Olmak)", 14, [
+          tip("📐", "Olmak fiili (kop)",
+              "Türkçede '-im, -sin, -dir' eklerinin Kürtçe karşılığı:\n" +
+              "Ez ___ im (ben), Tu ___ î (sen), Ew ___ e (o)\n" +
+              "Sıfattan SONRA gelir — 'Ez baş im' = 'Ben iyi-yim'.",
+              { ku: "Ez Kurd im. Tu Tirk î. Ew baş e.", tr: "Ben Kürdüm. Sen Türksün. O iyidir." }),
           nw("im", "(ben) ...im", "👤", { ku: "Ez baş im.", tr: "Ben iyiyim." }),
           nw("î", "(sen) ...sin", "👤", { ku: "Tu Kurd î?", tr: "Sen Kürt müsün?" }),
           nw("e", "(o) ...dir", "👤", { ku: "Ew baş e.", tr: "O iyidir." }),
@@ -245,7 +278,8 @@ const SECTION_A1: DuoSection = {
             { ku: "Ew baş e", tr: "İyidir" },
             { ku: "Spas", tr: "Teşekkürler" },
           ),
-          fb(["Tu Kurd ", "?"], ["î", "im", "e", "in"], "Sen Kürt müsün?"),
+          ex(fb(["Tu Kurd ", "?"], ["î", "im", "e", "in"], "Sen Kürt müsün?"),
+             "'Tu' (sen) ile birlikte fiil eki '-î' olur. 'im' ben, 'e' o, 'in' biz/siz/onlar."),
           tt("Ben iyiyim.", "Ez baş im.", ["Tu", "Ew"]),
           ta("Ew baş e", ["Ew", "baş", "e"], "O iyidir"),
         ]),
@@ -481,6 +515,12 @@ const SECTION_A1: DuoSection = {
           ta("Kalik", ["Kalik"], "Dede"),
         ]),
         L("u5-l4", "Lesson 4", "Benim ailem (-ê min)", 14, [
+          tip("🔑", "Sahiplik (-ê min, -a min)",
+              "Türkçede 'annem' = 'anne+m'. Kürtçede sahiplik isimden SONRA + min ile yapılır.\n" +
+              "Eril (erkek): bav (baba) → bavê min (babam)\n" +
+              "Dişil (kadın): dayik (anne) → dayika min (annem)\n" +
+              "Sondaki -ê erkek için, -a kadın için kullanılır.",
+              { ku: "Dayika min mamoste ye. Bavê min bijîşk e.", tr: "Annem öğretmen. Babam doktor." }),
           nw("Dayika min", "Annem", "👩"),
           nw("Bavê min", "Babam", "👨"),
           nw("Birayê min", "Erkek kardeşim", "👦"),
@@ -641,6 +681,11 @@ const SECTION_A1: DuoSection = {
           ),
         ]),
         L("u7-l5", "Lesson 5", "Yeme/içme cümleleri", 14, [
+          tip("🍴", "SOV cümle yapısı",
+              "Kürtçe Özne-Nesne-Yüklem (SOV) sırasını kullanır — Türkçeye çok benzer!\n" +
+              "Ez (ben) + av (su) + vexwim (içiyorum) = 'Ben su içiyorum'\n" +
+              "Fiil her zaman cümle SONUNDA olur.",
+              { ku: "Ez nan dixwim.", tr: "Ben ekmek yiyorum." }),
           nw("Dixwim", "yiyorum", "🍴", { ku: "Ez nan dixwim.", tr: "Ben ekmek yiyorum." }),
           nw("Vexwim", "içiyorum", "🥤", { ku: "Ez av vexwim.", tr: "Ben su içiyorum." }),
           nw("Dixwazim", "istiyorum", "🙏", { ku: "Ez çay dixwazim.", tr: "Çay istiyorum." }),
@@ -1261,6 +1306,12 @@ const SECTION_B1: DuoSection = {
       objectives: ["Geçmiş zaman ekleri", "Yaygın geçmiş fiiller", "Olumsuz geçmiş", "Hikaye anlatımı"],
       lessons: [
         L("u16-l1", "Lesson 1", "Geçmişe giriş", 14, [
+          tip("📜", "Geçmiş zaman ergatiflik",
+              "Kürtçede geçmiş zamanın özel bir kuralı var: GEÇİŞSİZ fiillerde\n" +
+              "(çûn=gitmek, hatin=gelmek) öznesi normaldir: 'Ez çûm' = Ben gittim.\n" +
+              "Ama GEÇİŞLİ fiillerde (xwarin=yemek, dîtin=görmek) özne 'oblique' olur:\n" +
+              "'Min nan xwar' = 'Ben ekmek yedim' (Ez yerine Min!)",
+              { ku: "Ez çûm. Min nan xwar.", tr: "Ben gittim. Ben ekmek yedim." }),
           nw("Çûm", "Gittim", "✈️", { ku: "Ez çûm bajar.", tr: "Şehre gittim." }),
           nw("Hatim", "Geldim", "🚶"),
           nw("Xwarim", "Yedim", "🍴"),
@@ -1465,6 +1516,13 @@ const SECTION_B1: DuoSection = {
       objectives: ["Hikaye dinleme", "Karakterler", "Anlama soruları"],
       lessons: [
         L("u19-l1", "Lesson 1", "Köyde sabah", 16, [
+          story("Köyde Bir Sabah", [
+            { speaker: "narrator", ku: "Li gundekî biçûk, sibê zû.", tr: "Küçük bir köyde, sabah erkenden." },
+            { speaker: "narrator", ku: "Roj derket. Mirîşkan şiyar bûn.", tr: "Güneş doğdu. Tavuklar uyandı." },
+            { speaker: "A", ku: "Dayê, ez birçî me!", tr: "Anne, açım!" },
+            { speaker: "B", ku: "Were, ez ji te re nan û şîr bidim.", tr: "Gel, sana ekmek ve süt vereyim." },
+            { speaker: "narrator", ku: "Zarok kêfxweş bû.", tr: "Çocuk mutlu oldu." },
+          ]),
           nw("Gund", "Köy", "🏘️"),
           nw("Sibê", "Sabah", "🌅"),
           nw("Roj derket", "Güneş doğdu", "☀️"),

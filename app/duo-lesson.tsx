@@ -18,7 +18,7 @@ export default function DuoLessonScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const ctx = useApp();
   const [phase, setPhase] = useState<"playing" | "done">("playing");
-  const [result, setResult] = useState<{ xp: number; perfect: boolean }>({ xp: 0, perfect: true });
+  const [result, setResult] = useState<{ xp: number; perfect: boolean; maxCombo: number }>({ xp: 0, perfect: true, maxCombo: 0 });
 
   const found = id ? findLessonById(id) : null;
   if (!found) {
@@ -35,6 +35,7 @@ export default function DuoLessonScreen() {
       <LessonComplete
         xp={result.xp}
         perfect={result.perfect}
+        maxCombo={result.maxCombo}
         onHome={() => router.replace("/duo-path")}
       />
     );

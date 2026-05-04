@@ -91,7 +91,7 @@ const { width: SW } = Dimensions.get("window");
 //  TOP BAR — X + progress + kalp sayacı
 // =====================================================================
 
-function TopBar({ progress, hearts, onClose }: { progress: number; hearts: number; onClose: () => void }) {
+function TopBar({ progress, hearts, combo, onClose }: { progress: number; hearts: number; combo: number; onClose: () => void }) {
   return (
     <View style={topS.wrap}>
       <Pressable onPress={onClose} hitSlop={10}>
@@ -100,6 +100,12 @@ function TopBar({ progress, hearts, onClose }: { progress: number; hearts: numbe
       <View style={topS.barTrack}>
         <View style={[topS.barFill, { width: `${Math.max(0, Math.min(100, progress * 100))}%` }]} />
       </View>
+      {combo >= 3 && (
+        <View style={topS.combo}>
+          <Text style={topS.comboIcon}>🔥</Text>
+          <Text style={topS.comboTxt}>×{combo}</Text>
+        </View>
+      )}
       <View style={topS.heart}>
         <Text style={topS.heartIcon}>❤️</Text>
         <Text style={topS.heartTxt}>{hearts}</Text>
@@ -120,6 +126,14 @@ const topS = StyleSheet.create({
   heart: { flexDirection: "row", alignItems: "center", gap: 4 },
   heartIcon: { fontSize: 18 },
   heartTxt: { ...DUO_TYPO.h3, color: DUO.cardinal },
+  combo: {
+    flexDirection: "row", alignItems: "center", gap: 2,
+    backgroundColor: DUO.fox + "22",
+    paddingHorizontal: 8, paddingVertical: 4,
+    borderRadius: 999,
+  },
+  comboIcon: { fontSize: 14 },
+  comboTxt: { ...DUO_TYPO.h3, color: DUO.fox, fontSize: 14 },
 });
 
 // =====================================================================
@@ -127,13 +141,17 @@ const topS = StyleSheet.create({
 // =====================================================================
 
 function FeedbackBar({
-  state, correctAnswer, onContinue, lang,
+  state, correctAnswer, explanation, onContinue, lang,
 }: {
   state: "idle" | "correct" | "wrong";
   correctAnswer?: string;
+  explanation?: string;
   onContinue: () => void;
   lang: LangCode;
 }) {
+  const [showExplanation, setShowExplanation] = useState(false);
+  // Sıfırla yeni soruda
+  useEffect(() => { if (state === "idle") setShowExplanation(false); }, [state]);
   // Slide-in animasyonu — Duolingo'nun imzası
   const slide = useSharedValue(state === "idle" ? 100 : 0);
   // Mesajları state değişiminde stabil tut (sürekli rastgelelenmesin)
@@ -177,6 +195,19 @@ function FeedbackBar({
               <Text style={[fbS.correctTxt, { color: fg }]}>{tx(lang, correctAnswer)}</Text>
             </>
           )}
+          {/* Açıkla butonu — sadece yanlışta + explanation varsa */}
+          {!isCorrect && explanation && !showExplanation && (
+            <Pressable onPress={() => setShowExplanation(true)} style={fbS.explainBtn}>
+              <Text style={fbS.explainBtnTxt}>
+                💡 {lang === "en" ? "Explain" : lang === "ku" ? "Şîrove bike" : "Açıkla"}
+              </Text>
+            </Pressable>
+          )}
+          {showExplanation && explanation && (
+            <View style={fbS.explainBox}>
+              <Text style={fbS.explainTxt}>{explanation}</Text>
+            </View>
+          )}
         </View>
       </View>
       <DuoButton
@@ -199,6 +230,22 @@ const fbS = StyleSheet.create({
   title: { ...DUO_TYPO.h1 },
   correctLbl: { ...DUO_TYPO.caption, marginTop: 4 },
   correctTxt: { ...DUO_TYPO.h3, marginTop: 2 },
+  explainBtn: {
+    marginTop: DUO_SPACING.sm,
+    backgroundColor: "rgba(255,255,255,0.6)",
+    paddingHorizontal: DUO_SPACING.md, paddingVertical: 6,
+    borderRadius: 999,
+    alignSelf: "flex-start",
+  },
+  explainBtnTxt: { ...DUO_TYPO.body, color: DUO.eel, fontSize: 13 },
+  explainBox: {
+    marginTop: DUO_SPACING.sm,
+    backgroundColor: "rgba(255,255,255,0.7)",
+    padding: DUO_SPACING.md,
+    borderRadius: DUO_RADIUS.md,
+    borderLeftWidth: 3, borderLeftColor: DUO.bee,
+  },
+  explainTxt: { ...DUO_TYPO.body, color: DUO.eel, lineHeight: 20 },
 });
 
 // =====================================================================
@@ -233,6 +280,114 @@ function NewWordSlide({ ex, onContinue, lang }: { ex: Extract<Exercise, { type: 
     </View>
   );
 }
+
+// =====================================================================
+//  EX 8: TIP CARD — gramer/kültür açıklaması
+// =====================================================================
+
+function TipCardSlide({ ex, onContinue, lang }: { ex: Extract<Exercise, { type: "tip-card" }>; onContinue: () => void; lang: LangCode }) {
+  return (
+    <View style={tcS.wrap}>
+      <Text style={tcS.label}>
+        💡 {lang === "en" ? "GRAMMAR TIP" : lang === "ku" ? "ŞÎROVA RÊZIMANÊ" : "GRAMER İPUCU"}
+      </Text>
+      <View style={tcS.card}>
+        <Text style={tcS.emoji}>{ex.emoji}</Text>
+        <Text style={tcS.title}>{ex.title}</Text>
+        <Text style={tcS.body}>{tx(lang, ex.bodyTr)}</Text>
+        {ex.example && (
+          <View style={tcS.example}>
+            <Text style={tcS.exampleKu}>"{ex.example.ku}"</Text>
+            <Text style={tcS.exampleTr}>{tx(lang, ex.example.tr)}</Text>
+          </View>
+        )}
+      </View>
+      <View style={{ flex: 1 }} />
+      <View style={{ padding: DUO_SPACING.lg, paddingBottom: 28 }}>
+        <DuoButton label={ui("iGotIt", lang)} onPress={onContinue} />
+      </View>
+    </View>
+  );
+}
+
+const tcS = StyleSheet.create({
+  wrap: { flex: 1 },
+  label: { ...DUO_TYPO.micro, color: DUO.bee, textAlign: "center", marginTop: DUO_SPACING.lg, letterSpacing: 1.5 },
+  card: {
+    margin: DUO_SPACING.lg,
+    backgroundColor: "#FFF8E1",  // sarımsı krem (ipucu hissi)
+    borderWidth: 2, borderColor: DUO.bee,
+    borderBottomWidth: 4,
+    borderRadius: DUO_RADIUS.xl,
+    padding: DUO_SPACING.xl,
+    gap: DUO_SPACING.md,
+  },
+  emoji: { fontSize: 56, alignSelf: "center" },
+  title: { ...DUO_TYPO.h1, color: DUO.eel, textAlign: "center" },
+  body: { ...DUO_TYPO.body, color: DUO.eel, lineHeight: 22, fontSize: 15 },
+  example: {
+    marginTop: DUO_SPACING.sm,
+    padding: DUO_SPACING.md,
+    backgroundColor: "rgba(255,255,255,0.8)",
+    borderRadius: DUO_RADIUS.md,
+    borderLeftWidth: 3, borderLeftColor: DUO.macaw,
+  },
+  exampleKu: { ...DUO_TYPO.h3, color: DUO.eel, fontStyle: "italic" },
+  exampleTr: { ...DUO_TYPO.body, color: DUO.wolf, marginTop: 4 },
+});
+
+// =====================================================================
+//  EX 9: STORY — diyalog anlatımı
+// =====================================================================
+
+function StorySlide({ ex, onContinue, lang }: { ex: Extract<Exercise, { type: "story" }>; onContinue: () => void; lang: LangCode }) {
+  return (
+    <View style={stS.wrap}>
+      <Text style={stS.label}>
+        📖 {lang === "en" ? "STORY" : lang === "ku" ? "ÇÎROK" : "HİKAYE"}
+      </Text>
+      <Text style={stS.title}>{ex.title}</Text>
+      <ScrollView style={{ flex: 1 }} contentContainerStyle={stS.scroll}>
+        {ex.lines.map((line, i) => {
+          const isNarrator = line.speaker === "narrator";
+          const isA = line.speaker === "A";
+          const align = isNarrator ? "center" : isA ? "flex-start" : "flex-end";
+          const bg = isNarrator ? "rgba(0,0,0,0.04)" : isA ? "#E1F5FE" : "#F3E5F5";
+          const speakerEmoji = isA ? "👦" : line.speaker === "B" ? "👩" : "📜";
+          return (
+            <View key={i} style={[stS.bubble, { alignSelf: align as "flex-start", backgroundColor: bg, maxWidth: "85%" }]}>
+              {!isNarrator && <Text style={stS.speaker}>{speakerEmoji}</Text>}
+              <Pressable onPress={() => speakKurmanci(line.ku, "kid")} style={stS.kuRow}>
+                <Text style={stS.lineKu}>{line.ku}</Text>
+                <Text style={{ fontSize: 16, marginLeft: 6 }}>🔊</Text>
+              </Pressable>
+              <Text style={stS.lineTr}>{tx(lang, line.tr)}</Text>
+            </View>
+          );
+        })}
+      </ScrollView>
+      <View style={{ padding: DUO_SPACING.lg, paddingBottom: 28 }}>
+        <DuoButton label={ui("iGotIt", lang)} onPress={onContinue} />
+      </View>
+    </View>
+  );
+}
+
+const stS = StyleSheet.create({
+  wrap: { flex: 1 },
+  label: { ...DUO_TYPO.micro, color: DUO.beetle, textAlign: "center", marginTop: DUO_SPACING.lg, letterSpacing: 1.5 },
+  title: { ...DUO_TYPO.h1, color: DUO.eel, textAlign: "center", marginTop: 4 },
+  scroll: { padding: DUO_SPACING.lg, gap: DUO_SPACING.sm },
+  bubble: {
+    paddingHorizontal: DUO_SPACING.md, paddingVertical: DUO_SPACING.sm,
+    borderRadius: DUO_RADIUS.lg,
+    gap: 4,
+  },
+  speaker: { fontSize: 20 },
+  kuRow: { flexDirection: "row", alignItems: "center" },
+  lineKu: { ...DUO_TYPO.h3, color: DUO.eel },
+  lineTr: { ...DUO_TYPO.body, color: DUO.wolf, fontStyle: "italic" },
+});
 
 const nwS = StyleSheet.create({
   wrap: { flex: 1 },
@@ -672,7 +827,7 @@ const fbExS = StyleSheet.create({
 type Props = {
   lesson: DuoLesson;
   onClose: () => void;
-  onComplete: (result: { xp: number; perfect: boolean }) => void;
+  onComplete: (result: { xp: number; perfect: boolean; maxCombo: number }) => void;
 };
 
 export function LessonPlayer({ lesson, onClose, onComplete }: Props) {
@@ -684,7 +839,11 @@ export function LessonPlayer({ lesson, onClose, onComplete }: Props) {
   const [hearts, setHearts] = useState(5);
   const [answerState, setAnswerState] = useState<"idle" | "correct" | "wrong">("idle");
   const [lastCorrectAnswer, setLastCorrectAnswer] = useState<string>("");
+  const [lastExplanation, setLastExplanation] = useState<string | undefined>(undefined);
   const [perfect, setPerfect] = useState(true);
+  // Combo: ardışık doğru sayacı + zirvedeki combo (XP bonusu için)
+  const [currentCombo, setCurrentCombo] = useState(0);
+  const [maxCombo, setMaxCombo] = useState(0);
   const totalToComplete = lesson.exercises.length;
   const currentEx = queue[completed];
 
@@ -702,8 +861,13 @@ export function LessonPlayer({ lesson, onClose, onComplete }: Props) {
   }
 
   if (!currentEx) {
-    // Tüm egzersizler bitti
-    setTimeout(() => onComplete({ xp: lesson.xp + (perfect ? 5 : 0), perfect }), 0);
+    // Tüm egzersizler bitti — combo bonusu hesapla
+    const comboBonus =
+      maxCombo >= 10 ? 15 :
+      maxCombo >= 6  ? 10 :
+      maxCombo >= 3  ? 5  : 0;
+    const totalXp = lesson.xp + (perfect ? 5 : 0) + comboBonus;
+    setTimeout(() => onComplete({ xp: totalXp, perfect, maxCombo }), 0);
     return null;
   }
 
@@ -713,11 +877,16 @@ export function LessonPlayer({ lesson, onClose, onComplete }: Props) {
     if (ok) {
       playFx("success");
       setAnswerState("correct");
+      // Combo arttır
+      const nextCombo = currentCombo + 1;
+      setCurrentCombo(nextCombo);
+      if (nextCombo > maxCombo) setMaxCombo(nextCombo);
     } else {
       playFx("fail");
       setHearts(h => h - 1);
       setPerfect(false);
       setAnswerState("wrong");
+      setCurrentCombo(0);  // combo kırıldı
       setQueue(q => [...q, currentEx]);
       const correctAns =
         currentEx.type === "translate-ku-tr" ? currentEx.sentenceTr :
@@ -727,18 +896,31 @@ export function LessonPlayer({ lesson, onClose, onComplete }: Props) {
         currentEx.type === "fill-blank" ? currentEx.options[currentEx.correctIdx] :
         "";
       setLastCorrectAnswer(correctAns);
+      // Açıklama varsa al
+      const exp = (currentEx as any).explanation as string | undefined;
+      setLastExplanation(exp);
     }
   };
 
   const handleContinue = () => {
     setAnswerState("idle");
     setLastCorrectAnswer("");
+    setLastExplanation(undefined);
+    setCompleted(c => c + 1);
+  };
+
+  // tip-card ve story → "doğru" gibi sayılır (etkileşim yok), combo'yu kırmaz/değiştirmez
+  const passNonInteractive = () => {
     setCompleted(c => c + 1);
   };
 
   // === EGZERSİZ RENDER ===
   let body: React.ReactNode = null;
-  if (currentEx.type === "new-word") {
+  if (currentEx.type === "tip-card") {
+    body = <TipCardSlide ex={currentEx} onContinue={passNonInteractive} lang={lang} />;
+  } else if (currentEx.type === "story") {
+    body = <StorySlide ex={currentEx} onContinue={passNonInteractive} lang={lang} />;
+  } else if (currentEx.type === "new-word") {
     body = <NewWordSlide ex={currentEx} onContinue={handleContinue} lang={lang} />;
   } else if (currentEx.type === "translate-ku-tr") {
     // KU → kullanıcı dili: word bank UI dilinde gösterilsin (TR'yi EN'e çevir)
@@ -786,9 +968,15 @@ export function LessonPlayer({ lesson, onClose, onComplete }: Props) {
 
   return (
     <View style={mainS.root}>
-      <TopBar progress={progress} hearts={hearts} onClose={onClose} />
+      <TopBar progress={progress} hearts={hearts} combo={currentCombo} onClose={onClose} />
       <View style={{ flex: 1 }}>{body}</View>
-      <FeedbackBar state={answerState} correctAnswer={lastCorrectAnswer} onContinue={handleContinue} lang={lang} />
+      <FeedbackBar
+        state={answerState}
+        correctAnswer={lastCorrectAnswer}
+        explanation={lastExplanation}
+        onContinue={handleContinue}
+        lang={lang}
+      />
     </View>
   );
 }
@@ -808,14 +996,16 @@ const dontS = StyleSheet.create({
 // =====================================================================
 
 export function LessonComplete({
-  xp, perfect, onHome,
+  xp, perfect, maxCombo, onHome,
 }: {
   xp: number;
   perfect: boolean;
+  maxCombo?: number;
   onHome: () => void;
 }) {
   const ctx = useApp();
   const lang: LangCode = (ctx.lang as LangCode) ?? "tr";
+  const showCombo = (maxCombo ?? 0) >= 3;
   return (
     <View style={cS.wrap}>
       <Confetti visible count={50} duration={2200} />
@@ -837,6 +1027,15 @@ export function LessonComplete({
             <View style={cS.xpVal}>
               <Text style={cS.xpEmoji}>🏆</Text>
               <Text style={[cS.xpNum, { color: DUO.eel }]}>+5</Text>
+            </View>
+          </View>
+        )}
+        {showCombo && (
+          <View style={[cS.xpBox, { backgroundColor: DUO.fox }]}>
+            <Text style={[cS.xpLabel, { color: DUO.snow }]}>COMBO</Text>
+            <View style={cS.xpVal}>
+              <Text style={cS.xpEmoji}>🔥</Text>
+              <Text style={cS.xpNum}>×{maxCombo}</Text>
             </View>
           </View>
         )}

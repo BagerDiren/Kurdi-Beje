@@ -129,6 +129,11 @@ function ExerciseView({ ex, onResult, lang }: { ex: Exercise; onResult: (ok: boo
   if (ex.type === "translate-tr-ku") return <TranslateEx ex={ex} dir="tr-ku" onResult={onResult} lang={lang} />;
   if (ex.type === "translate-ku-tr") return <TranslateEx ex={ex} dir="ku-tr" onResult={onResult} lang={lang} />;
   if (ex.type === "tap-audio") return <TapAudioEx ex={ex} onResult={onResult} lang={lang} />;
+  // tip-card ve story practice modunda atlanır (otomatik geç)
+  if (ex.type === "tip-card" || ex.type === "story") {
+    setTimeout(() => onResult(true), 50);
+    return null;
+  }
   // Yeni kelime intro
   if (ex.type === "new-word") {
     return (
