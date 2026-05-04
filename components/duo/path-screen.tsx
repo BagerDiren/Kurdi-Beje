@@ -34,7 +34,7 @@ const { width: SW } = Dimensions.get("window");
 const NODE_SIZE = 72;
 const ZIG_OFFSETS = [0, 50, 80, 50, 0, -50, -80, -50];
 
-type NodeStatus = "done" | "active" | "locked";
+type NodeStatus = "done" | "active" | "available";
 
 type Props = {
   completedLessonIds: Set<string>;
@@ -64,7 +64,7 @@ export function PathScreen({ completedLessonIds, hearts, xp, streak, audience, o
   const nodeStatus = (lessonId: string): NodeStatus => {
     if (completedLessonIds.has(lessonId)) return "done";
     if (lessonId === activeLessonId) return "active";
-    return "locked";
+    return "available";  // ← kilit yok, hepsine basılabilir
   };
 
   return (
@@ -201,12 +201,12 @@ function PathNode({
   }));
 
   // Renk ve içerik
-  let bg = DUO.swan;
-  let bottom = DUO.hare;
-  let icon = "🔒";
-  let textColor = DUO.hare;
-  if (status === "done")   { bg = DUO.bee;     bottom = DUO.beeDark;     icon = "⭐"; textColor = DUO.eel; }
-  if (status === "active") { bg = unitColor;   bottom = DUO.greenDark;   icon = "▶"; textColor = DUO.snow; }
+  let bg = unitColor + "33";          // available = ünite renginin %20 transparan tonu
+  let bottom = unitColor + "88";
+  let icon = "⭐";
+  let textColor = unitColor;
+  if (status === "done")   { bg = DUO.bee;     bottom = DUO.beeDark;        icon = "⭐"; textColor = DUO.eel; }
+  if (status === "active") { bg = unitColor;   bottom = unitColor + "CC";   icon = "▶"; textColor = DUO.snow; }
 
   return (
     <View style={[pS.nodeWrap, { transform: [{ translateX: offset }] }]}>
@@ -218,8 +218,7 @@ function PathNode({
           </View>
         )}
         <Pressable
-          onPress={status === "locked" ? undefined : onPress}
-          disabled={status === "locked"}
+          onPress={onPress}
           style={({ pressed }) => [
             pS.node,
             {

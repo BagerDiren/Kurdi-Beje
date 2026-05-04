@@ -73,6 +73,26 @@ export default function TabsLayout() {
           ),
         }}
       />
+      {/* Çocuk için: Çizgi Film · Yetişkin için: gizli */}
+      <Tabs.Screen
+        name="cartoons"
+        options={{
+          href: isKid ? "/cartoons" : null,
+          tabBarIcon: ({ focused }) => (
+            <TabIcon icon="📺" label={isKid ? "Çizgi" : "ÇİZGİ"} focused={focused} isKid={isKid} />
+          ),
+        }}
+      />
+      {/* Yetişkin için: Pratik · Çocuk için: gizli */}
+      <Tabs.Screen
+        name="practice"
+        options={{
+          href: isKid ? null : "/practice",
+          tabBarIcon: ({ focused }) => (
+            <TabIcon icon="🎯" label={isKid ? "Pratik" : "PRATİK"} focused={focused} isKid={isKid} />
+          ),
+        }}
+      />
       <Tabs.Screen
         name="league"
         options={{
@@ -89,7 +109,7 @@ export default function TabsLayout() {
           ),
         }}
       />
-      {/* Eski games tab'i kaldırıldı — Duolingo modeline geçildi */}
+      {/* Eski games tab'i kaldırıldı */}
       <Tabs.Screen name="games" options={{ href: null }} />
     </Tabs>
   );
