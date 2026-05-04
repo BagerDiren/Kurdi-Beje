@@ -19,7 +19,7 @@ import { Confetti } from "@/components/kids/confetti";
 import { useApp } from "@/data/app-context";
 import { playFx } from "@/data/sound-fx";
 import {
-  PLACEMENT_TEST, computePlacement, lessonsToMarkComplete,
+  PLACEMENT_TEST, computePlacement, lessonsInSections,
   type PtQuestion,
 } from "@/data/placement-test";
 import { DUO_SECTIONS } from "@/data/duo-content";
@@ -85,21 +85,14 @@ export default function PlacementScreen() {
 
   const finish = () => {
     const result = computePlacement(score, total);
-    // Tüm lesson ID'leri çek
-    const allLessonIds: string[] = [];
-    for (const sec of DUO_SECTIONS) {
-      for (const u of sec.units) {
-        for (const l of u.lessons) {
-          allLessonIds.push(l.id);
-        }
-      }
-    }
-    const toMark = lessonsToMarkComplete(result.prefilledLessonPrefixes, allLessonIds);
-    // BULK update — atomik, state kaybı yok
+    // Section ID'lerinden tüm lesson ID'lerini çek (yeni ünite eklenince
+    // otomatik dahil — eski prefix mantığı u8b/u15b/vs. kaçırıyordu).
+    const toMark = lessonsInSections(result.prefilledSections, DUO_SECTIONS);
+    // BULK atomik update
     if (toMark.length > 0) {
       ctx.markLessonsBulkDone?.(toMark);
     }
-    // State commit'in tamamlanması için tick bekle, sonra navigate
+    // State commit + navigate
     setTimeout(() => router.replace("/(tabs)"), 80);
   };
 
@@ -131,6 +124,12 @@ export default function PlacementScreen() {
   if (phase === "done") {
     const result = computePlacement(score, total);
     const msgKey = lang === "en" ? "startMessageEn" : lang === "ku" ? "startMessageKu" : "startMessage";
+    // Atlanacak ders sayısı — kullanıcı için netlik
+    const skipCount = lessonsInSections(result.prefilledSections, DUO_SECTIONS).length;
+    const skipLabel =
+      lang === "en" ? `${skipCount} lessons will be marked complete`
+      : lang === "ku" ? `${skipCount} ders dê wek qediya were nîşan kirin`
+      : `${skipCount} ders otomatik tamamlanacak`;
     return (
       <View style={s.root}>
         <Confetti visible count={50} duration={2200} />
@@ -144,6 +143,11 @@ export default function PlacementScreen() {
               <Text style={s.levelCefr}>{result.cefr}</Text>
             </View>
             <Text style={s.resultMsg}>{result[msgKey as keyof typeof result] as string}</Text>
+            {skipCount > 0 && (
+              <View style={s.skipInfo}>
+                <Text style={s.skipInfoTxt}>✅ {skipLabel}</Text>
+              </View>
+            )}
             <View style={{ width: "100%", marginTop: DUO_SPACING.xxl }}>
               <DuoButton label={u("goLearn", lang)} onPress={finish} />
             </View>
@@ -310,4 +314,12 @@ const s = StyleSheet.create({
     ...DUO_TYPO.body, color: DUO.wolf, textAlign: "center",
     marginTop: DUO_SPACING.xl, paddingHorizontal: DUO_SPACING.lg,
   },
+  skipInfo: {
+    marginTop: DUO_SPACING.lg,
+    backgroundColor: "#D7FFB8",
+    paddingHorizontal: DUO_SPACING.lg, paddingVertical: DUO_SPACING.sm,
+    borderRadius: DUO_RADIUS.md,
+    borderWidth: 1, borderColor: DUO.green,
+  },
+  skipInfoTxt: { ...DUO_TYPO.body, color: DUO.treeGreen, fontSize: 13 },
 });

@@ -183,11 +183,16 @@ export type PlacementResult = {
   startMessage: string;
   startMessageEn: string;
   startMessageKu: string;
-  prefilledLessonPrefixes: string[];
+  /**
+   * Tamamlanmış işaretlenecek section ID'leri.
+   * "s1"=A1, "s2"=A2, "s3"=B1, "s4"=B2.
+   * Yeni ünite eklenince fragile prefix listesi yerine sağlam.
+   */
+  prefilledSections: string[];
 };
 
 export function computePlacement(score: number, total: number): PlacementResult {
-  // 11-12 → B2
+  // 11-12 → B2: A1+A2+B1 hepsi atlanır, B2'den başla
   if (score >= 11) {
     return {
       score, total,
@@ -195,17 +200,10 @@ export function computePlacement(score: number, total: number): PlacementResult 
       startMessage: "Etkileyici! B2 (Üst-Orta) seviyeden başlayabilirsin.",
       startMessageEn: "Impressive! You can start from B2 (Upper-Intermediate).",
       startMessageKu: "Karekî baş! Tu dikarî ji asta B2 dest pê bikî.",
-      prefilledLessonPrefixes: [
-        // tüm A1 (8 ünite)
-        "u1-", "u2-", "u3-", "u4-", "u5-", "u6-", "u7-", "u8-",
-        // tüm A2 (7 ünite)
-        "u9-", "u10-", "u11-", "u12-", "u13-", "u14-", "u15-",
-        // tüm B1 (4 ünite)
-        "u16-", "u17-", "u18-", "u19-",
-      ],
+      prefilledSections: ["s1", "s2", "s3"],
     };
   }
-  // 9-10 → B1
+  // 9-10 → B1: A1+A2 atlanır, B1'den başla
   if (score >= 9) {
     return {
       score, total,
@@ -213,13 +211,10 @@ export function computePlacement(score: number, total: number): PlacementResult 
       startMessage: "Mükemmel! B1 (Orta) seviyeden başlayabilirsin.",
       startMessageEn: "Excellent! You can start from B1 (Intermediate).",
       startMessageKu: "Bêkêmasî! Tu dikarî ji asta B1 dest pê bikî.",
-      prefilledLessonPrefixes: [
-        "u1-", "u2-", "u3-", "u4-", "u5-", "u6-", "u7-", "u8-",
-        "u9-", "u10-", "u11-", "u12-", "u13-", "u14-", "u15-",
-      ],
+      prefilledSections: ["s1", "s2"],
     };
   }
-  // 6-8 → A2
+  // 6-8 → A2: A1 atlanır
   if (score >= 6) {
     return {
       score, total,
@@ -227,20 +222,19 @@ export function computePlacement(score: number, total: number): PlacementResult 
       startMessage: "İyi gidiyorsun. A2 (Temel) seviyeden devam et.",
       startMessageEn: "Nice work. You can continue from A2 (Elementary).",
       startMessageKu: "Baş diçî. Tu dikarî ji asta A2 berdewam bikî.",
-      prefilledLessonPrefixes: [
-        "u1-", "u2-", "u3-", "u4-", "u5-", "u6-", "u7-", "u8-",
-      ],
+      prefilledSections: ["s1"],
     };
   }
-  // 3-5 → A1 ileri
+  // 3-5 → A1 ileri: hiçbir section tam, ama yarıdan başla (path screen halleder)
+  // Şimdilik hiç işaretleme yapmıyoruz — kullanıcı path'te görür
   if (score >= 3) {
     return {
       score, total,
       cefr: "A1",
-      startMessage: "Temellerin var. A1'in ortasından başlayalım.",
-      startMessageEn: "You have the basics. Let's start from middle of A1.",
-      startMessageKu: "Bingehên te hene. Em ji nava A1 dest pê bikin.",
-      prefilledLessonPrefixes: ["u1-", "u2-", "u3-", "u4-"],
+      startMessage: "Temellerin var. A1'den dikkatlice ilerle.",
+      startMessageEn: "You have the basics. Move through A1 carefully.",
+      startMessageKu: "Bingehên te hene. Bi xwe-baweriyê di A1 de berdewam bike.",
+      prefilledSections: [],
     };
   }
   // 0-2 → A1 sıfırdan
@@ -250,11 +244,27 @@ export function computePlacement(score: number, total: number): PlacementResult 
     startMessage: "Sıfırdan güzel bir yolculuk başlıyor!",
     startMessageEn: "Starting fresh from the beginning!",
     startMessageKu: "Ji destpêkê rêwîtiyek xweş dest pê dike!",
-    prefilledLessonPrefixes: [],
+    prefilledSections: [],
   };
 }
 
-export function lessonsToMarkComplete(prefixes: string[], allLessonIds: string[]): string[] {
-  if (prefixes.length === 0) return [];
-  return allLessonIds.filter((id) => prefixes.some((p) => id.startsWith(p)));
+/**
+ * Section ID listesinden o section'lardaki tüm lesson ID'lerini çek.
+ * Yeni ünite eklenince otomatik dahil — prefix listesi gibi fragile değil.
+ */
+export function lessonsInSections(
+  sectionIds: string[],
+  sections: { id: string; units: { lessons: { id: string }[] }[] }[],
+): string[] {
+  if (sectionIds.length === 0) return [];
+  const out: string[] = [];
+  for (const sec of sections) {
+    if (!sectionIds.includes(sec.id)) continue;
+    for (const u of sec.units) {
+      for (const l of u.lessons) {
+        out.push(l.id);
+      }
+    }
+  }
+  return out;
 }
