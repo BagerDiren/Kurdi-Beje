@@ -37,20 +37,13 @@ export default function RootLayout() {
           <Stack.Screen name="onboarding/language" />
           <Stack.Screen name="onboarding/level" />
           <Stack.Screen name="(tabs)" />
+          <Stack.Screen name="duo-path" />
+          <Stack.Screen name="duo-lesson" />
           <Stack.Screen name="lesson" />
-          <Stack.Screen name="game" />
           <Stack.Screen name="goals" />
           <Stack.Screen name="category" />
           <Stack.Screen name="achievements" />
           <Stack.Screen name="practice" />
-          <Stack.Screen name="kids-lesson" />
-          <Stack.Screen name="balloon-game" />
-          <Stack.Screen name="rocket-game" />
-          <Stack.Screen name="cartoons" />
-          <Stack.Screen name="quick-match" />
-          <Stack.Screen name="farm-game" />
-          <Stack.Screen name="drag-match" />
-          <Stack.Screen name="kevo" />
         </Stack>
         <StatusBar style="auto" />
       </AppProvider>

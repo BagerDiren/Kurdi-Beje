@@ -74,14 +74,6 @@ export default function TabsLayout() {
         }}
       />
       <Tabs.Screen
-        name="games"
-        options={{
-          tabBarIcon: ({ focused }) => (
-            <TabIcon icon="🎮" label={isKid ? "Oyun" : "OYUN"} focused={focused} isKid={isKid} />
-          ),
-        }}
-      />
-      <Tabs.Screen
         name="league"
         options={{
           tabBarIcon: ({ focused }) => (
@@ -97,6 +89,8 @@ export default function TabsLayout() {
           ),
         }}
       />
+      {/* Eski games tab'i kaldırıldı — Duolingo modeline geçildi */}
+      <Tabs.Screen name="games" options={{ href: null }} />
     </Tabs>
   );
 }

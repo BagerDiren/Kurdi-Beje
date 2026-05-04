@@ -1,13 +1,11 @@
 /**
- * Ana sekme: Duolingo zigzag öğrenme yolu (PathScreen).
- *
- * Kullanıcı bir lesson node'una bastığında /duo-lesson?id=... rotasına gider.
+ * /duo-path — Duolingo zigzag öğrenme yolu (ana ekran).
  */
 import { router } from "expo-router";
 import { PathScreen } from "@/components/duo/path-screen";
 import { useApp } from "@/data/app-context";
 
-export default function HomeTab() {
+export default function DuoPathScreen() {
   const ctx = useApp();
   const completedLessonIds = new Set(ctx.completed ?? []);
 
