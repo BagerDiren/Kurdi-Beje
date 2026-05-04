@@ -916,6 +916,152 @@ const SECTION_A1: DuoSection = {
         ]),
       ],
     },
+    // ─────────────────────────────────────────────────────
+    // UNIT 8e: 🎵 ŞARKI ZAMANI — Kid-only (Zarok TV ilhamı)
+    // ─────────────────────────────────────────────────────
+    {
+      id: "u8e", no: 8.85, title: "Şarkı Zamanı", subtitle: "Stranên zarokan · şarkıyla öğren",
+      emoji: "🎵", color: "#FF6B9D", track: "kid",
+      objectives: ["Alfabe şarkısı", "Sayma şarkısı", "Renkler şarkısı"],
+      lessons: [
+        L("u8e-l1", "Lesson 1", "Alfabe şarkısı", 10, [
+          tip("🔤", "Kürtçe alfabe (31 harf)",
+              "Kurmancî alfabesi 31 harften oluşur. Türkçeye benzer ama:\n" +
+              "• Q, X, W harfleri var (Türkçede yok)\n" +
+              "• Î, Û, Ê uzun ünlüleridir\n" +
+              "• Ç, Ş, J Türkçe ile aynı",
+              { ku: "A B C Ç D E Ê F G H I Î J K L M N O P Q R S Ş T U Û V W X Y Z", tr: "Kurmancî alfabe 31 harf" }),
+          nw("A", "A harfi", "🅰️"),
+          nw("B", "B harfi", "🅱️"),
+          nw("Ê", "Ê (uzun e)", "🆔"),
+          nw("Q", "Q (gırtlak)", "🆘"),
+          mp(
+            { ku: "A — Av", tr: "A — Su" },
+            { ku: "B — Bav", tr: "B — Baba" },
+            { ku: "Ç — Çav", tr: "Ç — Göz" },
+            { ku: "D — Dest", tr: "D — El" },
+          ),
+          ta("A B C Ç", ["A", "B", "C", "Ç"], "İlk dört harf"),
+        ]),
+        L("u8e-l2", "Lesson 2", "Sayma şarkısı (1-10)", 10, [
+          tip("🔢", "Şarkıyla say!",
+              "Yek du sê — bu Kürtçe sayma melodisidir. Çocuklar şarkıyla öğrenir.\n" +
+              "Yek (1), Du (2), Sê (3), Çar (4), Pênc (5),\n" +
+              "Şeş (6), Heft (7), Heşt (8), Neh (9), Deh (10)",
+              { ku: "Yek du sê, çar pênc şeş, heft heşt neh deh!", tr: "Bir iki üç, dört beş altı, yedi sekiz dokuz on!" }),
+          mp(
+            { ku: "Yek", tr: "Bir" },
+            { ku: "Du", tr: "İki" },
+            { ku: "Sê", tr: "Üç" },
+            { ku: "Çar", tr: "Dört" },
+          ),
+          ta("Yek du sê", ["Yek", "du", "sê"], "Bir iki üç"),
+          ta("Heft heşt neh deh", ["Heft", "heşt", "neh", "deh"], "Yedi sekiz dokuz on"),
+        ]),
+        L("u8e-l3", "Lesson 3", "Renkler şarkısı", 10, [
+          tip("🌈", "Renkleri şarkıyla öğren",
+              "Sor sêv, kesk dar, şîn av, zer roj — Kürtçede renkler doğa öğelerle eşleşir.",
+              { ku: "Sor mîna sêvê, şîn mîna avê.", tr: "Elma gibi kırmızı, su gibi mavi." }),
+          mp(
+            { ku: "Sor — Sêv", tr: "Kırmızı — Elma" },
+            { ku: "Şîn — Av", tr: "Mavi — Su" },
+            { ku: "Kesk — Dar", tr: "Yeşil — Ağaç" },
+            { ku: "Zer — Roj", tr: "Sarı — Güneş" },
+          ),
+        ]),
+      ],
+    },
+    // ─────────────────────────────────────────────────────
+    // UNIT 8f: 📖 KEV'İN MASALLARI — Kid-only
+    // ─────────────────────────────────────────────────────
+    {
+      id: "u8f", no: 8.9, title: "Kev'in Masalları", subtitle: "Çîrokên Kev · kısa hikayeler",
+      emoji: "📖", color: "#9B5DE5", track: "kid",
+      objectives: ["Tilki ve karga", "Demirci Kawa (kısa)", "Bir hayvan günü"],
+      lessons: [
+        L("u8f-l1", "Lesson 1", "Tilki ve Tavşan", 12, [
+          story("Tilki ve Tavşan", [
+            { speaker: "narrator", ku: "Rojekê, rovî û keroşk hatin hev.", tr: "Bir gün, tilki ve tavşan karşılaştı." },
+            { speaker: "A", ku: "Silav heval! Tu çawa yî?", tr: "Selam dostum! Nasılsın?" },
+            { speaker: "B", ku: "Spas, ez baş im. Tu jî?", tr: "Sağol, iyiyim. Sen de?" },
+            { speaker: "A", ku: "Erê, ez jî baş im. Hadê em bilîzin!", tr: "Evet, ben de iyiyim. Hadi oynayalım!" },
+            { speaker: "narrator", ku: "Wan bi hev re lîst û kêfxweş bûn.", tr: "Birlikte oynadılar ve mutlu oldular." },
+          ]),
+          mp(
+            { ku: "Rovî", tr: "Tilki" },
+            { ku: "Keroşk", tr: "Tavşan" },
+            { ku: "Heval", tr: "Arkadaş" },
+            { ku: "Lîstin", tr: "Oynamak" },
+          ),
+          tt("Tilki ve tavşan oynadı.", "Rovî û keroşk lîstin.", ["çû", "ne"]),
+        ]),
+        L("u8f-l2", "Lesson 2", "Newroz Hikayesi (kısa)", 14, [
+          tip("🔥", "Newroz nedir?",
+              "21 Mart Kürt yeni yılı. Demirci Kawa zalim Dehak'ı yendi.\n" +
+              "Ateş yakılır, halay (govend) çekilir.",
+              { ku: "Newroz pîroz be!", tr: "Newroz kutlu olsun!" }),
+          story("Demirci Kawa", [
+            { speaker: "narrator", ku: "Demek dehak hebû. Ew gelek xirab bû.", tr: "Çok kötü bir Dehak vardı." },
+            { speaker: "narrator", ku: "Kawayê hesinkar serê wî kar.", tr: "Demirci Kawa onu yendi." },
+            { speaker: "narrator", ku: "Agir vêket, mirov şabûn.", tr: "Ateş yandı, insanlar sevindi." },
+            { speaker: "narrator", ku: "Vê rojê em jê re Newroz dibêjin.", tr: "Bu güne Newroz diyoruz." },
+          ]),
+          nw("Agir", "Ateş", "🔥"),
+          nw("Govend", "Halay", "💃"),
+          nw("Pîroz be", "Kutlu olsun", "🎉"),
+          mp(
+            { ku: "Newroz", tr: "Yeni gün/yıl" },
+            { ku: "Agir", tr: "Ateş" },
+            { ku: "Govend", tr: "Halay" },
+            { ku: "Pîroz be", tr: "Kutlu olsun" },
+          ),
+        ]),
+      ],
+    },
+    // ─────────────────────────────────────────────────────
+    // UNIT 8g: 🎨 BOYA & ÇİZ — Kid-only (Draw with Will tarzı)
+    // ─────────────────────────────────────────────────────
+    {
+      id: "u8g", no: 8.95, title: "Boya & Çiz", subtitle: "Reng û resim · şekiller",
+      emoji: "🎨", color: "#FF9600", track: "kid",
+      objectives: ["Şekiller (yuvarlak, kare)", "Eylem fiilleri (çiz, boya)", "Sanat kelimeleri"],
+      lessons: [
+        L("u8g-l1", "Lesson 1", "Şekiller", 10, [
+          nw("Çember", "Yuvarlak", "⭕"),
+          nw("Çarçik", "Kare", "🟦"),
+          nw("Sêgoşe", "Üçgen", "🔺"),
+          nw("Çar goşe", "Dörtgen", "🟦"),
+          nw("Stêr", "Yıldız", "⭐"),
+          mp(
+            { ku: "Çember", tr: "Yuvarlak" },
+            { ku: "Çarçik", tr: "Kare" },
+            { ku: "Sêgoşe", tr: "Üçgen" },
+            { ku: "Stêr", tr: "Yıldız" },
+          ),
+          si("Stêr", "Yıldız", [
+            { ku: "Stêr", tr: "Yıldız", emoji: "⭐" },
+            { ku: "Çember", tr: "Yuvarlak", emoji: "⭕" },
+            { ku: "Çarçik", tr: "Kare", emoji: "🟦" },
+            { ku: "Sêgoşe", tr: "Üçgen", emoji: "🔺" },
+          ]),
+        ]),
+        L("u8g-l2", "Lesson 2", "Çiz, boya, kes!", 12, [
+          nw("Resim bikişîne", "Çiz!", "✏️"),
+          nw("Reng bike", "Boya!", "🖍️"),
+          nw("Bibire", "Kes!", "✂️"),
+          nw("Bişîlêne", "Yapıştır!", "📎"),
+          mp(
+            { ku: "Resim bikişîne", tr: "Çiz!" },
+            { ku: "Reng bike", tr: "Boya!" },
+            { ku: "Bibire", tr: "Kes!" },
+            { ku: "Bişîlêne", tr: "Yapıştır!" },
+          ),
+          ex(fb(["", " stêrekê!"], ["Resim bikişîne", "Bibire", "Reng bike", "Bişîlêne"],
+                "Bir yıldız çiz!"),
+             "Imperative + sêv-ekê (bir yıldızı). 'Bikişîne' = çiz (komut)."),
+        ]),
+      ],
+    },
   ],
 };
 
