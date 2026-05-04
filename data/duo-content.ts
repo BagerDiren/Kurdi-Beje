@@ -863,6 +863,59 @@ const SECTION_A1: DuoSection = {
         ]),
       ],
     },
+    // ─────────────────────────────────────────────────────
+    // UNIT 8d: İşaret Sıfatları (Demonstratives) — Thackston §2
+    // ─────────────────────────────────────────────────────
+    {
+      id: "u8d", no: 8.8, title: "Bu / Şu", subtitle: "Ev / Ew · işaret sıfatları",
+      emoji: "👉", color: "#3949AB", track: "all",
+      objectives: ["Ev (bu) vs Ew (şu/o)", "Eril/dişil farkı (eva/ewa)", "Çoğul (evana/ewana)"],
+      lessons: [
+        L("u8d-l1", "Lesson 1", "Ev (bu) — yakın", 12, [
+          tip("👉", "İşaret sıfatları (Demonstratives)",
+              "Kürtçede 2 temel işaret:\n" +
+              "Ev = Bu (yakın)\n" +
+              "Ew = Şu / O (uzak)\n" +
+              "İsme uyum: ev mal (bu ev, eril/dişil aynı)\n" +
+              "Oblique (yan hâl): vî / vê (eril/dişil)",
+              { ku: "Ev mal nû ye. Ew mal kevn e.", tr: "Bu ev yeni. O ev eski." }),
+          nw("Ev", "Bu", "👈"),
+          nw("Ew", "Şu / O", "👉"),
+          nw("Ev mal", "Bu ev", "🏠"),
+          nw("Ew sêv", "O elma", "🍎"),
+          mp(
+            { ku: "Ev", tr: "Bu" },
+            { ku: "Ew", tr: "Şu / O" },
+            { ku: "Ev mal", tr: "Bu ev" },
+            { ku: "Ew sêv", tr: "O elma" },
+          ),
+          tt("Bu kitap güzel.", "Ev pirtûk xweş e.", ["ew", "ne", "ye"]),
+          ta("Ev mal", ["Ev", "mal"], "Bu ev"),
+        ]),
+        L("u8d-l2", "Lesson 2", "Vî / Vê (oblique)", 14, [
+          tip("📐", "Yan hâl (oblique) işaretleri",
+              "İşaret sıfatı bir prepositionun nesnesi olunca yan hâle girer:\n" +
+              "Eril: Vî (li vî bajarî = bu şehirde)\n" +
+              "Dişil: Vê (di vê malê de = bu evde)\n" +
+              "Çoğul: Van (li van mal- = bu evlerde)",
+              { ku: "Li vî bajarî pirr xweş e.", tr: "Bu şehir çok güzel." }),
+          nw("Vî", "Bu (eril yan)", "♂️"),
+          nw("Vê", "Bu (dişil yan)", "♀️"),
+          nw("Van", "Bunlar", "👥"),
+          mp(
+            { ku: "Vî bajarî", tr: "Bu şehri" },
+            { ku: "Vê malê", tr: "Bu evi" },
+            { ku: "Van zarokan", tr: "Bu çocukları" },
+            { ku: "Wan kesan", tr: "O kişileri" },
+          ),
+          ex(fb(["Li ", " bajarî pirr xweş e."], ["vî", "ev", "ku", "ne"],
+                "Bu şehir çok güzel."),
+             "Preposition 'li' sonrası eril isim → 'vî' (oblique)."),
+          tt("Bu evde yaşıyorum.", "Ez di vê malê de dijîm.",
+             ["bajarî", "vî", "ne"]),
+        ]),
+      ],
+    },
   ],
 };
 
@@ -1477,6 +1530,277 @@ const SECTION_A2: DuoSection = {
         ]),
       ],
     },
+    // ─────────────────────────────────────────────────────
+    // UNIT 15d: EZAFE (Construct case) — Thackston §4 ⭐⭐⭐ EN KRİTİK
+    // ─────────────────────────────────────────────────────
+    {
+      id: "u15d", no: 15.8, title: "Ezafe (-ê / -a)", subtitle: "İsim + isim/sıfat bağlama",
+      emoji: "🔗", color: "#7B1FA2", track: "all",
+      objectives: ["Ezafe nedir", "Eril -ê, dişil -a", "Çoğul -ên", "Sıfat bağlama"],
+      lessons: [
+        L("u15d-l1", "Lesson 1", "Ezafe ne işe yarar?", 16, [
+          tip("🔗", "Ezafe — Kürtçenin omurgası",
+              "İki ismi/sıfatı bağlamak için isim sonuna ek gelir.\n" +
+              "Türkçedeki '-(s)i' eki gibi (kapı kolu = derê maleê).\n\n" +
+              "Eril isim → -ê: bavê min (babam), kûçikê reş (siyah köpek)\n" +
+              "Dişil isim → -a: dayika min (annem), maleya nû (yeni ev)\n" +
+              "Çoğul → -ên: hevalên min (arkadaşlarım)",
+              { ku: "Mala bavê min mezin e.", tr: "Babamın evi büyük." }),
+          nw("Bavê min", "Babam", "👨"),
+          nw("Dayika min", "Annem", "👩"),
+          nw("Hevalên min", "Arkadaşlarım", "👥"),
+          mp(
+            { ku: "Bavê min", tr: "Babam" },
+            { ku: "Dayika min", tr: "Annem" },
+            { ku: "Hevalên min", tr: "Arkadaşlarım" },
+            { ku: "Mala min", tr: "Evim" },
+          ),
+          ex(fb(["Bav ", " min mamoste ye."], ["ê", "a", "ên", "yî"],
+                "Babam öğretmen."),
+             "'Bav' (eril) → 'bavê min'. Eril isimde -ê eki kullanılır."),
+          ex(fb(["Dayik ", " min bijîşk e."], ["a", "ê", "ên", "yî"],
+                "Annem doktor."),
+             "'Dayik' (dişil) → 'dayika min'. Dişil isimde -a eki."),
+          ta("Mala bavê min", ["Mala", "bavê", "min"], "Babamın evi"),
+        ]),
+        L("u15d-l2", "Lesson 2", "Sıfat bağlama (Ezafe)", 16, [
+          tip("🎨", "İsim + sıfat: ezafe ile",
+              "Sıfat ismin SONRASINA gelir, ezafe ile bağlanır:\n" +
+              "Eril: kûçikê reş (siyah köpek)\n" +
+              "Dişil: dayika baş (iyi anne)\n" +
+              "Çoğul: kûçikên mezin (büyük köpekler)",
+              { ku: "Mala mezin a min nû ye.", tr: "Benim büyük evim yeni." }),
+          nw("Kûçikê reş", "Siyah köpek", "🐶"),
+          nw("Mala mezin", "Büyük ev", "🏠"),
+          nw("Sêva sor", "Kırmızı elma", "🍎"),
+          nw("Çiyayên bilind", "Yüksek dağlar", "⛰️"),
+          mp(
+            { ku: "Kûçikê reş", tr: "Siyah köpek" },
+            { ku: "Mala mezin", tr: "Büyük ev" },
+            { ku: "Sêva sor", tr: "Kırmızı elma" },
+            { ku: "Çiyayên bilind", tr: "Yüksek dağlar" },
+          ),
+          tt("Yeni evim güzel.", "Mala min a nû xweş e.",
+             ["mezin", "ne", "kevn"]),
+          tt("Bu kırmızı elmalar tatlı.", "Ev sêvên sor xweş in.",
+             ["mezin", "ne", "ya"]),
+        ]),
+        L("u15d-l3", "Lesson 3", "İki isim arasında ezafe", 16, [
+          tip("🔗", "İsim tamlaması (... yê ... )",
+              "Türkçede 'Babamın evi' → Kürtçede 'Mala bavê min'\n" +
+              "Sahip olunan isim ÖNCE, sahip SONRA. Aralarında ezafe.\n" +
+              "Mal+a (dişil) + bav+ê (eril) + min = babamın evi",
+              { ku: "Pirtûka mamosteyê min", tr: "Öğretmenimin kitabı" }),
+          nw("Mala bav", "Babanın evi", "🏠"),
+          nw("Pirtûka mamoste", "Öğretmenin kitabı", "📚"),
+          nw("Navê dibistanê", "Okulun adı", "🏫"),
+          mp(
+            { ku: "Mala bavê min", tr: "Babamın evi" },
+            { ku: "Pirtûka mamosteyê min", tr: "Öğretmenimin kitabı" },
+            { ku: "Navê dibistana min", tr: "Okulumun adı" },
+            { ku: "Rengê çavên te", tr: "Gözlerinin rengi" },
+          ),
+          ex(tt("Annemin arabası kırmızı.",
+                "Otomobîla dayika min sor e.",
+                ["bavê", "ne", "kevn"]),
+             "Otomobîl (dişil) → otomobîl+a, dayik (dişil) → dayik+a. İki ezafe zincirleme."),
+        ]),
+        L("u15d-l4", "Lesson 4", "Ezafe çoğul (-ên)", 14, [
+          nw("-ên", "Çoğul ezafe", "🔗"),
+          nw("Hevalên min", "Arkadaşlarım", "👥"),
+          nw("Pirtûkên xwendekar", "Öğrencinin kitapları", "📚"),
+          mp(
+            { ku: "Hevalên min", tr: "Arkadaşlarım" },
+            { ku: "Pirtûkên min", tr: "Kitaplarım" },
+            { ku: "Çavên te", tr: "Gözlerin" },
+            { ku: "Bavê min", tr: "Babam (tekil)" },
+          ),
+          tt("Arkadaşlarım eve geldi.",
+             "Hevalên min hatin malê.",
+             ["hevalê", "ne", "çû"]),
+        ]),
+      ],
+    },
+    // ─────────────────────────────────────────────────────
+    // UNIT 15e: Indefinite (-ek) — Thackston §3
+    // ─────────────────────────────────────────────────────
+    {
+      id: "u15e", no: 15.9, title: "Bir / Birkaç (-ek)", subtitle: "Belirsiz hâl",
+      emoji: "1️⃣", color: "#00897B", track: "all",
+      objectives: ["-ek belirsiz eki", "İsim + ek kullanımı", "Hebûn ile var/yok"],
+      lessons: [
+        L("u15e-l1", "Lesson 1", "Bir kitap (pirtûkek)", 14, [
+          tip("1️⃣", "Belirsiz hâl: -ek",
+              "Türkçedeki 'bir' yerine isim sonuna -ek gelir:\n" +
+              "Pirtûk = kitap → Pirtûkek = bir kitap\n" +
+              "Sêv = elma → Sêvek = bir elma\n" +
+              "Çoğul: -in (sêvin = elmalar/birkaç elma)",
+              { ku: "Min sêvek kirî.", tr: "Bir elma aldım." }),
+          nw("Pirtûkek", "Bir kitap", "📚"),
+          nw("Sêvek", "Bir elma", "🍎"),
+          nw("Hespek", "Bir at", "🐴"),
+          nw("Mirovek", "Bir adam", "👤"),
+          mp(
+            { ku: "Pirtûkek", tr: "Bir kitap" },
+            { ku: "Sêvek", tr: "Bir elma" },
+            { ku: "Hespek", tr: "Bir at" },
+            { ku: "Mirovek", tr: "Bir adam" },
+          ),
+          ex(tt("Bir köpeğim var.", "Min kûçikek heye.",
+                ["pisîkek", "ne", "tu"]),
+             "'Min ... heye' = sahip olma yapısı. Kûçik+ek = bir köpek."),
+        ]),
+        L("u15e-l2", "Lesson 2", "Bir kaç ... (-in)", 14, [
+          tip("🔢", "Çoğul belirsiz: -in",
+              "Birkaç X için: isim + in\n" +
+              "Sêvin = (birkaç) elmalar\n" +
+              "Hevalin = (birkaç) arkadaşlar\n" +
+              "Belirli çoğul için ezafe -ên kullanılır.",
+              { ku: "Min sêvin kirîn.", tr: "Birkaç elma aldım." }),
+          nw("Sêvin", "Elmalar (birkaç)", "🍎"),
+          nw("Pirtûkin", "Kitaplar (birkaç)", "📚"),
+          nw("Hevalin", "Arkadaşlar (birkaç)", "👥"),
+          mp(
+            { ku: "Sêvin", tr: "Birkaç elma" },
+            { ku: "Pirtûkin", tr: "Birkaç kitap" },
+            { ku: "Hevalin", tr: "Birkaç arkadaş" },
+            { ku: "Sêv", tr: "Elma (genel)" },
+          ),
+          tt("Birkaç kitabım var.", "Min pirtûkin hene.",
+             ["pirtûkek", "ne", "tu"]),
+        ]),
+      ],
+    },
+    // ─────────────────────────────────────────────────────
+    // UNIT 15f: Imperative (Emir kipi) — Thackston §17
+    // ─────────────────────────────────────────────────────
+    {
+      id: "u15f", no: 15.95, title: "Emir Kipi", subtitle: "Were! Bixwe! · komutlar",
+      emoji: "📣", color: "#D84315", track: "all",
+      objectives: ["bi- + present-stem", "Tekil/çoğul emir", "Olumsuz emir (ne-)"],
+      lessons: [
+        L("u15f-l1", "Lesson 1", "Bi- öneki + emir", 14, [
+          tip("📣", "Emir kipi (Imperative)",
+              "Yapısı: bi- + present-stem (+ -e tekil / -in çoğul)\n" +
+              "Were! = Gel! (sing.)\n" +
+              "Werin! = Gelin! (pl.)\n" +
+              "Bixwe! = Ye!  Bixwin! = Yiyin!\n" +
+              "Bibêje! = Söyle!  Bibêjin! = Söyleyin!",
+              { ku: "Were vir! Bixwe sêvê!", tr: "Buraya gel! Elmayı ye!" }),
+          nw("Were!", "Gel! (sen)", "👋"),
+          nw("Werin!", "Gelin! (siz)", "👋"),
+          nw("Bixwe!", "Ye!", "🍴"),
+          nw("Bibêje!", "Söyle!", "🗣️"),
+          nw("Biçe!", "Git!", "🚶"),
+          mp(
+            { ku: "Were!", tr: "Gel! (sen)" },
+            { ku: "Bixwe!", tr: "Ye!" },
+            { ku: "Bibêje!", tr: "Söyle!" },
+            { ku: "Biçe!", tr: "Git!" },
+          ),
+          ex(fb(["", " sêvê ji bo min."], ["Bixwe", "Were", "Biçe", "Bibêje"],
+                "Benim için elmayı ye."),
+             "Bixwe = Ye! (imperative, bi- + xwe-)"),
+          ta("Were vir!", ["Were", "vir!"], "Buraya gel!"),
+        ]),
+        L("u15f-l2", "Lesson 2", "Olumsuz emir (Neke!)", 14, [
+          tip("🚫", "Olumsuz emir: ne-",
+              "Olumsuz emirde 'bi-' yerine 'ne-' gelir:\n" +
+              "Neke! = Yapma!\n" +
+              "Neçe! = Gitme!\n" +
+              "Nexwe! = Yeme!",
+              { ku: "Wê neke! Pirtûkê neke ji destê xwe.", tr: "Yapma! Kitabı elinden bırakma." }),
+          nw("Neke!", "Yapma!", "🚫"),
+          nw("Neçe!", "Gitme!", "🚷"),
+          nw("Nexwe!", "Yeme!", "❌"),
+          mp(
+            { ku: "Neke!", tr: "Yapma!" },
+            { ku: "Neçe!", tr: "Gitme!" },
+            { ku: "Nexwe!", tr: "Yeme!" },
+            { ku: "Bibêje!", tr: "Söyle!" },
+          ),
+          tt("Bunu söyleme!", "Vê tiştê nebêje!",
+             ["bibêje", "biçe", "neke"]),
+        ]),
+      ],
+    },
+    // ─────────────────────────────────────────────────────
+    // UNIT 15g: Modal Verbs (xwestin, karîn) — Thackston §16.2-16.3
+    // ─────────────────────────────────────────────────────
+    {
+      id: "u15g", no: 15.97, title: "İstemek / Yapabilmek", subtitle: "Modal fiiller + subjunctive",
+      emoji: "🙏", color: "#5E35B1", track: "all",
+      objectives: ["xwestin (istemek)", "karîn (yapabilmek)", "Modal + subjunctive yapısı"],
+      lessons: [
+        L("u15g-l1", "Lesson 1", "Xwestin (istemek)", 14, [
+          tip("🙏", "Xwestin + subjunctive",
+              "İstemek için: dixwazim/î/e (present) + bi-fiil (subjunctive)\n" +
+              "Ez dixwazim biçim = Gitmek istiyorum\n" +
+              "Tu dixwazî bixwî = Yemek istiyorsun\n" +
+              "Subjunctive (bi- + present-stem) zorunlu!",
+              { ku: "Ez dixwazim Kurmancî hîn bibim.", tr: "Kürtçe öğrenmek istiyorum." }),
+          nw("Dixwazim", "İstiyorum", "🙏"),
+          nw("Dixwazî", "İstiyorsun", "🙏"),
+          nw("Dixwaze", "İstiyor", "🙏"),
+          nw("Bixwim", "yiyeyim (subj.)", "🍴"),
+          mp(
+            { ku: "Dixwazim", tr: "İstiyorum" },
+            { ku: "Dixwazî", tr: "İstiyorsun" },
+            { ku: "Dixwaze", tr: "İstiyor" },
+            { ku: "Dixwazin", tr: "İstiyoruz/iz/ler" },
+          ),
+          ex(fb(["Ez dixwazim ", " sêvê."], ["bixwim", "dixwim", "xwarim", "ne"],
+                "Elmayı yemek istiyorum."),
+             "Modal 'dixwazim' SONRASI subjunctive: bi-xwim. Asla 'dixwim' değil!"),
+          tt("Su içmek istiyorum.", "Ez dixwazim av vexwim.",
+             ["dixwim", "ne", "tu"]),
+        ]),
+        L("u15g-l2", "Lesson 2", "Karîn (yapabilmek)", 14, [
+          tip("💪", "Karîn + subjunctive",
+              "Yapabilmek için: dikarim/î/e + bi-fiil (subjunctive)\n" +
+              "Ez dikarim bibêjim = Söyleyebilirim\n" +
+              "Tu dikarî biçî = Gidebilirsin\n" +
+              "Olumsuz: Ez nikarim ... = Yapamam",
+              { ku: "Ez dikarim bi Kurmancî biaxivim.", tr: "Kurmancî konuşabilirim." }),
+          nw("Dikarim", "Yapabilirim", "💪"),
+          nw("Dikarî", "Yapabilirsin", "💪"),
+          nw("Dikare", "Yapabilir", "💪"),
+          nw("Nikarim", "Yapamam", "🚫"),
+          mp(
+            { ku: "Dikarim", tr: "Yapabilirim" },
+            { ku: "Dikarî", tr: "Yapabilirsin" },
+            { ku: "Dikare", tr: "Yapabilir" },
+            { ku: "Nikarim", tr: "Yapamam" },
+          ),
+          tt("Sana yardım edebilirim.",
+             "Ez dikarim alîkariya te bikim.",
+             ["nikarim", "ne", "dixwazim"]),
+          ex(fb(["Ez ", " bibêjim."], ["dikarim", "nikarim", "diçim", "naxwim"],
+                "Söyleyebilirim."),
+             "'Dikarim' + subjunctive 'bibêjim' = söyleyebilirim."),
+        ]),
+        L("u15g-l3", "Lesson 3", "Lazım/gerek (divê + subj.)", 14, [
+          tip("⚠️", "Divê / Gerek",
+              "'Divê' = lazım/gerek. SONRA subjunctive gelir:\n" +
+              "Divê ez biçim = Gitmem lazım\n" +
+              "Divê tu biwerî = Gelmen lazım\n" +
+              "Olumsuz: Divê ne-... veya nabe ku ...",
+              { ku: "Divê em zû bigihîjin.", tr: "Çabuk varmamız lazım." }),
+          nw("Divê", "Lazım / gerek", "⚠️"),
+          nw("Divê biçim", "Gitmem lazım", "🚶"),
+          nw("Lazim", "Lazım", "📋"),
+          mp(
+            { ku: "Divê biçim", tr: "Gitmem lazım" },
+            { ku: "Divê biwerî", tr: "Gelmen lazım" },
+            { ku: "Divê bibêjim", tr: "Söylemem lazım" },
+            { ku: "Divê neçe", tr: "Gitmemesi lazım" },
+          ),
+          tt("Erken yatmam lazım.",
+             "Divê ez zû razim.",
+             ["dixwazim", "dikarim", "ne"]),
+        ]),
+      ],
+    },
   ],
 };
 
@@ -1849,6 +2173,57 @@ const SECTION_B1: DuoSection = {
                 "Ez li ser înternetê Kurmancî hîn dibim.",
                 ["dixwim", "kar"]),
              "'Li ser' = üzerinde, 'hîn dibim' = öğreniyorum (kontinüatif)."),
+        ]),
+      ],
+    },
+    // ─────────────────────────────────────────────────────
+    // UNIT 19d: Reflexive (xwe) — Thackston §7.1
+    // ─────────────────────────────────────────────────────
+    {
+      id: "u19d", no: 19.8, title: "Kendi (xwe)", subtitle: "Dönüşlü zamir",
+      emoji: "🪞", color: "#00838F", track: "all",
+      objectives: ["Xwe — kendisi", "İyelik (mala xwe)", "Dönüşlü fiil"],
+      lessons: [
+        L("u19d-l1", "Lesson 1", "Xwe — dönüşlü zamir", 14, [
+          tip("🪞", "Xwe = kendi/kendisi",
+              "Tüm şahıslar için DEĞİŞMEZ: Ez xwe dibînim = Kendimi görüyorum\n" +
+              "Tu xwe dibînî = Kendini görüyorsun\n" +
+              "Ew xwe dibîne = Kendisini görüyor\n" +
+              "İyelik için 'xwe' = öznenin kendisi: Ez mala xwe difiroşim = Evimi (kendimin) satıyorum",
+              { ku: "Ez navê xwe dibêjim.", tr: "Adımı (kendi adımı) söylüyorum." }),
+          nw("Xwe", "Kendi/-mi/-ni", "🪞"),
+          nw("Mala xwe", "Kendi evim/n", "🏠"),
+          nw("Navê xwe", "Kendi adım/n", "🪪"),
+          mp(
+            { ku: "Xwe", tr: "Kendi" },
+            { ku: "Mala xwe", tr: "Kendi evi" },
+            { ku: "Navê xwe", tr: "Kendi adı" },
+            { ku: "Hevalê xwe", tr: "Kendi arkadaşı" },
+          ),
+          ex(fb(["Ez navê ", " dibêjim."], ["xwe", "min", "te", "wî"],
+                "Adımı söylüyorum."),
+             "Özne 'ez' (ben) ise, 'kendi adım' için 'xwe' kullanılır, 'min' değil."),
+        ]),
+        L("u19d-l2", "Lesson 2", "Xwe vs min/te/wî", 16, [
+          tip("⚖️", "Xwe vs min/te/wî farkı",
+              "ÖZNE = SAHİP olduğunda → xwe\n" +
+              "Ez mala xwe difiroşim = Kendi evimi satıyorum\n\n" +
+              "ÖZNE ≠ SAHİP → min/te/wî\n" +
+              "Ez mala te difiroşim = Senin evini satıyorum (xwe DEĞİL)",
+              { ku: "Ew dîya xwe hez dike.", tr: "(Kendisi) annesini seviyor." }),
+          mp(
+            { ku: "Hevalê xwe", tr: "Kendi arkadaşı" },
+            { ku: "Hevalê min", tr: "Benim arkadaşım" },
+            { ku: "Hevalê te", tr: "Senin arkadaşın" },
+            { ku: "Hevalê wî", tr: "Onun (eril) arkadaşı" },
+          ),
+          ex(tt("Annesini görüyor.",
+                "Ew dîya xwe dibîne.",
+                ["te", "min", "wî"]),
+             "Özne 'ew' = sahip de aynı kişi → xwe kullan."),
+          tt("Onun annesini görüyorum.",
+             "Ez dîya wê dibînim.",
+             ["xwe", "min", "te"]),
         ]),
       ],
     },
