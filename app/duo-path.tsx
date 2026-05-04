@@ -8,6 +8,7 @@ import { useApp } from "@/data/app-context";
 export default function DuoPathScreen() {
   const ctx = useApp();
   const completedLessonIds = new Set(ctx.completed ?? []);
+  const audience: "child" | "adult" = ctx.age === "child" ? "child" : "adult";
 
   return (
     <PathScreen
@@ -15,6 +16,7 @@ export default function DuoPathScreen() {
       hearts={ctx.hearts ?? 5}
       xp={ctx.xp ?? 0}
       streak={ctx.streak ?? 0}
+      audience={audience}
       onSelectLesson={(lessonId) => router.push(`/duo-lesson?id=${lessonId}` as never)}
     />
   );

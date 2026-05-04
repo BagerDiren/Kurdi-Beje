@@ -28,7 +28,7 @@ import Animated, {
 } from "react-native-reanimated";
 
 import { DUO, DUO_RADIUS, DUO_SPACING, DUO_TYPO } from "./duo-tokens";
-import { DUO_SECTIONS, type DuoSection, type DuoUnit, type DuoLesson } from "@/data/duo-content";
+import { DUO_SECTIONS, getSectionsForAudience, type DuoSection, type DuoUnit, type DuoLesson } from "@/data/duo-content";
 
 const { width: SW } = Dimensions.get("window");
 const NODE_SIZE = 72;
@@ -41,13 +41,17 @@ type Props = {
   hearts: number;
   xp: number;
   streak: number;
+  audience: "child" | "adult";
   onSelectLesson: (lessonId: string) => void;
 };
 
-export function PathScreen({ completedLessonIds, hearts, xp, streak, onSelectLesson }: Props) {
-  // Aktif derS bul (ilk tamamlanmamış)
+export function PathScreen({ completedLessonIds, hearts, xp, streak, audience, onSelectLesson }: Props) {
+  // Hedef kitleye göre filtrelenmiş sections
+  const sections = useMemo(() => getSectionsForAudience(audience), [audience]);
+
+  // Aktif dersi bul (ilk tamamlanmamış)
   const activeLessonId = useMemo(() => {
-    for (const sec of DUO_SECTIONS) {
+    for (const sec of sections) {
       for (const u of sec.units) {
         for (const l of u.lessons) {
           if (!completedLessonIds.has(l.id)) return l.id;
@@ -55,7 +59,7 @@ export function PathScreen({ completedLessonIds, hearts, xp, streak, onSelectLes
       }
     }
     return null;
-  }, [completedLessonIds]);
+  }, [completedLessonIds, sections]);
 
   const nodeStatus = (lessonId: string): NodeStatus => {
     if (completedLessonIds.has(lessonId)) return "done";
@@ -88,7 +92,7 @@ export function PathScreen({ completedLessonIds, hearts, xp, streak, onSelectLes
       </SafeAreaView>
 
       <ScrollView style={{ flex: 1 }} contentContainerStyle={pS.scroll}>
-        {DUO_SECTIONS.map((section) => (
+        {sections.map((section) => (
           <SectionBlock
             key={section.id}
             section={section}
@@ -136,13 +140,15 @@ function UnitBlock({
   nodeStatus: (id: string) => NodeStatus;
   onSelectLesson: (id: string) => void;
 }) {
+  const doneCount = unit.lessons.filter(l => nodeStatus(l.id) === "done").length;
   return (
     <View>
       {/* Unit header sticker */}
       <View style={[pS.unitHeader, { backgroundColor: unit.color }]}>
-        <View>
-          <Text style={pS.unitNo}>UNIT {unit.no}</Text>
+        <View style={{ flex: 1 }}>
+          <Text style={pS.unitNo}>UNIT {unit.no} · {unit.title.toUpperCase()}</Text>
           <Text style={pS.unitTitle}>{unit.subtitle}</Text>
+          <Text style={pS.unitMeta}>{doneCount}/{unit.lessons.length} ders tamam</Text>
         </View>
         <Text style={pS.unitEmoji}>{unit.emoji}</Text>
       </View>
@@ -274,6 +280,7 @@ const pS = StyleSheet.create({
   },
   unitNo: { ...DUO_TYPO.micro, color: "rgba(255,255,255,0.7)" },
   unitTitle: { ...DUO_TYPO.h2, color: DUO.snow, marginTop: 2 },
+  unitMeta: { ...DUO_TYPO.caption, color: "rgba(255,255,255,0.85)", marginTop: 4 },
   unitEmoji: { fontSize: 36 },
 
   nodesCol: { alignItems: "center", paddingVertical: DUO_SPACING.md },
