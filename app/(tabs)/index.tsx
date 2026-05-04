@@ -490,6 +490,20 @@ function ChildHome() {
             />
           </View>
 
+          {/* === KEVO OYUN SUİTİ — 7 mini-oyun (HTML v3 portu) === */}
+          <View style={kidStyles.gameRow}>
+            <GameTile
+              emoji="🎓" title="Kevo Oyunları" sub="7 mini-oyun"
+              colors={["#C9A84C", "#9A6C10"]}
+              onPress={() => router.push("/kevo" as never)}
+            />
+            <GameTile
+              emoji="🔊" title="Telaffuz" sub="ê î û x q w j"
+              colors={["#E07010", "#A04800"]}
+              onPress={() => router.push("/kevo" as never)}
+            />
+          </View>
+
           {/* === İPUCU === */}
           <View style={kidStyles.tipCard}>
             <KidCharacter character="kevo" size={40} bounce wave />

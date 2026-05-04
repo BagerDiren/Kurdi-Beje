@@ -50,6 +50,7 @@ export default function RootLayout() {
           <Stack.Screen name="quick-match" />
           <Stack.Screen name="farm-game" />
           <Stack.Screen name="drag-match" />
+          <Stack.Screen name="kevo" />
         </Stack>
         <StatusBar style="auto" />
       </AppProvider>
