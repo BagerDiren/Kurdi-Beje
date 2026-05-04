@@ -291,5 +291,5 @@ const styles = StyleSheet.create({
     gap: 12,
   },
   ctaText: { ...TYPO.button, color: "#fff" },
-  ctaArrow: { fontSize: 22, color: "#fff", fontFamily: "Fredoka_700Bold" },
+  ctaArrow: { fontSize: 22, color: "#fff", fontFamily: "Times New Roman" },
 });

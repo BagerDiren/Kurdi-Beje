@@ -77,6 +77,11 @@ export default function ModeScreen() {
       <Animated.Text style={[styles.deco, { top: 180, right: 20, fontSize: 24 }, f1]}>🌟</Animated.Text>
 
       <SafeAreaView style={styles.safe}>
+        {/* Geri butonu */}
+        <Pressable onPress={() => router.back()} style={styles.backBtn} hitSlop={10}>
+          <Text style={styles.backTxt}>‹</Text>
+        </Pressable>
+
         {/* Üst başlık */}
         <View style={styles.header}>
           <KidCharacter character="kevo" size={80} bounce />
@@ -202,7 +207,7 @@ function ModeCard({
           </View>
           {isActive && (
             <View style={styles.checkBadge}>
-              <Text style={{ color: color1, fontSize: 16, fontFamily: "Fredoka_700Bold" }}>✓</Text>
+              <Text style={{ color: color1, fontSize: 16, fontFamily: "Times New Roman" }}>✓</Text>
             </View>
           )}
         </View>
@@ -233,6 +238,16 @@ const styles = StyleSheet.create({
   safe: { flex: 1, paddingHorizontal: SPACING.lg, paddingTop: SPACING.lg, paddingBottom: SPACING.lg },
 
   deco: { position: "absolute", fontSize: 32, opacity: 0.85 },
+
+  backBtn: {
+    position: "absolute", top: 12, left: SPACING.md,
+    width: 40, height: 40, borderRadius: 999,
+    backgroundColor: "rgba(255,255,255,0.85)",
+    alignItems: "center", justifyContent: "center",
+    zIndex: 10,
+    ...SHADOW("#000", "sm"),
+  },
+  backTxt: { fontSize: 28, color: KIDS_THEME.ink, fontFamily: "Times New Roman", lineHeight: 30 },
 
   header: { alignItems: "center", marginBottom: SPACING.lg, gap: 8 },
   title: { ...TYPO.display, color: KIDS_THEME.ink, textAlign: "center", marginTop: 4 },
@@ -331,5 +346,5 @@ const styles = StyleSheet.create({
     gap: 10,
   },
   ctaText: { ...TYPO.button, color: "#fff" },
-  ctaArrow: { fontSize: 22, color: "#fff", fontFamily: "Fredoka_700Bold" },
+  ctaArrow: { fontSize: 22, color: "#fff", fontFamily: "Times New Roman" },
 });

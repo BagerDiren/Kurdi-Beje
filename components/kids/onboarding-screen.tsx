@@ -252,7 +252,7 @@ const styles = StyleSheet.create({
     alignItems: "center", justifyContent: "center",
     ...SHADOW("#000", "sm"),
   },
-  backText: { fontSize: 26, color: KIDS_THEME.ink, fontFamily: "Fredoka_700Bold", lineHeight: 30 },
+  backText: { fontSize: 26, color: KIDS_THEME.ink, fontFamily: "Times New Roman", lineHeight: 30 },
   skipBtn: { paddingHorizontal: 12, paddingVertical: 8 },
   skipText: { ...TYPO.body, color: KIDS_THEME.smoke },
 
@@ -327,7 +327,7 @@ const styles = StyleSheet.create({
     gap: 10,
   },
   ctaText: { ...TYPO.button, color: "#fff" },
-  ctaArrow: { fontSize: 22, color: "#fff", fontFamily: "Fredoka_700Bold" },
+  ctaArrow: { fontSize: 22, color: "#fff", fontFamily: "Times New Roman" },
 });
 
 const optionStyles = StyleSheet.create({
@@ -346,5 +346,5 @@ const optionStyles = StyleSheet.create({
     borderWidth: 2,
     alignItems: "center", justifyContent: "center",
   },
-  radioCheck: { color: "#fff", fontFamily: "Fredoka_700Bold", fontSize: 14 },
+  radioCheck: { color: "#fff", fontFamily: "Times New Roman", fontSize: 14 },
 });

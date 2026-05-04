@@ -307,7 +307,7 @@ const pS = StyleSheet.create({
     borderRadius: NODE_SIZE / 2,
     alignItems: "center", justifyContent: "center",
   },
-  nodeIcon: { fontSize: 30, fontFamily: "Fredoka_700Bold" },
+  nodeIcon: { fontSize: 30, fontFamily: "Times New Roman" },
   startBadge: {
     position: "absolute",
     top: -36,

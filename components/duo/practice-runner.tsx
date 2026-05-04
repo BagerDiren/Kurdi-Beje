@@ -14,7 +14,7 @@ import { Confetti } from "@/components/kids/confetti";
 import { DUO, DUO_RADIUS, DUO_SPACING, DUO_TYPO } from "./duo-tokens";
 import { DuoButton, DuoChip } from "./duo-button";
 import type { Exercise } from "@/data/duo-content";
-import { shuffle } from "@/data/duo-content";
+import { shuffle, shuffleNotIdentity } from "@/data/duo-content";
 import { tx, txArr } from "@/data/duo-translations";
 import { useApp } from "@/data/app-context";
 import type { LangCode } from "@/data/languages";
@@ -153,7 +153,7 @@ function MatchEx({ ex, onResult, lang }: { ex: Extract<Exercise, { type: "match-
   const [rightSel, setRightSel] = useState<number | null>(null);
   const [matched, setMatched] = useState<Set<number>>(new Set());
   const left = useMemo(() => ex.pairs.map((p, i) => ({ ...p, origIdx: i })), [ex]);
-  const right = useMemo(() => shuffle(ex.pairs.map((p, i) => ({ ...p, origIdx: i }))), [ex]);
+  const right = useMemo(() => shuffleNotIdentity(ex.pairs.map((p, i) => ({ ...p, origIdx: i }))), [ex]);
 
   const tap = (side: "l" | "r", origIdx: number) => {
     if (matched.has(origIdx)) return;
@@ -425,7 +425,7 @@ const s = StyleSheet.create({
     flexDirection: "row", alignItems: "center", gap: DUO_SPACING.md,
     paddingTop: 50, paddingHorizontal: DUO_SPACING.lg, paddingBottom: DUO_SPACING.md,
   },
-  x: { color: DUO.snow, fontSize: 26, fontFamily: "Fredoka_700Bold" },
+  x: { color: DUO.snow, fontSize: 26, fontFamily: "Times New Roman" },
   headerTitle: { ...DUO_TYPO.h2, color: DUO.snow },
   headerSub: { ...DUO_TYPO.caption, color: "rgba(255,255,255,0.85)" },
   scoreBox: {

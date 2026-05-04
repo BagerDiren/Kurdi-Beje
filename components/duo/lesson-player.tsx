@@ -33,7 +33,7 @@ import { Confetti } from "@/components/kids/confetti";
 import { DuoButton, DuoChip } from "./duo-button";
 import { DUO, DUO_RADIUS, DUO_SPACING, DUO_TYPO } from "./duo-tokens";
 import {
-  type DuoLesson, type Exercise, shuffle,
+  type DuoLesson, type Exercise, shuffle, shuffleNotIdentity,
 } from "@/data/duo-content";
 import { tx, txArr } from "@/data/duo-translations";
 import { useApp } from "@/data/app-context";
@@ -51,7 +51,6 @@ const UI_STR = {
   iGotIt:         { tr: "ANLADIM",                    en: "I GOT IT",                     ku: "FÊM KIR" },
   cont:           { tr: "DEVAM",                      en: "CONTINUE",                     ku: "BERDEWAM" },
   check:          { tr: "KONTROL ET",                 en: "CHECK",                        ku: "KONTROL BIKE" },
-  great:          { tr: "Süpersin!",                  en: "Great job!",                   ku: "Pir baş!" },
   correctAns:     { tr: "Doğru cevap:",               en: "Correct answer:",              ku: "Bersîva rast:" },
   emptyHint:      { tr: "Aşağıdan kelimelere dokun...", en: "Tap words below...",        ku: "Li ser peyvan bitikîne..." },
   noHearts:       { tr: "Tüm canların bitti!",        en: "You're out of hearts!",        ku: "Hemû dilên te qediyan!" },
@@ -66,6 +65,25 @@ const UI_STR = {
 } as const;
 
 const ui = (k: keyof typeof UI_STR, lang: LangCode): string => UI_STR[k][lang];
+
+/**
+ * Rastgele Duolingo-vari övgü/teşvik mesajları (her dilde 5 seçenek).
+ * Doğru cevapta seçilen biri görünür → hep aynı "Süpersin" değil.
+ */
+const PRAISES = {
+  tr: ["Süpersin!", "Mükemmel!", "Aferin!", "Harika iş!", "Bravo!"],
+  en: ["Excellent!", "Nicely done!", "Way to go!", "Brilliant!", "Awesome!"],
+  ku: ["Pir baş!", "Bêkêmasî!", "Aferîn!", "Karekî xweş!", "Şabaş!"],
+} as const;
+
+const ENCOURAGE = {
+  tr: ["Olsun, devam!", "Bir daha bak.", "Yapabilirsin!", "Neredeyse!"],
+  en: ["No worries, keep going!", "Take another look.", "You got this!", "Almost!"],
+  ku: ["Tişt nabe, berdewam!", "Carekê din binêre.", "Tu dikarî!", "Hema bêje!"],
+} as const;
+
+const randomPraise = (lang: LangCode) => PRAISES[lang][Math.floor(Math.random() * PRAISES[lang].length)];
+const randomEncourage = (lang: LangCode) => ENCOURAGE[lang][Math.floor(Math.random() * ENCOURAGE[lang].length)];
 
 const { width: SW } = Dimensions.get("window");
 
@@ -96,7 +114,7 @@ const topS = StyleSheet.create({
     paddingTop: 50, paddingHorizontal: DUO_SPACING.lg, paddingBottom: DUO_SPACING.md,
     backgroundColor: DUO.snow,
   },
-  x: { color: DUO.hare, fontSize: 26, fontFamily: "Fredoka_700Bold" },
+  x: { color: DUO.hare, fontSize: 26, fontFamily: "Times New Roman" },
   barTrack: { flex: 1, height: 16, backgroundColor: DUO.swan, borderRadius: 999, overflow: "hidden" },
   barFill: { height: "100%", backgroundColor: DUO.green, borderRadius: 999 },
   heart: { flexDirection: "row", alignItems: "center", gap: 4 },
@@ -116,23 +134,48 @@ function FeedbackBar({
   onContinue: () => void;
   lang: LangCode;
 }) {
+  // Slide-in animasyonu — Duolingo'nun imzası
+  const slide = useSharedValue(state === "idle" ? 100 : 0);
+  // Mesajları state değişiminde stabil tut (sürekli rastgelelenmesin)
+  const praiseRef = useRef("");
+  const encourageRef = useRef("");
+
+  useEffect(() => {
+    if (state === "correct") {
+      praiseRef.current = randomPraise(lang);
+      slide.value = withSpring(0, { damping: 18, stiffness: 200 });
+    } else if (state === "wrong") {
+      encourageRef.current = randomEncourage(lang);
+      slide.value = withSpring(0, { damping: 18, stiffness: 200 });
+    } else {
+      slide.value = withTiming(100, { duration: 180 });
+    }
+  }, [state, lang]);
+
+  const animStyle = useAnimatedStyle(() => ({
+    transform: [{ translateY: slide.value }],
+  }));
+
   if (state === "idle") return null;
   const isCorrect = state === "correct";
   const bg = isCorrect ? "#D7FFB8" : "#FFDFE0";
   const fg = isCorrect ? DUO.treeGreen : DUO.cardinalDark;
   const icon = isCorrect ? "✓" : "✕";
+  const message = isCorrect ? praiseRef.current : encourageRef.current;
+
   return (
-    <View style={[fbS.wrap, { backgroundColor: bg }]}>
+    <Animated.View style={[fbS.wrap, { backgroundColor: bg }, animStyle]}>
       <View style={fbS.row}>
         <View style={[fbS.icon, { backgroundColor: fg }]}>
           <Text style={fbS.iconTxt}>{icon}</Text>
         </View>
         <View style={{ flex: 1 }}>
-          <Text style={[fbS.title, { color: fg }]}>
-            {isCorrect ? ui("great", lang) : ui("correctAns", lang)}
-          </Text>
+          <Text style={[fbS.title, { color: fg }]}>{message}</Text>
           {!isCorrect && correctAnswer && (
-            <Text style={[fbS.correctTxt, { color: fg }]}>{tx(lang, correctAnswer)}</Text>
+            <>
+              <Text style={[fbS.correctLbl, { color: fg }]}>{ui("correctAns", lang)}</Text>
+              <Text style={[fbS.correctTxt, { color: fg }]}>{tx(lang, correctAnswer)}</Text>
+            </>
           )}
         </View>
       </View>
@@ -141,7 +184,7 @@ function FeedbackBar({
         variant={isCorrect ? "green" : "red"}
         onPress={onContinue}
       />
-    </View>
+    </Animated.View>
   );
 }
 
@@ -150,10 +193,11 @@ const fbS = StyleSheet.create({
     paddingHorizontal: DUO_SPACING.lg, paddingTop: DUO_SPACING.md, paddingBottom: 28,
     gap: DUO_SPACING.md,
   },
-  row: { flexDirection: "row", gap: DUO_SPACING.md, alignItems: "center" },
-  icon: { width: 36, height: 36, borderRadius: 999, alignItems: "center", justifyContent: "center" },
-  iconTxt: { color: DUO.snow, fontSize: 18, fontFamily: "Fredoka_700Bold" },
-  title: { ...DUO_TYPO.h2 },
+  row: { flexDirection: "row", gap: DUO_SPACING.md, alignItems: "flex-start" },
+  icon: { width: 40, height: 40, borderRadius: 999, alignItems: "center", justifyContent: "center" },
+  iconTxt: { color: DUO.snow, ...DUO_TYPO.h1, fontSize: 22 },
+  title: { ...DUO_TYPO.h1 },
+  correctLbl: { ...DUO_TYPO.caption, marginTop: 4 },
   correctTxt: { ...DUO_TYPO.h3, marginTop: 2 },
 });
 
@@ -356,7 +400,7 @@ function MatchPairs({ pairs, onResult, lang }: { pairs: { ku: string; tr: string
 
   // Karıştırılmış indeksler
   const leftItems = useMemo(() => pairs.map((p, i) => ({ ...p, origIdx: i })), [pairs]);
-  const rightItems = useMemo(() => shuffle(pairs.map((p, i) => ({ ...p, origIdx: i }))), [pairs]);
+  const rightItems = useMemo(() => shuffleNotIdentity(pairs.map((p, i) => ({ ...p, origIdx: i }))), [pairs]);
 
   useEffect(() => {
     if (matched.size === pairs.length) {

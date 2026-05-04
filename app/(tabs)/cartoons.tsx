@@ -5,6 +5,7 @@
  * Tap → Linking.openURL ile YouTube'da açılır.
  */
 import { View, Text, ScrollView, Pressable, StyleSheet, SafeAreaView, Linking, Alert } from "react-native";
+import { router } from "expo-router";
 import { CARTOONS } from "@/data/cartoons";
 import { DUO, DUO_RADIUS, DUO_SPACING, DUO_TYPO } from "@/components/duo/duo-tokens";
 import { useApp } from "@/data/app-context";
@@ -40,8 +41,15 @@ export default function CartoonsScreen() {
   return (
     <View style={s.root}>
       <SafeAreaView style={s.headerWrap}>
-        <Text style={s.title}>{cui("title", lang)}</Text>
-        <Text style={s.sub}>{cui("sub", lang)}</Text>
+        <View style={s.headerRow}>
+          <Pressable onPress={() => router.replace("/(tabs)")} hitSlop={10} style={s.backBtn}>
+            <Text style={s.backTxt}>‹</Text>
+          </Pressable>
+          <View style={{ flex: 1 }}>
+            <Text style={s.title}>{cui("title", lang)}</Text>
+            <Text style={s.sub}>{cui("sub", lang)}</Text>
+          </View>
+        </View>
       </SafeAreaView>
       <ScrollView style={{ flex: 1 }} contentContainerStyle={s.body}>
         {CARTOONS.map((c) => (
@@ -86,6 +94,13 @@ const s = StyleSheet.create({
     paddingTop: 50, paddingHorizontal: DUO_SPACING.lg, paddingBottom: DUO_SPACING.md,
     borderBottomWidth: 2, borderBottomColor: DUO.swan,
   },
+  headerRow: { flexDirection: "row", alignItems: "center", gap: DUO_SPACING.sm },
+  backBtn: {
+    width: 40, height: 40, borderRadius: 999,
+    backgroundColor: DUO.polar,
+    alignItems: "center", justifyContent: "center",
+  },
+  backTxt: { fontSize: 28, color: DUO.eel, lineHeight: 30 },
   title: { ...DUO_TYPO.hero, color: DUO.eel },
   sub: { ...DUO_TYPO.body, color: DUO.wolf, marginTop: 2 },
   body: { padding: DUO_SPACING.lg, gap: DUO_SPACING.md, paddingBottom: 60 },

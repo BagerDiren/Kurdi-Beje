@@ -1562,4 +1562,31 @@ export function getSectionsForAudience(audience: "child" | "adult"): DuoSection[
     .filter(section => section.units.length > 0);
 }
 
-export const shuffle = <T,>(arr: T[]): T[] => [...arr].sort(() => Math.random() - 0.5);
+/**
+ * Fisher-Yates karıştırma — V8'de küçük dizilerde Math.random comparator
+ * sürekli aynı sıralamayı döndürüyordu (Timsort + insertion sort optimization
+ * yüzünden). Bu doğru rastgele dağılım verir.
+ */
+export function shuffle<T>(arr: T[]): T[] {
+  const result = [...arr];
+  for (let i = result.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [result[i], result[j]] = [result[j], result[i]];
+  }
+  return result;
+}
+
+/**
+ * Match-pairs için: kimlik permütasyonunu (her eleman aynı yerde) önler.
+ * 4 elemanlı dizi için %4 ihtimal aynı kalabiliyor — bu garantiler farklılığı.
+ */
+export function shuffleNotIdentity<T>(arr: T[]): T[] {
+  if (arr.length <= 1) return [...arr];
+  let result: T[];
+  let attempts = 0;
+  do {
+    result = shuffle(arr);
+    attempts++;
+  } while (result.every((item, i) => item === arr[i]) && attempts < 10);
+  return result;
+}

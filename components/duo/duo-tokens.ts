@@ -48,19 +48,24 @@ export const DUO = {
   shadowMd:    "rgba(0,0,0,0.16)",
 };
 
-// === TYPOGRAPHY (DIN Round + Feather Bold = Nunito + Fredoka fallback) ===
+// === TYPOGRAPHY — Times New Roman (kullanıcı isteği)
+//   iOS'ta yerli Times New Roman, Android'de "serif" otomatik fallback'i.
+//   Tüm font ailesi tek bir aile altında, weight ile farklılaşır.
+import { Platform } from "react-native";
+const TNR = Platform.OS === "ios" ? "Times New Roman" : "serif";
+
 export const DUO_TYPO = {
-  hero:    { fontFamily: "Fredoka_700Bold", fontSize: 32, letterSpacing: -0.5 },
-  display: { fontFamily: "Fredoka_700Bold", fontSize: 26, letterSpacing: -0.3 },
-  h1:      { fontFamily: "Fredoka_700Bold", fontSize: 22 },
-  h2:      { fontFamily: "Fredoka_700Bold", fontSize: 18 },
-  h3:      { fontFamily: "Fredoka_600SemiBold", fontSize: 16 },
-  body:    { fontFamily: "Nunito_700Bold", fontSize: 15 },
-  bodyReg: { fontFamily: "Nunito_400Regular", fontSize: 15 },
-  caption: { fontFamily: "Nunito_700Bold", fontSize: 12, letterSpacing: 0.5 },
-  micro:   { fontFamily: "Nunito_800ExtraBold", fontSize: 10, letterSpacing: 1.2, textTransform: "uppercase" as const },
+  hero:    { fontFamily: TNR, fontWeight: "900" as const, fontSize: 32, letterSpacing: -0.5 },
+  display: { fontFamily: TNR, fontWeight: "900" as const, fontSize: 26, letterSpacing: -0.3 },
+  h1:      { fontFamily: TNR, fontWeight: "800" as const, fontSize: 22 },
+  h2:      { fontFamily: TNR, fontWeight: "800" as const, fontSize: 18 },
+  h3:      { fontFamily: TNR, fontWeight: "700" as const, fontSize: 16 },
+  body:    { fontFamily: TNR, fontWeight: "700" as const, fontSize: 15 },
+  bodyReg: { fontFamily: TNR, fontWeight: "400" as const, fontSize: 15 },
+  caption: { fontFamily: TNR, fontWeight: "700" as const, fontSize: 12, letterSpacing: 0.5 },
+  micro:   { fontFamily: TNR, fontWeight: "900" as const, fontSize: 10, letterSpacing: 1.2, textTransform: "uppercase" as const },
   // Buton tipografisi (büyük, capslock)
-  button:  { fontFamily: "Fredoka_700Bold", fontSize: 15, letterSpacing: 0.8, textTransform: "uppercase" as const },
+  button:  { fontFamily: TNR, fontWeight: "800" as const, fontSize: 15, letterSpacing: 0.8, textTransform: "uppercase" as const },
 };
 
 export const DUO_RADIUS = {

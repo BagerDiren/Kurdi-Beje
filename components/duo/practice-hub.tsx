@@ -11,6 +11,7 @@
  */
 import { useState, useMemo } from "react";
 import { View, Text, ScrollView, Pressable, StyleSheet, SafeAreaView } from "react-native";
+import { router } from "expo-router";
 import { DUO, DUO_RADIUS, DUO_SPACING, DUO_TYPO } from "./duo-tokens";
 import { PracticeRunner } from "./practice-runner";
 import { DUO_SECTIONS, shuffle, type Exercise } from "@/data/duo-content";
@@ -112,8 +113,15 @@ export function PracticeHub({ onXp }: Props) {
   return (
     <View style={s.root}>
       <SafeAreaView style={s.headerWrap}>
-        <Text style={s.title}>{hui("title", lang)}</Text>
-        <Text style={s.sub}>{hui("sub", lang)}</Text>
+        <View style={s.headerRow}>
+          <Pressable onPress={() => router.replace("/(tabs)")} hitSlop={10} style={s.backBtn}>
+            <Text style={s.backTxt}>‹</Text>
+          </Pressable>
+          <View style={{ flex: 1 }}>
+            <Text style={s.title}>{hui("title", lang)}</Text>
+            <Text style={s.sub}>{hui("sub", lang)}</Text>
+          </View>
+        </View>
       </SafeAreaView>
       <ScrollView style={{ flex: 1 }} contentContainerStyle={s.body}>
         {MODES.map((m) => (
@@ -160,6 +168,13 @@ const s = StyleSheet.create({
     paddingTop: 50, paddingHorizontal: DUO_SPACING.lg, paddingBottom: DUO_SPACING.md,
     borderBottomWidth: 2, borderBottomColor: DUO.swan,
   },
+  headerRow: { flexDirection: "row", alignItems: "center", gap: DUO_SPACING.sm },
+  backBtn: {
+    width: 40, height: 40, borderRadius: 999,
+    backgroundColor: DUO.polar,
+    alignItems: "center", justifyContent: "center",
+  },
+  backTxt: { fontSize: 28, color: DUO.eel, lineHeight: 30 },
   title: { ...DUO_TYPO.hero, color: DUO.eel },
   sub: { ...DUO_TYPO.body, color: DUO.wolf, marginTop: 2 },
   body: { padding: DUO_SPACING.lg, gap: DUO_SPACING.md, paddingBottom: 60 },
@@ -177,7 +192,7 @@ const s = StyleSheet.create({
   },
   cardTitle: { ...DUO_TYPO.h2 },
   cardSub: { ...DUO_TYPO.body, color: DUO.wolf, marginTop: 2 },
-  chevron: { fontSize: 36, fontFamily: "Fredoka_700Bold" },
+  chevron: { fontSize: 36, fontFamily: "Times New Roman" },
 
   statsCard: {
     marginTop: DUO_SPACING.lg,
