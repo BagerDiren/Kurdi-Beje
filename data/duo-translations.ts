@@ -549,6 +549,86 @@ export const TR_TO_EN: Record<string, string> = {
   "Sabır şifadır.": "Patience is healing.",
   "Atasözleri bilginin pınarıdır.": "Proverbs are the spring of wisdom.",
 
+  // === A1 yeni — Hayvan sesleri ===
+  "Havlıyor": "Barks",
+  "Miyavlıyor": "Meows",
+  "Bir kedi yavrusu": "A kitten",
+  "Köpek havlıyor": "Dog barks",
+  "Kedi miyavlıyor": "Cat meows",
+  "İnek möğrür": "Cow moos",
+  "Koyun melemler": "Sheep bleats",
+  "Köpek havlıyor.": "The dog barks.",
+  "Möğrür": "Moos",
+  "Melemler": "Bleats",
+  "Şahlanır": "Rears up",
+  "Tavuk ötüyor.": "The chicken clucks.",
+
+  // === A1 yeni — Soru sorma ===
+  "Kim": "Who",
+  "Ne": "What",
+  "Nerede": "Where",
+  "Ne zaman": "When",
+  "Sen kimsin?": "Who are you?",
+  "Sen öğretmen misin?": "Are you a teacher?",
+  "Evet, Kürdüm": "Yes, I'm Kurdish",
+  "Hayır, öğretmen değilim": "No, I'm not a teacher",
+  "Hayır, ben öğretmen değilim.": "No, I am not a teacher.",
+  "Bu ne?": "What is this?",
+  "Bu kim?": "Who is this?",
+  "Bu ev": "This is a house",
+  "Bu arkadaşım": "This is my friend",
+  "Bu elma": "This is an apple",
+  "Bu benim arkadaşım.": "This is my friend.",
+
+  // === A2 yeni — Para ve Çarşı ===
+  "Para": "Money",
+  "Pahalı": "Expensive",
+  "Ucuz": "Cheap",
+  "Bu çok pahalı.": "This is very expensive.",
+  "Satın almak": "To buy",
+  "Satmak": "To sell",
+  "Kaç para?": "How much?",
+  "Yeter": "Enough",
+  "Bu kaç para?": "How much is this?",
+  "Elma aldım": "I bought apples",
+  "Tane / adet": "Piece / item",
+  "İki tane istiyorum.": "I want two pieces.",
+
+  // === A2 yeni — Sağlık temel ===
+  "Sağlık": "Health",
+  "Ağrıyor": "It hurts",
+  "Hastayım.": "I am sick.",
+  "Reçete": "Prescription",
+
+  // === B1 yeni — Eğitim ===
+  "Öğrenci": "Student",
+  "Ders": "Lesson",
+  "Öğrenci kitap okuyor.": "The student reads a book.",
+  "Sınav": "Exam",
+  "Not": "Grade",
+  "Sınavda iyi yaptım.": "I did well in the exam.",
+  "Yazmak": "To write",
+  "Mektup": "Letter",
+  "Yazıyorum": "I'm writing",
+  "Kalem": "Pen",
+  "Bir mektup yazdım.": "I wrote a letter.",
+  "Arkadaşıma mektup yazdım.": "I wrote a letter to my friend.",
+
+  // === B1 yeni — Teknoloji ===
+  "Telefon": "Phone",
+  "Mesaj": "Message",
+  "Çağrı / arama": "Call",
+  "Çağrı": "Call",
+  "Ara (telefonla)": "Call (phone)",
+  "Ara": "Call",
+  "Sana mesaj gönderdim.": "I sent you a message.",
+  "İnternet": "Internet",
+  "Web sitesi": "Website",
+  "Uygulama": "App",
+  "Giriş yap": "Log in",
+  "Giriş": "Login",
+  "İnternet üzerinde Kürtçe öğreniyorum.": "I'm learning Kurmancî on the internet.",
+
   // === FILL-BLANK HİNTLERİ (genelde sample cümlelerden) ===
 };
 

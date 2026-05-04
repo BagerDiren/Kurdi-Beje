@@ -767,6 +767,102 @@ const SECTION_A1: DuoSection = {
         ]),
       ],
     },
+    // ─────────────────────────────────────────────────────
+    // UNIT 8b: Mesleklere Giriş + Hayvan Sesleri (yeni A1 ünite)
+    // ─────────────────────────────────────────────────────
+    {
+      id: "u8b", no: 8.5, title: "Hayvan Sesleri", subtitle: "Dengên heywanan · ses + hayvan",
+      emoji: "🔊", color: "#F39C12", track: "kid",
+      objectives: ["Köpek havlar, kedi miyavlar", "Çiftlik sesleri"],
+      lessons: [
+        L("u8b-l1", "Lesson 1", "Köpek + kedi", 10, [
+          nw("Diqîre", "Havlıyor", "🐶"),
+          nw("Diqîqe", "Miyavlıyor", "🐱"),
+          nw("Birûskek", "Bir kedi yavrusu", "🐱"),
+          mp(
+            { ku: "Kûçik diqîre", tr: "Köpek havlıyor" },
+            { ku: "Pisîk diqîqe", tr: "Kedi miyavlıyor" },
+            { ku: "Ga dirûse", tr: "İnek möğrür" },
+            { ku: "Pez dibehe", tr: "Koyun melemler" },
+          ),
+          tt("Köpek havlıyor.", "Kûçik diqîre.", ["pisîk", "ga"]),
+          ta("Kûçik diqîre", ["Kûçik", "diqîre"], "Köpek havlıyor"),
+        ]),
+        L("u8b-l2", "Lesson 2", "Çiftlik hayvanları", 10, [
+          nw("Dirûse", "Möğrür", "🐮"),
+          nw("Dibehe", "Melemler", "🐑"),
+          nw("Diqewze", "Şahlanır", "🐴"),
+          mp(
+            { ku: "Mirîşk", tr: "Tavuk" },
+            { ku: "Hesp", tr: "At" },
+            { ku: "Pez", tr: "Koyun" },
+            { ku: "Ga", tr: "İnek" },
+          ),
+          fb(["Mirîşk ", "."], ["dixwîne", "diqîre", "dibehe", "dirûse"],
+             "Tavuk ötüyor."),
+        ]),
+      ],
+    },
+    // ─────────────────────────────────────────────────────
+    // UNIT 8c: Hayır cümleleri ve sorular (A1 dilbilgisi)
+    // ─────────────────────────────────────────────────────
+    {
+      id: "u8c", no: 8.7, title: "Soru Sorma", subtitle: "Pirsîn · kim, ne, nerede",
+      emoji: "❓", color: "#E91E63", track: "all",
+      objectives: ["Soru kelimeleri", "Yes/no soruları", "Wh-soruları"],
+      lessons: [
+        L("u8c-l1", "Lesson 1", "Soru kelimeleri", 12, [
+          tip("❓", "Soru kelimeleri",
+              "Kürtçede 5 temel soru kelimesi:\n" +
+              "Kî = kim · Çi = ne · Ku = nerede\n" +
+              "Kengî = ne zaman · Çawa = nasıl\n" +
+              "Yes/No sorusunda cümle sonuna soru tonu yeter.",
+              { ku: "Tu kî yî? Ev çi ye?", tr: "Sen kimsin? Bu ne?" }),
+          nw("Kî", "Kim", "👤"),
+          nw("Çi", "Ne", "🤔"),
+          nw("Ku", "Nerede", "📍"),
+          nw("Kengî", "Ne zaman", "🕐"),
+          nw("Çawa", "Nasıl", "🤷"),
+          mp(
+            { ku: "Kî", tr: "Kim" },
+            { ku: "Çi", tr: "Ne" },
+            { ku: "Ku", tr: "Nerede" },
+            { ku: "Kengî", tr: "Ne zaman" },
+          ),
+          tt("Sen kimsin?", "Tu kî yî?", ["çi", "ku", "yî"]),
+        ]),
+        L("u8c-l2", "Lesson 2", "Yes/No soruları", 12, [
+          nw("Tu Kurd î?", "Sen Kürt müsün?", "❓"),
+          nw("Erê", "Evet", "✅"),
+          nw("Na", "Hayır", "❌"),
+          mp(
+            { ku: "Tu Kurd î?", tr: "Sen Kürt müsün?" },
+            { ku: "Tu mamoste yî?", tr: "Sen öğretmen misin?" },
+            { ku: "Erê, ez Kurd im", tr: "Evet, Kürdüm" },
+            { ku: "Na, ez ne mamoste me", tr: "Hayır, öğretmen değilim" },
+          ),
+          ex(fb(["Tu mamoste ", "?"], ["yî", "im", "e", "ku"],
+                "Sen öğretmen misin?"),
+             "'Tu' (sen) ile yes/no sorusu: cümle sonuna 'yî' eki + soru tonu."),
+          tt("Hayır, ben öğretmen değilim.", "Na, ez ne mamoste me.",
+             ["erê", "Kurd", "yî"]),
+        ]),
+        L("u8c-l3", "Lesson 3", "Bu ne? Bu kim?", 12, [
+          nw("Ev çi ye?", "Bu ne?", "❓"),
+          nw("Ev kî ye?", "Bu kim?", "👀"),
+          nw("Ev mal e", "Bu ev", "🏠"),
+          nw("Ev hevalê min e", "Bu arkadaşım", "🤝"),
+          mp(
+            { ku: "Ev çi ye?", tr: "Bu ne?" },
+            { ku: "Ev kî ye?", tr: "Bu kim?" },
+            { ku: "Ev mal e", tr: "Bu ev" },
+            { ku: "Ev sêv e", tr: "Bu elma" },
+          ),
+          tt("Bu benim arkadaşım.", "Ev hevalê min e.", ["çi", "ye", "yî"]),
+          ta("Ev kî ye?", ["Ev", "kî", "ye?"], "Bu kim?"),
+        ]),
+      ],
+    },
   ],
 };
 
@@ -1284,6 +1380,103 @@ const SECTION_A2: DuoSection = {
         ]),
       ],
     },
+    // ─────────────────────────────────────────────────────
+    // UNIT 15b: Para ve Çarşı (yeni A2 ünite)
+    // ─────────────────────────────────────────────────────
+    {
+      id: "u15b", no: 15.5, title: "Para ve Çarşı", subtitle: "Pere û çarşû",
+      emoji: "💰", color: "#1B5E20", track: "all",
+      objectives: ["Para birimleri", "Pahalı/ucuz", "Almak/satmak", "Kaç para?"],
+      lessons: [
+        L("u15b-l1", "Lesson 1", "Para kavramı", 12, [
+          nw("Pere", "Para", "💰"),
+          nw("Çend", "Kaç", "🔢"),
+          nw("Buha", "Pahalı", "💸"),
+          nw("Erzan", "Ucuz", "🏷️"),
+          mp(
+            { ku: "Pere", tr: "Para" },
+            { ku: "Buha", tr: "Pahalı" },
+            { ku: "Erzan", tr: "Ucuz" },
+            { ku: "Çend", tr: "Kaç" },
+          ),
+          tt("Bu çok pahalı.", "Ev pirr buha ye.", ["erzan", "ne"]),
+        ]),
+        L("u15b-l2", "Lesson 2", "Almak / satmak", 14, [
+          tip("🛒", "Çarşı eylemleri",
+              "Kirîn = satın almak, firotin = satmak.\n" +
+              "Çend pere ye? = Kaç para?\n" +
+              "Min kirî = Ben aldım (geçişli geçmiş)",
+              { ku: "Min sêv kirîn.", tr: "Elma aldım." }),
+          nw("Kirîn", "Satın almak", "🛒"),
+          nw("Firotin", "Satmak", "🏪"),
+          nw("Çend pere ye?", "Kaç para?", "💵"),
+          nw("Bes", "Yeter", "✋"),
+          mp(
+            { ku: "Kirîn", tr: "Satın almak" },
+            { ku: "Firotin", tr: "Satmak" },
+            { ku: "Çend pere ye?", tr: "Kaç para?" },
+            { ku: "Bes", tr: "Yeter" },
+          ),
+          ex(tt("Bu kaç para?", "Ev çend pere ye?", ["buha", "erzan", "kirîn"]),
+             "'Çend pere ye?' standart 'kaç para?' sorusu."),
+          ta("Min sêv kirîn", ["Min", "sêv", "kirîn"], "Elma aldım"),
+        ]),
+        L("u15b-l3", "Lesson 3", "Çarşı diyaloğu", 14, [
+          story("Çarşıda alışveriş", [
+            { speaker: "A", ku: "Roj baş! Ev sêv çend pere ye?", tr: "Günaydın! Bu elma kaç para?" },
+            { speaker: "B", ku: "Sêvek deh lîre ye.", tr: "Bir elma on lira." },
+            { speaker: "A", ku: "Pirr buha ye! Bes erzantir tune?", tr: "Çok pahalı! Daha ucuzu yok mu?" },
+            { speaker: "B", ku: "Hene, ev jî pênc lîre ye.", tr: "Var, bu da beş lira." },
+            { speaker: "A", ku: "Baş e, ez du heb dixwazim.", tr: "Tamam, iki tane istiyorum." },
+          ]),
+          mp(
+            { ku: "Pere", tr: "Para" },
+            { ku: "Buha", tr: "Pahalı" },
+            { ku: "Erzan", tr: "Ucuz" },
+            { ku: "Heb", tr: "Tane / adet" },
+          ),
+          tt("İki tane istiyorum.", "Ez du heb dixwazim.", ["pênc", "ne", "kirîn"]),
+        ]),
+      ],
+    },
+    // ─────────────────────────────────────────────────────
+    // UNIT 15c: Sağlık temel (yeni A2 ünite)
+    // ─────────────────────────────────────────────────────
+    {
+      id: "u15c", no: 15.7, title: "Sağlık Temel", subtitle: "Tenduristî · doktor, hasta",
+      emoji: "🩺", color: "#C62828", track: "all",
+      objectives: ["Hasta hissetme", "Vücut bölgesi ağrısı", "Doktor randevusu"],
+      lessons: [
+        L("u15c-l1", "Lesson 1", "Hasta hissetmek", 12, [
+          nw("Nexweş", "Hasta", "🤒"),
+          nw("Tenduristî", "Sağlık", "💪"),
+          nw("Bijîşk", "Doktor", "👨‍⚕️"),
+          nw("Diêşe", "Ağrıyor", "😣"),
+          mp(
+            { ku: "Nexweş", tr: "Hasta" },
+            { ku: "Bijîşk", tr: "Doktor" },
+            { ku: "Diêşe", tr: "Ağrıyor" },
+            { ku: "Tenduristî", tr: "Sağlık" },
+          ),
+          fb(["Ez ", " im."], ["nexweş", "bijîşk", "kar", "ne"], "Hastayım."),
+          tt("Başım ağrıyor.", "Serê min diêşe.", ["zikê", "kalbim"]),
+        ]),
+        L("u15c-l2", "Lesson 2", "Doktora gitmek", 14, [
+          nw("Nexweşxane", "Hastane", "🏥"),
+          nw("Derman", "İlaç", "💊"),
+          nw("Pijaqe", "Reçete", "📋"),
+          nw("Birîn", "Yara", "🩹"),
+          mp(
+            { ku: "Nexweşxane", tr: "Hastane" },
+            { ku: "Derman", tr: "İlaç" },
+            { ku: "Pijaqe", tr: "Reçete" },
+            { ku: "Birîn", tr: "Yara" },
+          ),
+          ex(tt("Doktora gidiyorum.", "Ez diçim ba bijîşk.", ["nexweş", "diêşe"]),
+             "'Ba bijîşk' = doktora (ba = yanına/-e doğru)"),
+        ]),
+      ],
+    },
   ],
 };
 
@@ -1561,6 +1754,101 @@ const SECTION_B1: DuoSection = {
           ),
           fb(["Ez nan dixwim ji ber ku ", "."], ["birçî me", "spas", "ne", "av"], "Yiyorum çünkü açım."),
           tt("Ne için geldin?", "Ji bo çi hatî?", ["çûyî", "ne"]),
+        ]),
+      ],
+    },
+    // ─────────────────────────────────────────────────────
+    // UNIT 19b: Eğitim ve Okul (yeni B1 ünite)
+    // ─────────────────────────────────────────────────────
+    {
+      id: "u19b", no: 19.5, title: "Eğitim", subtitle: "Perwerde · okul, ders, sınav",
+      emoji: "🎓", color: "#1976D2", track: "all",
+      objectives: ["Okul kelimeleri", "Ders takvimi", "Sınav ifadeleri"],
+      lessons: [
+        L("u19b-l1", "Lesson 1", "Okul kelimeleri", 14, [
+          nw("Dibistan", "Okul", "🏫"),
+          nw("Mamoste", "Öğretmen", "👨‍🏫"),
+          nw("Xwendekar", "Öğrenci", "👨‍🎓"),
+          nw("Ders", "Ders", "📚"),
+          nw("Pirtûk", "Kitap", "📖"),
+          mp(
+            { ku: "Dibistan", tr: "Okul" },
+            { ku: "Mamoste", tr: "Öğretmen" },
+            { ku: "Xwendekar", tr: "Öğrenci" },
+            { ku: "Ders", tr: "Ders" },
+          ),
+          tt("Öğrenci kitap okuyor.", "Xwendekar pirtûk dixwîne.", ["mamoste", "ne"]),
+        ]),
+        L("u19b-l2", "Lesson 2", "Sınav günü", 14, [
+          nw("Tafîr", "Sınav", "📝"),
+          nw("Bersiv", "Cevap", "💭"),
+          nw("Pirs", "Soru", "❓"),
+          nw("Not", "Not", "💯"),
+          mp(
+            { ku: "Tafîr", tr: "Sınav" },
+            { ku: "Bersiv", tr: "Cevap" },
+            { ku: "Pirs", tr: "Soru" },
+            { ku: "Not", tr: "Not" },
+          ),
+          ex(tt("Sınavda iyi yaptım.", "Min di tafîrê de baş kir.", ["nexweş", "kar"]),
+             "Geçişli geçmiş 'Min ... kir' yapısı + 'di tafîrê de' lokatif."),
+        ]),
+        L("u19b-l3", "Lesson 3", "Mektup ve yazma", 14, [
+          tip("✍️", "Yazma fiili (nivîsîn)",
+              "Nivîsîn = yazmak (geçişli).\n" +
+              "Min name nivîsî = Mektup yazdım (ergative geçmiş).\n" +
+              "Ez name dinivîsim = Mektup yazıyorum (present).",
+              { ku: "Min name ji hevalê xwe re nivîsî.", tr: "Arkadaşıma mektup yazdım." }),
+          nw("Nivîsîn", "Yazmak", "✍️"),
+          nw("Name", "Mektup", "✉️"),
+          nw("Dinivîsim", "Yazıyorum", "🖊️"),
+          mp(
+            { ku: "Nivîsîn", tr: "Yazmak" },
+            { ku: "Name", tr: "Mektup" },
+            { ku: "Pirtûk", tr: "Kitap" },
+            { ku: "Pênûs", tr: "Kalem" },
+          ),
+          tt("Bir mektup yazdım.", "Min nameyek nivîsî.", ["pirtûk", "dinivîsim"]),
+        ]),
+      ],
+    },
+    // ─────────────────────────────────────────────────────
+    // UNIT 19c: Teknoloji ve İletişim (yeni B1 ünite)
+    // ─────────────────────────────────────────────────────
+    {
+      id: "u19c", no: 19.7, title: "Teknoloji", subtitle: "Teknolojî · telefon, internet",
+      emoji: "📱", color: "#FF6F00", track: "adult",
+      objectives: ["Telefon, mesaj", "İnternet, sosyal medya", "Uygulamalar"],
+      lessons: [
+        L("u19c-l1", "Lesson 1", "Telefon ve mesaj", 14, [
+          nw("Telefon", "Telefon", "📞"),
+          nw("Peyam", "Mesaj", "💬"),
+          nw("Bang", "Çağrı / arama", "📲"),
+          nw("Bigerîne", "Ara (telefonla)", "☎️"),
+          mp(
+            { ku: "Telefon", tr: "Telefon" },
+            { ku: "Peyam", tr: "Mesaj" },
+            { ku: "Bang", tr: "Çağrı" },
+            { ku: "Bigerîne", tr: "Ara" },
+          ),
+          tt("Sana mesaj gönderdim.", "Min ji te re peyam şand.",
+             ["bang", "ne", "kirîn"]),
+        ]),
+        L("u19c-l2", "Lesson 2", "İnternet", 14, [
+          nw("Înternet", "İnternet", "🌐"),
+          nw("Malper", "Web sitesi", "🔗"),
+          nw("Bername", "Uygulama", "📱"),
+          nw("Têketin", "Giriş yap", "🔐"),
+          mp(
+            { ku: "Înternet", tr: "İnternet" },
+            { ku: "Malper", tr: "Web sitesi" },
+            { ku: "Bername", tr: "Uygulama" },
+            { ku: "Têketin", tr: "Giriş" },
+          ),
+          ex(tt("İnternet üzerinde Kürtçe öğreniyorum.",
+                "Ez li ser înternetê Kurmancî hîn dibim.",
+                ["dixwim", "kar"]),
+             "'Li ser' = üzerinde, 'hîn dibim' = öğreniyorum (kontinüatif)."),
         ]),
       ],
     },
