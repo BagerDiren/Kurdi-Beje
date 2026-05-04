@@ -758,66 +758,85 @@ function SelectImage({
     onResult(origIdx === correctOrigIdx);
   };
 
+  // 4 seçenek 2x2 grid, dikey alanı eşit paylaş (boşluk bırakma)
+  const rows = [shuffledOpts.slice(0, 2), shuffledOpts.slice(2, 4)];
+
   return (
     <View style={siS.wrap}>
-      <Text style={siS.title}>{ui("whichOne", lang)} "{ex.ku}"?</Text>
-      <Pressable
-        onPress={() => speakKurmanci(ex.ku, "kid")}
-        style={siS.audioBtn}
-      >
-        <Text style={{ fontSize: 20 }}>🔊</Text>
-        <Text style={siS.audioBtnTxt}>{ex.ku}</Text>
-      </Pressable>
-      <View style={siS.grid}>
-        {shuffledOpts.map((opt) => {
-          const isPicked = picked === opt.origIdx;
-          const isCorrect = picked !== null && opt.origIdx === correctOrigIdx;
-          let bg = DUO.snow, border = DUO.swan, bottom = DUO.swan;
-          if (isCorrect)                  { bg = "#D7FFB8"; border = DUO.green; bottom = DUO.green; }
-          else if (isPicked && !isCorrect){ bg = "#FFDFE0"; border = DUO.cardinal; bottom = DUO.cardinal; }
-          return (
-            <Pressable
-              key={opt.origIdx}
-              onPress={() => pick(opt.origIdx)}
-              style={({ pressed }) => [siS.tile, {
-                backgroundColor: bg,
-                borderColor: border,
-                borderBottomColor: bottom,
-                borderBottomWidth: pressed ? 2 : 4,
-              }]}
-            >
-              <Text style={siS.tileEmoji}>{opt.emoji}</Text>
-              <Text style={siS.tileLabel}>{tx(lang, opt.tr)}</Text>
-            </Pressable>
-          );
-        })}
+      <View style={siS.headerRow}>
+        <Text style={siS.title}>{ui("whichOne", lang)}</Text>
+        <Pressable onPress={() => speakKurmanci(ex.ku, "kid")} style={siS.audioBtn}>
+          <Text style={{ fontSize: 22 }}>🔊</Text>
+          <Text style={siS.audioBtnTxt}>{ex.ku}</Text>
+        </Pressable>
       </View>
-      <View style={{ flex: 1 }} />
+      <View style={siS.gridFlex}>
+        {rows.map((row, rIdx) => (
+          <View key={rIdx} style={siS.gridRow}>
+            {row.map((opt) => {
+              const isPicked = picked === opt.origIdx;
+              const isCorrect = picked !== null && opt.origIdx === correctOrigIdx;
+              let bg = DUO.snow, border = DUO.swan, bottom = DUO.swan;
+              if (isCorrect)                  { bg = "#D7FFB8"; border = DUO.green; bottom = DUO.green; }
+              else if (isPicked && !isCorrect){ bg = "#FFDFE0"; border = DUO.cardinal; bottom = DUO.cardinal; }
+              return (
+                <Pressable
+                  key={opt.origIdx}
+                  onPress={() => pick(opt.origIdx)}
+                  style={({ pressed }) => [siS.tile, {
+                    backgroundColor: bg,
+                    borderColor: border,
+                    borderBottomColor: bottom,
+                    borderBottomWidth: pressed ? 2 : 5,
+                    transform: [{ translateY: pressed ? 3 : 0 }],
+                  }]}
+                >
+                  <Text style={siS.tileEmoji}>{opt.emoji}</Text>
+                  <Text style={siS.tileLabel}>{tx(lang, opt.tr)}</Text>
+                </Pressable>
+              );
+            })}
+          </View>
+        ))}
+      </View>
     </View>
   );
 }
 
 const siS = StyleSheet.create({
   wrap: { flex: 1 },
-  title: { ...DUO_TYPO.h1, color: DUO.eel, padding: DUO_SPACING.lg },
+  headerRow: {
+    flexDirection: "row", alignItems: "center", justifyContent: "space-between",
+    paddingHorizontal: DUO_SPACING.lg, paddingTop: DUO_SPACING.lg, paddingBottom: DUO_SPACING.sm,
+  },
+  title: { ...DUO_TYPO.h2, color: DUO.eel, flex: 1 },
   audioBtn: {
-    alignSelf: "flex-start", marginLeft: DUO_SPACING.lg,
     flexDirection: "row", alignItems: "center", gap: DUO_SPACING.sm,
     backgroundColor: DUO.macaw,
     borderBottomWidth: 4, borderBottomColor: DUO.macawDark,
-    paddingHorizontal: DUO_SPACING.lg, paddingVertical: 10,
+    paddingHorizontal: DUO_SPACING.md, paddingVertical: 10,
     borderRadius: DUO_RADIUS.md,
-    marginBottom: DUO_SPACING.md,
   },
-  audioBtnTxt: { ...DUO_TYPO.body, color: DUO.snow, fontSize: 14 },
-  grid: { flexDirection: "row", flexWrap: "wrap", gap: DUO_SPACING.md, paddingHorizontal: DUO_SPACING.lg },
+  audioBtnTxt: { ...DUO_TYPO.body, color: DUO.snow, fontSize: 15 },
+  gridFlex: {
+    flex: 1,
+    paddingHorizontal: DUO_SPACING.lg,
+    paddingTop: DUO_SPACING.sm,
+    paddingBottom: DUO_SPACING.md,
+    gap: DUO_SPACING.md,
+  },
+  gridRow: {
+    flex: 1,
+    flexDirection: "row",
+    gap: DUO_SPACING.md,
+  },
   tile: {
-    width: (SW - DUO_SPACING.lg * 2 - DUO_SPACING.md) / 2,
-    aspectRatio: 1,
+    flex: 1,
     borderWidth: 2,
     borderRadius: DUO_RADIUS.lg,
     alignItems: "center", justifyContent: "center",
     gap: DUO_SPACING.sm,
+    paddingVertical: DUO_SPACING.md,
   },
   tileEmoji: { fontSize: 60 },
   tileLabel: { ...DUO_TYPO.body, color: DUO.eel },

@@ -95,12 +95,12 @@ export default function PlacementScreen() {
       }
     }
     const toMark = lessonsToMarkComplete(result.prefilledLessonPrefixes, allLessonIds);
-    // App context'e işaretle
-    toMark.forEach((id) => {
-      ctx.markLessonDone?.(id, 0);  // XP vermeden tamam işaretle
-    });
-    // Ana sekmeye yönlendir
-    router.replace("/(tabs)");
+    // BULK update — atomik, state kaybı yok
+    if (toMark.length > 0) {
+      ctx.markLessonsBulkDone?.(toMark);
+    }
+    // State commit'in tamamlanması için tick bekle, sonra navigate
+    setTimeout(() => router.replace("/(tabs)"), 80);
   };
 
   // === GİRİŞ EKRANI ===

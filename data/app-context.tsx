@@ -67,6 +67,11 @@ type AppActions = {
   setDailyGoal: (g: DailyGoalMinutes) => void;
   unlockAchievement: (id: string, xpReward?: number) => void;
   markLessonDone: (lessonId: string, xp: number) => void;
+  /**
+   * Çoklu dersi atomik olarak "tamam" işaretle (placement test sonrası).
+   * Streak / lastStudyDate değişmez — sadece completed listesi günceller.
+   */
+  markLessonsBulkDone: (lessonIds: string[]) => void;
 };
 
 const AppContext = createContext<(AppState & AppActions) | null>(null);
@@ -197,6 +202,19 @@ export function AppProvider({ children }: { children: ReactNode }) {
   /** Hafif marka — startLesson/finishLesson akışı dışında ders tamamlama
    *  (çocuk modu, pratik vb. için). XP ekler, completed listesine atar,
    *  streak/lessonsToday günceller; yetişkin lesson runner kullanmaz. */
+  /**
+   * Atomik bulk update: placement test sonucu birden çok dersi tamam işaretler.
+   * Tek setState çağrısı → React batch'te kaybolma riski yok.
+   */
+  const markLessonsBulkDone = useCallback((lessonIds: string[]) => {
+    if (!lessonIds || lessonIds.length === 0) return;
+    setCompleted((prev) => {
+      const set = new Set(prev);
+      for (const id of lessonIds) set.add(id);
+      return Array.from(set);
+    });
+  }, []);
+
   const markLessonDone = useCallback((lessonId: string, xp: number) => {
     setXpState((p) => p + xp);
     setCompleted((p) => (p.includes(lessonId) ? p : [...p, lessonId]));
@@ -260,7 +278,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
     go, setLang, setAge, setLvl, setTab, setActiveGame, setActiveCategory,
     startLesson, nextStep, finishLesson, onCorrect, onWrong,
     addXp, setHearts, resetProgress,
-    setProficiency, setDailyGoal, unlockAchievement, markLessonDone,
+    setProficiency, setDailyGoal, unlockAchievement, markLessonDone, markLessonsBulkDone,
   };
 
   return <AppContext.Provider value={value}>{children}</AppContext.Provider>;
