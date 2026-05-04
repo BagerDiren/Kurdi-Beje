@@ -7,23 +7,41 @@
 import { View, Text, ScrollView, Pressable, StyleSheet, SafeAreaView, Linking, Alert } from "react-native";
 import { CARTOONS } from "@/data/cartoons";
 import { DUO, DUO_RADIUS, DUO_SPACING, DUO_TYPO } from "@/components/duo/duo-tokens";
+import { useApp } from "@/data/app-context";
+import type { LangCode } from "@/data/languages";
+
+const C_UI = {
+  title:        { tr: "📺 Çizgi Film",            en: "📺 Cartoons",                   ku: "📺 Karîkatur" },
+  sub:          { tr: "Kürtçe çocuk videoları",  en: "Kurdish children's videos",     ku: "Vîdeoyên zarokên Kurdî" },
+  openYoutube:  { tr: "YouTube'da aç →",          en: "Open in YouTube →",             ku: "Di YouTube de veke →" },
+  failed:       { tr: "Açılamadı",                en: "Couldn't open",                 ku: "Nehat vekirin" },
+  failedSub:    { tr: "videosu açılamadı.",      en: "video couldn't open.",          ku: "vîdeo nehat vekirin." },
+  errorT:       { tr: "Hata",                    en: "Error",                          ku: "Çewtî" },
+  errorSub:     { tr: "Video açılırken bir sorun oluştu.", en: "An error occurred opening the video.", ku: "Di vekirina vîdeo de pirsgirêkek çêbû." },
+  disclaimer:   { tr: "🔒 Tüm videolar telifsiz / halka açık YouTube kanallarından küratör seçilmiştir.\nAçılan içerik ebeveyn denetiminde izlenmelidir.",
+                  en: "🔒 All videos are curated from royalty-free / public YouTube channels.\nContent should be viewed under parental supervision.",
+                  ku: "🔒 Hemû vîdeo ji kanalên YouTube yên belaş / vekirî hatine hilbijartin.\nNaverok divê di bin çavdêriya dêûbavan de were temaşekirin." },
+} as const;
+const cui = (k: keyof typeof C_UI, lang: LangCode) => C_UI[k][lang];
 
 export default function CartoonsScreen() {
+  const ctx = useApp();
+  const lang: LangCode = (ctx.lang as LangCode) ?? "tr";
   const open = async (url: string, title: string) => {
     try {
       const can = await Linking.canOpenURL(url);
       if (can) await Linking.openURL(url);
-      else Alert.alert("Açılamadı", `${title} videosu açılamadı.`);
+      else Alert.alert(cui("failed", lang), `${title} ${cui("failedSub", lang)}`);
     } catch {
-      Alert.alert("Hata", "Video açılırken bir sorun oluştu.");
+      Alert.alert(cui("errorT", lang), cui("errorSub", lang));
     }
   };
 
   return (
     <View style={s.root}>
       <SafeAreaView style={s.headerWrap}>
-        <Text style={s.title}>📺 Çizgi Film</Text>
-        <Text style={s.sub}>Kürtçe çocuk videoları</Text>
+        <Text style={s.title}>{cui("title", lang)}</Text>
+        <Text style={s.sub}>{cui("sub", lang)}</Text>
       </SafeAreaView>
       <ScrollView style={{ flex: 1 }} contentContainerStyle={s.body}>
         {CARTOONS.map((c) => (
@@ -49,14 +67,13 @@ export default function CartoonsScreen() {
               <Text style={s.cardDesc}>{c.description}</Text>
               <View style={s.cardMeta}>
                 <Text style={s.cardChannel}>📡 {c.channel}</Text>
-                <Text style={s.cardOpen}>YouTube'da aç →</Text>
+                <Text style={s.cardOpen}>{cui("openYoutube", lang)}</Text>
               </View>
             </View>
           </Pressable>
         ))}
         <Text style={s.disclaimer}>
-          🔒 Tüm videolar telifsiz / halka açık YouTube kanallarından küratör seçilmiştir.{"\n"}
-          Açılan içerik ebeveyn denetiminde izlenmelidir.
+          {cui("disclaimer", lang)}
         </Text>
       </ScrollView>
     </View>

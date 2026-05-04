@@ -1,12 +1,17 @@
-export type LangCode = "ku" | "tr" | "en" | "ar" | "fa" | "fr" | "sv" | "ru";
+/**
+ * Uygulama UI dili. Sadece 3 seçenek:
+ *   • Türkçe (tr)  — varsayılan
+ *   • İngilizce (en)
+ *   • Kürtçe / Kurmancî (ku)
+ *
+ * Öğrenilen dil her durumda Kurmancî'dir.
+ * UI dili çeviriler için de kullanılır (ders kelimeleri TR↔EN).
+ */
 
-export const LANGS: { code: LangCode; name: string; color: string; rtl?: boolean }[] = [
-  { code: "ku", name: "Kurmancî", color: "#4CAF50" },
-  { code: "tr", name: "Türkçe", color: "#E53935" },
-  { code: "en", name: "English", color: "#1565C0" },
-  { code: "ar", name: "العربية", color: "#2E7D32", rtl: true },
-  { code: "fa", name: "فارسی", color: "#6A1B9A", rtl: true },
-  { code: "fr", name: "Français", color: "#0D47A1" },
-  { code: "sv", name: "Svenska", color: "#F9A825" },
-  { code: "ru", name: "Русский", color: "#37474F" },
+export type LangCode = "ku" | "tr" | "en";
+
+export const LANGS: { code: LangCode; name: string; nativeName: string; flag: string; color: string }[] = [
+  { code: "tr", name: "Türkçe",   nativeName: "Türkçe",   flag: "🇹🇷", color: "#E53935" },
+  { code: "en", name: "English",  nativeName: "English",  flag: "🇬🇧", color: "#1565C0" },
+  { code: "ku", name: "Kurmancî", nativeName: "Kurmancî", flag: "🟢", color: "#4CAF50" },
 ];

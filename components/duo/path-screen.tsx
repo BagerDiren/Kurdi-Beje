@@ -29,6 +29,15 @@ import Animated, {
 
 import { DUO, DUO_RADIUS, DUO_SPACING, DUO_TYPO } from "./duo-tokens";
 import { DUO_SECTIONS, getSectionsForAudience, type DuoSection, type DuoUnit, type DuoLesson } from "@/data/duo-content";
+import { useApp } from "@/data/app-context";
+import type { LangCode } from "@/data/languages";
+
+const PATH_UI = {
+  unit:           { tr: "UNIT",            en: "UNIT",            ku: "BEŞ" },
+  lessonsDone:    { tr: "ders tamam",      en: "lessons done",    ku: "ders qediya" },
+  start:          { tr: "BAŞLA",           en: "START",           ku: "DEST PÊ KE" },
+} as const;
+const pathUi = (k: keyof typeof PATH_UI, lang: LangCode) => PATH_UI[k][lang];
 
 const { width: SW } = Dimensions.get("window");
 const NODE_SIZE = 72;
@@ -46,6 +55,8 @@ type Props = {
 };
 
 export function PathScreen({ completedLessonIds, hearts, xp, streak, audience, onSelectLesson }: Props) {
+  const ctx = useApp();
+  const lang: LangCode = (ctx.lang as LangCode) ?? "tr";
   // Hedef kitleye göre filtrelenmiş sections
   const sections = useMemo(() => getSectionsForAudience(audience), [audience]);
 
@@ -98,6 +109,7 @@ export function PathScreen({ completedLessonIds, hearts, xp, streak, audience, o
             section={section}
             nodeStatus={nodeStatus}
             onSelectLesson={onSelectLesson}
+            lang={lang}
           />
         ))}
         <View style={{ height: 60 }} />
@@ -107,11 +119,12 @@ export function PathScreen({ completedLessonIds, hearts, xp, streak, audience, o
 }
 
 function SectionBlock({
-  section, nodeStatus, onSelectLesson,
+  section, nodeStatus, onSelectLesson, lang,
 }: {
   section: DuoSection;
   nodeStatus: (id: string) => NodeStatus;
   onSelectLesson: (id: string) => void;
+  lang: LangCode;
 }) {
   return (
     <View style={pS.section}>
@@ -127,6 +140,7 @@ function SectionBlock({
           unit={unit}
           nodeStatus={nodeStatus}
           onSelectLesson={onSelectLesson}
+          lang={lang}
         />
       ))}
     </View>
@@ -134,11 +148,12 @@ function SectionBlock({
 }
 
 function UnitBlock({
-  unit, nodeStatus, onSelectLesson,
+  unit, nodeStatus, onSelectLesson, lang,
 }: {
   unit: DuoUnit;
   nodeStatus: (id: string) => NodeStatus;
   onSelectLesson: (id: string) => void;
+  lang: LangCode;
 }) {
   const doneCount = unit.lessons.filter(l => nodeStatus(l.id) === "done").length;
   return (
@@ -146,9 +161,9 @@ function UnitBlock({
       {/* Unit header sticker */}
       <View style={[pS.unitHeader, { backgroundColor: unit.color }]}>
         <View style={{ flex: 1 }}>
-          <Text style={pS.unitNo}>UNIT {unit.no} · {unit.title.toUpperCase()}</Text>
+          <Text style={pS.unitNo}>{pathUi("unit", lang)} {unit.no} · {unit.title.toUpperCase()}</Text>
           <Text style={pS.unitTitle}>{unit.subtitle}</Text>
-          <Text style={pS.unitMeta}>{doneCount}/{unit.lessons.length} ders tamam</Text>
+          <Text style={pS.unitMeta}>{doneCount}/{unit.lessons.length} {pathUi("lessonsDone", lang)}</Text>
         </View>
         <Text style={pS.unitEmoji}>{unit.emoji}</Text>
       </View>
@@ -165,6 +180,7 @@ function UnitBlock({
               status={status}
               offset={offset}
               onPress={() => onSelectLesson(lesson.id)}
+              lang={lang}
             />
           );
         })}
@@ -174,13 +190,14 @@ function UnitBlock({
 }
 
 function PathNode({
-  lesson, unitColor, status, offset, onPress,
+  lesson, unitColor, status, offset, onPress, lang,
 }: {
   lesson: DuoLesson;
   unitColor: string;
   status: NodeStatus;
   offset: number;
   onPress: () => void;
+  lang: LangCode;
 }) {
   // Aktif düğüm sallanma animasyonu
   const bounce = useSharedValue(0);
@@ -213,7 +230,7 @@ function PathNode({
       <Animated.View style={[animStyle]}>
         {status === "active" && (
           <View style={pS.startBadge}>
-            <Text style={pS.startBadgeTxt}>BAŞLA</Text>
+            <Text style={pS.startBadgeTxt}>{pathUi("start", lang)}</Text>
             <View style={pS.startArrow} />
           </View>
         )}

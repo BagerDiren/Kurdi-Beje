@@ -35,6 +35,37 @@ import { DUO, DUO_RADIUS, DUO_SPACING, DUO_TYPO } from "./duo-tokens";
 import {
   type DuoLesson, type Exercise, shuffle,
 } from "@/data/duo-content";
+import { tx, txArr } from "@/data/duo-translations";
+import { useApp } from "@/data/app-context";
+import type { LangCode } from "@/data/languages";
+
+/** Lokalize string promp metinleri (3 dilde) */
+const UI_STR = {
+  enterPrompt:    { tr: "Bu cümleyi çevir",          en: "Translate this sentence",     ku: "Vê hevokê wergerîne" },
+  enterPromptKu:  { tr: "Bu cümleyi çevir (Kürtçeye)", en: "Translate to Kurmancî",       ku: "Wergerîne Kurmancî" },
+  listenPrompt:   { tr: "Duyduğunu yaz",              en: "Type what you hear",           ku: "Ya tu dibihîzî binivîse" },
+  match:          { tr: "Eşleştir",                   en: "Match the pairs",              ku: "Berhevberî bike" },
+  fillBlank:      { tr: "Boşluğu doldur",              en: "Fill in the blank",            ku: "Valahiyê tijî bike" },
+  whichOne:       { tr: "Hangisi",                    en: "Which one is",                 ku: "Kîjan e" },
+  newWord:        { tr: "YENİ KELİME",                en: "NEW WORD",                     ku: "PEYVA NÛ" },
+  iGotIt:         { tr: "ANLADIM",                    en: "I GOT IT",                     ku: "FÊM KIR" },
+  cont:           { tr: "DEVAM",                      en: "CONTINUE",                     ku: "BERDEWAM" },
+  check:          { tr: "KONTROL ET",                 en: "CHECK",                        ku: "KONTROL BIKE" },
+  great:          { tr: "Süpersin!",                  en: "Great job!",                   ku: "Pir baş!" },
+  correctAns:     { tr: "Doğru cevap:",               en: "Correct answer:",              ku: "Bersîva rast:" },
+  emptyHint:      { tr: "Aşağıdan kelimelere dokun...", en: "Tap words below...",        ku: "Li ser peyvan bitikîne..." },
+  noHearts:       { tr: "Tüm canların bitti!",        en: "You're out of hearts!",        ku: "Hemû dilên te qediyan!" },
+  tryLater:       { tr: "Daha sonra tekrar dene.",    en: "Try again later.",             ku: "Paşê dîsa biceribîne." },
+  perfect:        { tr: "MÜKEMMEL!",                  en: "PERFECT!",                     ku: "BÊKÊMASÎ!" },
+  lessonComplete: { tr: "Ders Bitti!",                en: "Lesson Complete!",             ku: "Ders Qediya!" },
+  perfectSub:     { tr: "Hatasız bitirdin",           en: "Finished without errors",      ku: "Te bê xelet qedand" },
+  niceSub:        { tr: "Aferin, devam et",           en: "Nice work, keep going",        ku: "Bilîz, berdewam be" },
+  totalXp:        { tr: "TOPLAM XP",                  en: "TOTAL XP",                     ku: "TOPLAM XP" },
+  bonus:          { tr: "BONUS",                      en: "BONUS",                        ku: "BONUS" },
+  goOn:           { tr: "DEVAM ET",                   en: "CONTINUE",                     ku: "BERDEWAM" },
+} as const;
+
+const ui = (k: keyof typeof UI_STR, lang: LangCode): string => UI_STR[k][lang];
 
 const { width: SW } = Dimensions.get("window");
 
@@ -78,11 +109,12 @@ const topS = StyleSheet.create({
 // =====================================================================
 
 function FeedbackBar({
-  state, correctAnswer, onContinue,
+  state, correctAnswer, onContinue, lang,
 }: {
   state: "idle" | "correct" | "wrong";
   correctAnswer?: string;
   onContinue: () => void;
+  lang: LangCode;
 }) {
   if (state === "idle") return null;
   const isCorrect = state === "correct";
@@ -97,15 +129,15 @@ function FeedbackBar({
         </View>
         <View style={{ flex: 1 }}>
           <Text style={[fbS.title, { color: fg }]}>
-            {isCorrect ? "Süpersin!" : "Doğru cevap:"}
+            {isCorrect ? ui("great", lang) : ui("correctAns", lang)}
           </Text>
           {!isCorrect && correctAnswer && (
-            <Text style={[fbS.correctTxt, { color: fg }]}>{correctAnswer}</Text>
+            <Text style={[fbS.correctTxt, { color: fg }]}>{tx(lang, correctAnswer)}</Text>
           )}
         </View>
       </View>
       <DuoButton
-        label="DEVAM"
+        label={ui("cont", lang)}
         variant={isCorrect ? "green" : "red"}
         onPress={onContinue}
       />
@@ -129,30 +161,30 @@ const fbS = StyleSheet.create({
 //  EX 1: NEW WORD INTRO
 // =====================================================================
 
-function NewWordSlide({ ex, onContinue }: { ex: Extract<Exercise, { type: "new-word" }>; onContinue: () => void }) {
+function NewWordSlide({ ex, onContinue, lang }: { ex: Extract<Exercise, { type: "new-word" }>; onContinue: () => void; lang: LangCode }) {
   return (
     <View style={nwS.wrap}>
-      <Text style={nwS.label}>YENİ KELİME</Text>
+      <Text style={nwS.label}>{ui("newWord", lang)}</Text>
       <View style={nwS.card}>
         <Text style={nwS.emoji}>{ex.emoji}</Text>
         <Text style={nwS.ku}>{ex.ku}</Text>
-        <Text style={nwS.tr}>{ex.tr}</Text>
+        <Text style={nwS.tr}>{tx(lang, ex.tr)}</Text>
         <Pressable
           onPress={() => speakKurmanci(ex.ku, "kid")}
           style={nwS.listenBtn}
         >
-          <Text style={nwS.listenTxt}>🔊 Dinle</Text>
+          <Text style={nwS.listenTxt}>🔊 {lang === "en" ? "Listen" : lang === "ku" ? "Bibihîze" : "Dinle"}</Text>
         </Pressable>
         {ex.sample && (
           <View style={nwS.sample}>
             <Text style={nwS.sampleKu}>"{ex.sample.ku}"</Text>
-            <Text style={nwS.sampleTr}>{ex.sample.tr}</Text>
+            <Text style={nwS.sampleTr}>{tx(lang, ex.sample.tr)}</Text>
           </View>
         )}
       </View>
       <View style={{ flex: 1 }} />
       <View style={{ padding: DUO_SPACING.lg, paddingBottom: 28 }}>
-        <DuoButton label="ANLADIM" onPress={onContinue} />
+        <DuoButton label={ui("iGotIt", lang)} onPress={onContinue} />
       </View>
     </View>
   );
@@ -196,14 +228,15 @@ const nwS = StyleSheet.create({
 // =====================================================================
 
 function WordBankExercise({
-  prompt, hint, words, correctSentence, audioKu, onResult,
+  prompt, hint, words, correctSentence, audioKu, onResult, lang,
 }: {
   prompt: string;
   hint?: string;
   words: string[];
   correctSentence: string;
-  audioKu?: string;       // varsa otomatik oynat ve büyük buton göster
+  audioKu?: string;
   onResult: (ok: boolean) => void;
+  lang: LangCode;
 }) {
   const [picked, setPicked] = useState<string[]>([]);
   const [bank, setBank] = useState<string[]>(() => shuffle(words));
@@ -254,7 +287,7 @@ function WordBankExercise({
       <View style={wbS.pickedRow}>
         <View style={wbS.pickedLine} />
         {picked.length === 0 ? (
-          <Text style={wbS.empty}>Aşağıdan kelimelere dokun...</Text>
+          <Text style={wbS.empty}>{ui("emptyHint", lang)}</Text>
         ) : (
           <View style={wbS.chipsWrap}>
             {picked.map((w, i) => (
@@ -275,7 +308,7 @@ function WordBankExercise({
 
       <View style={{ padding: DUO_SPACING.lg, paddingBottom: 28 }}>
         <DuoButton
-          label={picked.length === 0 ? "DEVAM" : "KONTROL ET"}
+          label={picked.length === 0 ? ui("cont", lang) : ui("check", lang)}
           variant={picked.length === 0 ? "outline" : "green"}
           disabled={picked.length === 0}
           onPress={check}
@@ -315,7 +348,7 @@ const wbS = StyleSheet.create({
 //  EX 5: MATCH PAIRS — 4 KU + 4 TR çiftle
 // =====================================================================
 
-function MatchPairs({ pairs, onResult }: { pairs: { ku: string; tr: string }[]; onResult: (ok: boolean) => void }) {
+function MatchPairs({ pairs, onResult, lang }: { pairs: { ku: string; tr: string }[]; onResult: (ok: boolean) => void; lang: LangCode }) {
   const [leftSel, setLeftSel] = useState<number | null>(null);
   const [rightSel, setRightSel] = useState<number | null>(null);
   const [matched, setMatched] = useState<Set<number>>(new Set());
@@ -366,7 +399,7 @@ function MatchPairs({ pairs, onResult }: { pairs: { ku: string; tr: string }[]; 
 
   return (
     <View style={mpS.wrap}>
-      <Text style={mpS.title}>Eşleştir</Text>
+      <Text style={mpS.title}>{ui("match", lang)}</Text>
       <View style={mpS.row}>
         <View style={mpS.col}>
           {leftItems.map((it) => {
@@ -394,7 +427,7 @@ function MatchPairs({ pairs, onResult }: { pairs: { ku: string; tr: string }[]; 
             return (
               <DuoChip
                 key={`r-${it.origIdx}`}
-                label={it.tr}
+                label={tx(lang, it.tr)}
                 onPress={() => tap("r", it.origIdx)}
                 selected={isSelected}
                 correct={isMatched}
@@ -422,10 +455,11 @@ const mpS = StyleSheet.create({
 // =====================================================================
 
 function SelectImage({
-  ex, onResult,
+  ex, onResult, lang,
 }: {
   ex: Extract<Exercise, { type: "select-image" }>;
   onResult: (ok: boolean) => void;
+  lang: LangCode;
 }) {
   const [picked, setPicked] = useState<number | null>(null);
 
@@ -445,7 +479,7 @@ function SelectImage({
 
   return (
     <View style={siS.wrap}>
-      <Text style={siS.title}>Hangisi "{ex.ku}"?</Text>
+      <Text style={siS.title}>{ui("whichOne", lang)} "{ex.ku}"?</Text>
       <Pressable
         onPress={() => speakKurmanci(ex.ku, "kid")}
         style={siS.audioBtn}
@@ -472,7 +506,7 @@ function SelectImage({
               }]}
             >
               <Text style={siS.tileEmoji}>{opt.emoji}</Text>
-              <Text style={siS.tileLabel}>{opt.tr}</Text>
+              <Text style={siS.tileLabel}>{tx(lang, opt.tr)}</Text>
             </Pressable>
           );
         })}
@@ -513,10 +547,11 @@ const siS = StyleSheet.create({
 // =====================================================================
 
 function FillBlank({
-  ex, onResult,
+  ex, onResult, lang,
 }: {
   ex: Extract<Exercise, { type: "fill-blank" }>;
   onResult: (ok: boolean) => void;
+  lang: LangCode;
 }) {
   const [picked, setPicked] = useState<number | null>(null);
   const shuffledOpts = useMemo(() => {
@@ -532,8 +567,8 @@ function FillBlank({
 
   return (
     <View style={fbExS.wrap}>
-      <Text style={fbExS.title}>Boşluğu doldur</Text>
-      <Text style={fbExS.hint}>"{ex.trHint}"</Text>
+      <Text style={fbExS.title}>{ui("fillBlank", lang)}</Text>
+      <Text style={fbExS.hint}>"{tx(lang, ex.trHint)}"</Text>
       <View style={fbExS.sentence}>
         <Text style={fbExS.sentTxt}>{ex.sentenceParts[0]}</Text>
         <View style={fbExS.blank}>
@@ -597,6 +632,9 @@ type Props = {
 };
 
 export function LessonPlayer({ lesson, onClose, onComplete }: Props) {
+  const ctx = useApp();
+  const lang: LangCode = (ctx.lang as LangCode) ?? "tr";
+
   const [queue, setQueue] = useState<Exercise[]>(lesson.exercises);
   const [completed, setCompleted] = useState(0);
   const [hearts, setHearts] = useState(5);
@@ -610,10 +648,10 @@ export function LessonPlayer({ lesson, onClose, onComplete }: Props) {
     return (
       <View style={dontS.wrap}>
         <Text style={{ fontSize: 80 }}>💔</Text>
-        <Text style={dontS.title}>Tüm canların bitti!</Text>
-        <Text style={dontS.sub}>Daha sonra tekrar dene.</Text>
+        <Text style={dontS.title}>{ui("noHearts", lang)}</Text>
+        <Text style={dontS.sub}>{ui("tryLater", lang)}</Text>
         <View style={{ width: "80%", marginTop: DUO_SPACING.xl }}>
-          <DuoButton label="DEVAM" onPress={onClose} />
+          <DuoButton label={ui("cont", lang)} onPress={onClose} />
         </View>
       </View>
     );
@@ -636,9 +674,7 @@ export function LessonPlayer({ lesson, onClose, onComplete }: Props) {
       setHearts(h => h - 1);
       setPerfect(false);
       setAnswerState("wrong");
-      // Yanlış soruyu tekrar listeye ekle (Duolingo'nun yapısı)
       setQueue(q => [...q, currentEx]);
-      // Doğru cevabı feedback için tut
       const correctAns =
         currentEx.type === "translate-ku-tr" ? currentEx.sentenceTr :
         currentEx.type === "translate-tr-ku" ? currentEx.sentenceKu :
@@ -659,22 +695,26 @@ export function LessonPlayer({ lesson, onClose, onComplete }: Props) {
   // === EGZERSİZ RENDER ===
   let body: React.ReactNode = null;
   if (currentEx.type === "new-word") {
-    body = <NewWordSlide ex={currentEx} onContinue={handleContinue} />;
+    body = <NewWordSlide ex={currentEx} onContinue={handleContinue} lang={lang} />;
   } else if (currentEx.type === "translate-ku-tr") {
+    // KU → kullanıcı dili: word bank UI dilinde gösterilsin (TR'yi EN'e çevir)
     body = (
       <WordBankExercise
-        prompt="Bu cümleyi çevir"
+        lang={lang}
+        prompt={ui("enterPrompt", lang)}
         hint={currentEx.sentenceKu}
-        words={currentEx.words}
-        correctSentence={currentEx.sentenceTr}
+        words={txArr(lang, currentEx.words)}
+        correctSentence={tx(lang, currentEx.sentenceTr)}
         onResult={handleResult}
       />
     );
   } else if (currentEx.type === "translate-tr-ku") {
+    // Kullanıcı dili → KU: hint çevrilsin, word bank KU olarak kalır
     body = (
       <WordBankExercise
-        prompt="Bu cümleyi çevir (Kürtçeye)"
-        hint={currentEx.sentenceTr}
+        lang={lang}
+        prompt={ui("enterPromptKu", lang)}
+        hint={tx(lang, currentEx.sentenceTr)}
         words={currentEx.words}
         correctSentence={currentEx.sentenceKu}
         onResult={handleResult}
@@ -683,8 +723,9 @@ export function LessonPlayer({ lesson, onClose, onComplete }: Props) {
   } else if (currentEx.type === "tap-audio") {
     body = (
       <WordBankExercise
-        prompt="Duyduğunu yaz"
-        hint={currentEx.trHint}
+        lang={lang}
+        prompt={ui("listenPrompt", lang)}
+        hint={currentEx.trHint ? tx(lang, currentEx.trHint) : undefined}
         words={currentEx.words}
         correctSentence={currentEx.words.join(" ")}
         audioKu={currentEx.audioKu}
@@ -692,18 +733,18 @@ export function LessonPlayer({ lesson, onClose, onComplete }: Props) {
       />
     );
   } else if (currentEx.type === "match-pairs") {
-    body = <MatchPairs pairs={currentEx.pairs} onResult={handleResult} />;
+    body = <MatchPairs pairs={currentEx.pairs} onResult={handleResult} lang={lang} />;
   } else if (currentEx.type === "select-image") {
-    body = <SelectImage ex={currentEx} onResult={handleResult} />;
+    body = <SelectImage ex={currentEx} onResult={handleResult} lang={lang} />;
   } else if (currentEx.type === "fill-blank") {
-    body = <FillBlank ex={currentEx} onResult={handleResult} />;
+    body = <FillBlank ex={currentEx} onResult={handleResult} lang={lang} />;
   }
 
   return (
     <View style={mainS.root}>
       <TopBar progress={progress} hearts={hearts} onClose={onClose} />
       <View style={{ flex: 1 }}>{body}</View>
-      <FeedbackBar state={answerState} correctAnswer={lastCorrectAnswer} onContinue={handleContinue} />
+      <FeedbackBar state={answerState} correctAnswer={lastCorrectAnswer} onContinue={handleContinue} lang={lang} />
     </View>
   );
 }
@@ -729,16 +770,18 @@ export function LessonComplete({
   perfect: boolean;
   onHome: () => void;
 }) {
+  const ctx = useApp();
+  const lang: LangCode = (ctx.lang as LangCode) ?? "tr";
   return (
     <View style={cS.wrap}>
       <Confetti visible count={50} duration={2200} />
       <Text style={cS.bigEmoji}>{perfect ? "🏆" : "🎉"}</Text>
-      <Text style={cS.title}>{perfect ? "MÜKEMMEL!" : "Lesson Complete!"}</Text>
-      <Text style={cS.sub}>{perfect ? "Hatasız bitirdin" : "Aferin, devam et"}</Text>
+      <Text style={cS.title}>{perfect ? ui("perfect", lang) : ui("lessonComplete", lang)}</Text>
+      <Text style={cS.sub}>{perfect ? ui("perfectSub", lang) : ui("niceSub", lang)}</Text>
 
       <View style={cS.xpRow}>
         <View style={cS.xpBox}>
-          <Text style={cS.xpLabel}>TOPLAM XP</Text>
+          <Text style={cS.xpLabel}>{ui("totalXp", lang)}</Text>
           <View style={cS.xpVal}>
             <Text style={cS.xpEmoji}>⚡</Text>
             <Text style={cS.xpNum}>{xp}</Text>
@@ -746,7 +789,7 @@ export function LessonComplete({
         </View>
         {perfect && (
           <View style={[cS.xpBox, { backgroundColor: DUO.bee }]}>
-            <Text style={[cS.xpLabel, { color: DUO.eel }]}>BONUS</Text>
+            <Text style={[cS.xpLabel, { color: DUO.eel }]}>{ui("bonus", lang)}</Text>
             <View style={cS.xpVal}>
               <Text style={cS.xpEmoji}>🏆</Text>
               <Text style={[cS.xpNum, { color: DUO.eel }]}>+5</Text>
@@ -756,7 +799,7 @@ export function LessonComplete({
       </View>
 
       <View style={{ width: "100%", padding: DUO_SPACING.lg, paddingBottom: 28 }}>
-        <DuoButton label="DEVAM ET" onPress={onHome} />
+        <DuoButton label={ui("goOn", lang)} onPress={onHome} />
       </View>
     </View>
   );

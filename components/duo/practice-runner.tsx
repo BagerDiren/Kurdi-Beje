@@ -15,6 +15,26 @@ import { DUO, DUO_RADIUS, DUO_SPACING, DUO_TYPO } from "./duo-tokens";
 import { DuoButton, DuoChip } from "./duo-button";
 import type { Exercise } from "@/data/duo-content";
 import { shuffle } from "@/data/duo-content";
+import { tx, txArr } from "@/data/duo-translations";
+import { useApp } from "@/data/app-context";
+import type { LangCode } from "@/data/languages";
+
+const PR_UI = {
+  match:        { tr: "Eşleştir",       en: "Match the pairs",     ku: "Berhevberî" },
+  fillBlank:    { tr: "Boşluğu doldur",  en: "Fill in the blank",   ku: "Valahiyê tijî bike" },
+  whichIs:      { tr: "Hangisi",        en: "Which one is",         ku: "Kîjan e" },
+  toUi:         { tr: "Türkçeye çevir", en: "Translate to English", ku: "Wergerîne" },
+  toKu:         { tr: "Kürtçeye çevir",  en: "Translate to Kurmancî", ku: "Wergerîne Kurmancî" },
+  listenWrite:  { tr: "Duyduğunu yaz",   en: "Type what you hear",   ku: "Ya tu dibihîzî binivîse" },
+  empty:        { tr: "Aşağıdan kelimelere dokun...", en: "Tap words below...", ku: "Li ser peyvan bitikîne..." },
+  check:        { tr: "KONTROL ET",      en: "CHECK",                ku: "KONTROL BIKE" },
+  cont:         { tr: "DEVAM",           en: "CONTINUE",             ku: "BERDEWAM" },
+  done:         { tr: "Bitti!",          en: "Complete!",            ku: "Qediya!" },
+  correct:      { tr: "doğru",           en: "correct",              ku: "rast" },
+  pickPlease:   { tr: "Doğru!",          en: "Correct!",             ku: "Rast!" },
+  wrong:        { tr: "Yanlış",          en: "Wrong",                ku: "Şaş" },
+} as const;
+const pui = (k: keyof typeof PR_UI, lang: LangCode) => PR_UI[k][lang];
 
 type Props = {
   title: string;
@@ -26,6 +46,8 @@ type Props = {
 };
 
 export function PracticeRunner({ title, subTitle, exercises, themeColor, onClose, onComplete }: Props) {
+  const ctx = useApp();
+  const lang: LangCode = (ctx.lang as LangCode) ?? "tr";
   const [idx, setIdx] = useState(0);
   const [score, setScore] = useState(0);
   const [phase, setPhase] = useState<"playing" | "done">("playing");
@@ -48,13 +70,13 @@ export function PracticeRunner({ title, subTitle, exercises, themeColor, onClose
       <View style={s.completeWrap}>
         <Confetti visible count={40} duration={2000} />
         <Text style={s.completeBig}>🎯</Text>
-        <Text style={[s.completeTitle, { color: themeColor }]}>{title} Bitti!</Text>
-        <Text style={s.completeSub}>{score / 10}/{total} doğru</Text>
+        <Text style={[s.completeTitle, { color: themeColor }]}>{title} {pui("done", lang)}</Text>
+        <Text style={s.completeSub}>{score / 10}/{total} {pui("correct", lang)}</Text>
         <View style={[s.xpBadge, { backgroundColor: themeColor }]}>
           <Text style={s.xpBadgeTxt}>+{score} XP</Text>
         </View>
         <View style={{ width: "80%", marginTop: DUO_SPACING.xl }}>
-          <DuoButton label="DEVAM" onPress={onClose} />
+          <DuoButton label={pui("cont", lang)} onPress={onClose} />
         </View>
       </View>
     );
@@ -82,13 +104,13 @@ export function PracticeRunner({ title, subTitle, exercises, themeColor, onClose
       </View>
 
       <View style={s.body}>
-        <ExerciseView ex={ex} onResult={next} />
+        <ExerciseView ex={ex} onResult={next} lang={lang} />
       </View>
 
       {feedback !== "idle" && (
         <View style={[s.feedback, { backgroundColor: feedback === "correct" ? "#D7FFB8" : "#FFDFE0" }]}>
           <Text style={[s.feedbackTxt, { color: feedback === "correct" ? DUO.treeGreen : DUO.cardinalDark }]}>
-            {feedback === "correct" ? "✓ Doğru!" : "✕ Yanlış"}
+            {feedback === "correct" ? `✓ ${pui("pickPlease", lang)}` : `✕ ${pui("wrong", lang)}`}
           </Text>
         </View>
       )}
@@ -100,25 +122,25 @@ export function PracticeRunner({ title, subTitle, exercises, themeColor, onClose
 //  Egzersiz görünümleri (sadeleştirilmiş — pratik için)
 // =====================================================================
 
-function ExerciseView({ ex, onResult }: { ex: Exercise; onResult: (ok: boolean) => void }) {
-  if (ex.type === "match-pairs") return <MatchEx ex={ex} onResult={onResult} />;
-  if (ex.type === "select-image") return <SelectEx ex={ex} onResult={onResult} />;
-  if (ex.type === "fill-blank") return <FillEx ex={ex} onResult={onResult} />;
-  if (ex.type === "translate-tr-ku") return <TranslateEx ex={ex} dir="tr-ku" onResult={onResult} />;
-  if (ex.type === "translate-ku-tr") return <TranslateEx ex={ex} dir="ku-tr" onResult={onResult} />;
-  if (ex.type === "tap-audio") return <TapAudioEx ex={ex} onResult={onResult} />;
+function ExerciseView({ ex, onResult, lang }: { ex: Exercise; onResult: (ok: boolean) => void; lang: LangCode }) {
+  if (ex.type === "match-pairs") return <MatchEx ex={ex} onResult={onResult} lang={lang} />;
+  if (ex.type === "select-image") return <SelectEx ex={ex} onResult={onResult} lang={lang} />;
+  if (ex.type === "fill-blank") return <FillEx ex={ex} onResult={onResult} lang={lang} />;
+  if (ex.type === "translate-tr-ku") return <TranslateEx ex={ex} dir="tr-ku" onResult={onResult} lang={lang} />;
+  if (ex.type === "translate-ku-tr") return <TranslateEx ex={ex} dir="ku-tr" onResult={onResult} lang={lang} />;
+  if (ex.type === "tap-audio") return <TapAudioEx ex={ex} onResult={onResult} lang={lang} />;
   // Yeni kelime intro
   if (ex.type === "new-word") {
     return (
       <View style={s.newWordWrap}>
         <Text style={s.newWordEmoji}>{ex.emoji}</Text>
         <Text style={s.newWordKu}>{ex.ku}</Text>
-        <Text style={s.newWordTr}>{ex.tr}</Text>
+        <Text style={s.newWordTr}>{tx(lang, ex.tr)}</Text>
         <Pressable onPress={() => speakKurmanci(ex.ku, "kid")} style={s.audioMini}>
           <Text style={{ fontSize: 22 }}>🔊</Text>
         </Pressable>
         <View style={{ width: "100%", marginTop: DUO_SPACING.xl }}>
-          <DuoButton label="DEVAM" onPress={() => onResult(true)} />
+          <DuoButton label={pui("cont", lang)} onPress={() => onResult(true)} />
         </View>
       </View>
     );
@@ -126,7 +148,7 @@ function ExerciseView({ ex, onResult }: { ex: Exercise; onResult: (ok: boolean) 
   return null;
 }
 
-function MatchEx({ ex, onResult }: { ex: Extract<Exercise, { type: "match-pairs" }>; onResult: (ok: boolean) => void }) {
+function MatchEx({ ex, onResult, lang }: { ex: Extract<Exercise, { type: "match-pairs" }>; onResult: (ok: boolean) => void; lang: LangCode }) {
   const [leftSel, setLeftSel] = useState<number | null>(null);
   const [rightSel, setRightSel] = useState<number | null>(null);
   const [matched, setMatched] = useState<Set<number>>(new Set());
@@ -158,7 +180,7 @@ function MatchEx({ ex, onResult }: { ex: Extract<Exercise, { type: "match-pairs"
 
   return (
     <View>
-      <Text style={s.exTitle}>Eşleştir</Text>
+      <Text style={s.exTitle}>{pui("match", lang)}</Text>
       <View style={{ flexDirection: "row", gap: DUO_SPACING.md, marginTop: DUO_SPACING.md }}>
         <View style={{ flex: 1, gap: DUO_SPACING.sm }}>
           {left.map((it) => (
@@ -176,7 +198,7 @@ function MatchEx({ ex, onResult }: { ex: Extract<Exercise, { type: "match-pairs"
           {right.map((it) => (
             <DuoChip
               key={`r-${it.origIdx}`}
-              label={it.tr}
+              label={tx(lang, it.tr)}
               onPress={() => tap("r", it.origIdx)}
               selected={rightSel === it.origIdx}
               correct={matched.has(it.origIdx)}
@@ -189,7 +211,7 @@ function MatchEx({ ex, onResult }: { ex: Extract<Exercise, { type: "match-pairs"
   );
 }
 
-function SelectEx({ ex, onResult }: { ex: Extract<Exercise, { type: "select-image" }>; onResult: (ok: boolean) => void }) {
+function SelectEx({ ex, onResult, lang }: { ex: Extract<Exercise, { type: "select-image" }>; onResult: (ok: boolean) => void; lang: LangCode }) {
   const [picked, setPicked] = useState<number | null>(null);
   const opts = useMemo(() => shuffle(ex.options.map((o, i) => ({ ...o, origIdx: i }))), [ex]);
 
@@ -202,7 +224,7 @@ function SelectEx({ ex, onResult }: { ex: Extract<Exercise, { type: "select-imag
 
   return (
     <View>
-      <Text style={s.exTitle}>Hangisi "{ex.ku}"?</Text>
+      <Text style={s.exTitle}>{pui("whichIs", lang)} "{ex.ku}"?</Text>
       <Pressable onPress={() => speakKurmanci(ex.ku, "kid")} style={s.bigAudio}>
         <Text style={{ fontSize: 28 }}>🔊 {ex.ku}</Text>
       </Pressable>
@@ -223,7 +245,7 @@ function SelectEx({ ex, onResult }: { ex: Extract<Exercise, { type: "select-imag
               ]}
             >
               <Text style={{ fontSize: 56 }}>{o.emoji}</Text>
-              <Text style={s.gridLabel}>{o.tr}</Text>
+              <Text style={s.gridLabel}>{tx(lang, o.tr)}</Text>
             </Pressable>
           );
         })}
@@ -232,7 +254,7 @@ function SelectEx({ ex, onResult }: { ex: Extract<Exercise, { type: "select-imag
   );
 }
 
-function FillEx({ ex, onResult }: { ex: Extract<Exercise, { type: "fill-blank" }>; onResult: (ok: boolean) => void }) {
+function FillEx({ ex, onResult, lang }: { ex: Extract<Exercise, { type: "fill-blank" }>; onResult: (ok: boolean) => void; lang: LangCode }) {
   const [picked, setPicked] = useState<number | null>(null);
   const opts = useMemo(() => shuffle(ex.options.map((w, i) => ({ word: w, origIdx: i }))), [ex]);
 
@@ -244,8 +266,8 @@ function FillEx({ ex, onResult }: { ex: Extract<Exercise, { type: "fill-blank" }
 
   return (
     <View>
-      <Text style={s.exTitle}>Boşluğu doldur</Text>
-      <Text style={s.exHint}>"{ex.trHint}"</Text>
+      <Text style={s.exTitle}>{pui("fillBlank", lang)}</Text>
+      <Text style={s.exHint}>"{tx(lang, ex.trHint)}"</Text>
       <View style={{ flexDirection: "row", flexWrap: "wrap", alignItems: "center", paddingHorizontal: DUO_SPACING.md }}>
         <Text style={s.sentencePart}>{ex.sentenceParts[0]}</Text>
         <View style={s.blankSlot}>
@@ -276,18 +298,21 @@ function FillEx({ ex, onResult }: { ex: Extract<Exercise, { type: "fill-blank" }
 }
 
 function TranslateEx({
-  ex, dir, onResult,
+  ex, dir, onResult, lang,
 }: {
   ex: Extract<Exercise, { type: "translate-ku-tr" | "translate-tr-ku" }>;
   dir: "ku-tr" | "tr-ku";
   onResult: (ok: boolean) => void;
+  lang: LangCode;
 }) {
-  const prompt = dir === "ku-tr" ? "Türkçeye çevir" : "Kürtçeye çevir";
-  const hint = dir === "ku-tr" ? ex.sentenceKu : ex.sentenceTr;
-  const correct = dir === "ku-tr" ? ex.sentenceTr : ex.sentenceKu;
+  const prompt = dir === "ku-tr" ? pui("toUi", lang) : pui("toKu", lang);
+  const hint = dir === "ku-tr" ? ex.sentenceKu : tx(lang, ex.sentenceTr);
+  const correct = dir === "ku-tr" ? tx(lang, ex.sentenceTr) : ex.sentenceKu;
+  // ku→ui: word bank UI dilinde; ui→ku: word bank KU olarak kalır
+  const bankWords = dir === "ku-tr" ? txArr(lang, ex.words) : ex.words;
 
   const [picked, setPicked] = useState<string[]>([]);
-  const [bank, setBank] = useState<string[]>(() => shuffle(ex.words));
+  const [bank, setBank] = useState<string[]>(() => shuffle(bankWords));
   const [done, setDone] = useState(false);
 
   const tapBank = (w: string, i: number) => {
@@ -314,7 +339,7 @@ function TranslateEx({
       <Text style={s.exHint}>"{hint}"</Text>
       <View style={s.pickedRow}>
         {picked.length === 0
-          ? <Text style={s.empty}>Aşağıdan kelimelere dokun...</Text>
+          ? <Text style={s.empty}>{pui("empty", lang)}</Text>
           : (
             <View style={s.chipsWrap}>
               {picked.map((w, i) => (
@@ -330,7 +355,7 @@ function TranslateEx({
       </View>
       <View style={{ paddingHorizontal: DUO_SPACING.md, marginTop: DUO_SPACING.lg }}>
         <DuoButton
-          label="KONTROL ET"
+          label={pui("check", lang)}
           variant={picked.length === 0 ? "outline" : "green"}
           disabled={picked.length === 0}
           onPress={check}
@@ -340,7 +365,7 @@ function TranslateEx({
   );
 }
 
-function TapAudioEx({ ex, onResult }: { ex: Extract<Exercise, { type: "tap-audio" }>; onResult: (ok: boolean) => void }) {
+function TapAudioEx({ ex, onResult, lang }: { ex: Extract<Exercise, { type: "tap-audio" }>; onResult: (ok: boolean) => void; lang: LangCode }) {
   // tap-audio bir tür translate — kelimeleri sırala
   const [picked, setPicked] = useState<string[]>([]);
   const [bank, setBank] = useState<string[]>(() => shuffle(ex.words));
@@ -348,14 +373,14 @@ function TapAudioEx({ ex, onResult }: { ex: Extract<Exercise, { type: "tap-audio
 
   return (
     <View>
-      <Text style={s.exTitle}>Duyduğunu yaz</Text>
+      <Text style={s.exTitle}>{pui("listenWrite", lang)}</Text>
       <Pressable onPress={() => speakKurmanci(ex.audioKu, "kid")} style={s.bigAudio}>
         <Text style={{ fontSize: 32 }}>🔊</Text>
       </Pressable>
-      {ex.trHint && <Text style={s.exHint}>"{ex.trHint}"</Text>}
+      {ex.trHint && <Text style={s.exHint}>"{tx(lang, ex.trHint)}"</Text>}
       <View style={s.pickedRow}>
         {picked.length === 0
-          ? <Text style={s.empty}>Aşağıdan kelimelere dokun...</Text>
+          ? <Text style={s.empty}>{pui("empty", lang)}</Text>
           : (
             <View style={s.chipsWrap}>
               {picked.map((w, i) => (
@@ -379,7 +404,7 @@ function TapAudioEx({ ex, onResult }: { ex: Extract<Exercise, { type: "tap-audio
       </View>
       <View style={{ paddingHorizontal: DUO_SPACING.md, marginTop: DUO_SPACING.lg }}>
         <DuoButton
-          label="KONTROL ET"
+          label={pui("check", lang)}
           variant={picked.length === 0 ? "outline" : "green"}
           disabled={picked.length === 0}
           onPress={() => {

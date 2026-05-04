@@ -81,9 +81,4 @@ export const T: Record<LangCode, Translations> = {
   ku: T_KU,
   tr: T_TR,
   en: T_EN,
-  ar: { ...T_EN },
-  fa: { ...T_EN },
-  fr: { ...T_EN },
-  sv: { ...T_EN },
-  ru: { ...T_EN },
 };
